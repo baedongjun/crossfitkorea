@@ -34,7 +34,8 @@ export default function SignupPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      const { passwordConfirm: _, ...requestData } = data;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { passwordConfirm, ...requestData } = data;
       const res = await authApi.signup(requestData);
       saveAuth(res.data.data);
       toast.success("회원가입이 완료되었습니다.");

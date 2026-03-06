@@ -15,7 +15,6 @@ import org.springframework.test.context.TestPropertySource;
     "spring.data.redis.host=localhost",
     "spring.data.redis.port=6379",
     "spring.data.redis.password=",
-    "spring.cache.type=none",
     "jwt.secret=test-secret-key-must-be-at-least-256-bits-long-for-hs256",
     "jwt.expiration=86400000",
     "jwt.refresh-expiration=604800000",

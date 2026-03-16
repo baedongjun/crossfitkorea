@@ -43,6 +43,14 @@ else
   exit 1
 fi
 
+# 시드 데이터 실행 (ON CONFLICT DO NOTHING 이므로 중복 실행 안전)
+SEED_FILE="$APP_DIR/seed.sql"
+if [ -f "$SEED_FILE" ]; then
+  echo "[5/5] 시드 데이터 실행..."
+  cat "$SEED_FILE" | $COMPOSE_CMD -f docker-compose.prod.yml exec -T postgres psql -U "$DB_USERNAME" -d "$DB_NAME"
+  echo "✓ 시드 데이터 완료"
+fi
+
 # 사용하지 않는 이미지 정리
 docker image prune -f
 

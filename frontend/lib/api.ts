@@ -243,6 +243,15 @@ export const communityApi = {
 
   deleteComment: (commentId: number) =>
     api.delete(`/api/v1/community/comments/${commentId}`),
+
+  reportPost: (id: number) =>
+    api.post(`/api/v1/community/posts/${id}/report`),
+};
+
+// Leaderboard API
+export const leaderboardApi = {
+  getLeaderboard: (date: string) =>
+    api.get("/api/v1/wod/records/leaderboard", { params: { date } }),
 };
 
 // WOD Record API
@@ -310,8 +319,8 @@ export const adminApi = {
   createCommonWod: (data: object) =>
     api.post("/api/v1/admin/wod", data),
 
-  getUsers: (page = 0) =>
-    api.get("/api/v1/admin/users", { params: { page } }),
+  getUsers: (page = 0, keyword?: string) =>
+    api.get("/api/v1/admin/users", { params: { page, keyword } }),
 
   toggleUserActive: (id: number, active: boolean) =>
     api.patch(`/api/v1/admin/users/${id}/active`, null, { params: { active } }),

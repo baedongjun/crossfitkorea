@@ -6,7 +6,9 @@ echo "===== CrossFit Korea 배포 시작 ====="
 
 # 환경변수 로드
 if [ -f /home/ubuntu/crossfitkorea/.env.prod ]; then
-  export $(grep -v '^#' /home/ubuntu/crossfitkorea/.env.prod | xargs)
+  set -o allexport
+  source /home/ubuntu/crossfitkorea/.env.prod
+  set +o allexport
 fi
 
 APP_DIR="/home/ubuntu/crossfitkorea"
@@ -47,8 +49,12 @@ fi
 SEED_FILE="$APP_DIR/seed.sql"
 if [ -f "$SEED_FILE" ]; then
   echo "[5/5] 시드 데이터 실행..."
-  cat "$SEED_FILE" | $COMPOSE_CMD -f docker-compose.prod.yml exec -T postgres psql -U "$DB_USERNAME" -d "$DB_NAME"
-  echo "✓ 시드 데이터 완료"
+  if docker exec crossfitkorea-postgres psql -U "$DB_USERNAME" -d "$DB_NAME" -f /dev/stdin < "$SEED_FILE"; then
+    echo "✓ 시드 데이터 완료"
+  else
+    echo "✗ 시드 데이터 실행 실패 (DB_USERNAME=$DB_USERNAME, DB_NAME=$DB_NAME)"
+    exit 1
+  fi
 fi
 
 # 사용하지 않는 이미지 정리

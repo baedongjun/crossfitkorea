@@ -93,6 +93,23 @@
 .likeBtn:hover { color: var(--red); border-color: var(--red); }
 .likeBtnActive { color: var(--red); border-color: var(--red); background: rgba(232,34,10,0.06); }
 
+.reportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  margin-left: auto;
+}
+.reportBtn:hover { color: #eab308; border-color: rgba(234,179,8,0.4); }
+.reportBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
 /* Comments */
 .commentsSection {
   background: var(--bg-card);

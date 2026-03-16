@@ -7,10 +7,22 @@ import { boxApi } from "@/lib/api";
 import { isLoggedIn } from "@/lib/auth";
 import s from "./BoxCard.module.css";
 
+function isOpenNow(openTime?: string, closeTime?: string): boolean | null {
+  if (!openTime || !closeTime) return null;
+  const now = new Date();
+  const [oh, om] = openTime.split(":").map(Number);
+  const [ch, cm] = closeTime.split(":").map(Number);
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const openMins = oh * 60 + om;
+  const closeMins = ch * 60 + cm;
+  return nowMins >= openMins && nowMins < closeMins;
+}
+
 export default function BoxCard({ box }: { box: Box }) {
   const img = box.imageUrls?.[0] || "";
   const [favorited, setFavorited] = useState(false);
   const [toggling, setToggling] = useState(false);
+  const openStatus = isOpenNow(box.openTime, box.closeTime);
 
   const handleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -41,6 +53,8 @@ export default function BoxCard({ box }: { box: Box }) {
         <div className={s.badges}>
           {box.premium  && <span className="badge badge-premium">PREMIUM</span>}
           {box.verified && <span className="badge badge-verified">인증</span>}
+          {openStatus === true  && <span className={s.openBadge}>영업중</span>}
+          {openStatus === false && <span className={s.closedBadge}>영업종료</span>}
         </div>
 
         {isLoggedIn() && (

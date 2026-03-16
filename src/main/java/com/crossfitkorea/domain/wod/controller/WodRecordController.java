@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -62,6 +63,15 @@ public class WodRecordController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
             wodRecordService.saveRecord(request, userDetails.getUsername())));
+    }
+
+    @Operation(summary = "특정 날짜 WOD 리더보드 (공개)")
+    @GetMapping("/leaderboard")
+    public ResponseEntity<ApiResponse<List<WodRecordDto>>> getLeaderboard(
+        @RequestParam(required = false) String date
+    ) {
+        LocalDate d = date != null ? LocalDate.parse(date) : LocalDate.now();
+        return ResponseEntity.ok(ApiResponse.success(wodRecordService.getLeaderboard(d)));
     }
 
     @Operation(summary = "WOD 기록 삭제")

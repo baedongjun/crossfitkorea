@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense, useEffect, useRef } from "react";
+import { useState, Suspense, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
 import { boxApi } from "@/lib/api";
@@ -22,6 +22,8 @@ function BoxesContent() {
   const [page, setPage] = useState(Number(searchParams.get("page") || "0"));
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(searchParams.get("verified") === "true");
   const [premiumOnly, setPremiumOnly] = useState(searchParams.get("premium") === "true");
   const [maxFee, setMaxFee] = useState(searchParams.get("maxFee") || "");
@@ -79,6 +81,29 @@ function BoxesContent() {
     },
   });
 
+  // 자동완성: 키워드가 2자 이상일 때 suggestions
+  const { data: suggestData } = useQuery({
+    queryKey: ["boxes", "suggest", keyword],
+    queryFn: async () => {
+      const res = await boxApi.search({ keyword, size: 5 });
+      return (res.data.data as Page<Box>).content || [];
+    },
+    enabled: keyword.length >= 2,
+  });
+
+  const suggestions: Box[] = keyword.length >= 2 ? (suggestData || []) : [];
+
+  // 외부 클릭 시 suggestions 닫기
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchWrapRef.current && !searchWrapRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const activeFilterCount = [verifiedOnly, premiumOnly, !!maxFee, !!minRating].filter(Boolean).length;
 
   const handleCityChange = (city: string) => {
@@ -92,7 +117,7 @@ function BoxesContent() {
       {/* Search Bar */}
       <div className={s.searchBar}>
         <div className={s.searchTop}>
-          <div className={s.searchInputWrap}>
+          <div className={s.searchInputWrap} ref={searchWrapRef} style={{ position: "relative" }}>
             <svg className={s.searchIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
             </svg>
@@ -100,9 +125,33 @@ function BoxesContent() {
               type="text"
               placeholder="박스 이름, 주소로 검색"
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={(e) => { setKeyword(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
               className={s.searchInput}
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <div className={s.suggestions}>
+                {suggestions.map((box) => (
+                  <button
+                    key={box.id}
+                    className={s.suggestionItem}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      setKeyword(box.name);
+                      setDebouncedKeyword(box.name);
+                      setShowSuggestions(false);
+                      syncUrl({ q: box.name });
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, color: "var(--muted)" }}>
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/>
+                    </svg>
+                    <span>{box.name}</span>
+                    <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: "auto" }}>{box.city}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <button
@@ -209,7 +258,7 @@ function BoxesContent() {
       {!isOwner && (
         <div className={s.ownerBanner}>
           <span className={s.ownerBannerText}>박스를 운영 중이신가요?</span>
-          <a href="/signup" className={s.ownerBannerLink}>무료로 등록하기 →</a>
+          <a href="/boxes/create" className={s.ownerBannerLink}>무료로 등록하기 →</a>
         </div>
       )}
 
@@ -252,7 +301,7 @@ function BoxesContent() {
                 <div className={s.registerBanner}>
                   <p className={s.registerBannerTitle}>이 지역에 박스를 운영 중이신가요?</p>
                   <p className={s.registerBannerDesc}>CrossFit Korea에 무료로 등록하고 더 많은 회원과 연결하세요.</p>
-                  <a href="/signup" className="btn-primary" style={{ display: "inline-block", marginTop: 16 }}>무료 등록하기</a>
+                  <a href="/boxes/create" className="btn-primary" style={{ display: "inline-block", marginTop: 16 }}>무료 등록하기</a>
                 </div>
               </div>
             ) : (

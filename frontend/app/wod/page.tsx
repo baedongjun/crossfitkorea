@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { wodApi, wodRecordApi } from "@/lib/api";
+import { wodApi, wodRecordApi, leaderboardApi } from "@/lib/api";
 import { Wod, WodRecord } from "@/types";
 import { isLoggedIn } from "@/lib/auth";
 import { toast } from "react-toastify";
@@ -79,6 +79,13 @@ export default function WodPage() {
     queryKey: ["wod", "record", "today"],
     queryFn: async () => (await wodRecordApi.getTodayRecord()).data.data as WodRecord | null,
     enabled: isLoggedIn(),
+  });
+
+  const todayDate = dayjs().format("YYYY-MM-DD");
+  const { data: leaderboard } = useQuery({
+    queryKey: ["wod", "leaderboard", todayDate],
+    queryFn: async () => (await leaderboardApi.getLeaderboard(todayDate)).data.data as WodRecord[],
+    enabled: !!todayWod,
   });
 
   const recordMutation = useMutation({
@@ -304,6 +311,23 @@ export default function WodPage() {
                 </div>
               </div>
             ) : null}
+          </div>
+        )}
+
+        {/* 오늘의 리더보드 */}
+        {todayWod && leaderboard && leaderboard.length > 0 && (
+          <div className={s.leaderboard}>
+            <p className={s.leaderboardTitle}>오늘의 리더보드</p>
+            <div className={s.leaderboardList}>
+              {leaderboard.slice(0, 10).map((rec, idx) => (
+                <div key={rec.id} className={`${s.leaderboardItem} ${idx === 0 ? s.leaderboardFirst : ""}`}>
+                  <span className={s.leaderboardRank}>{idx + 1}</span>
+                  <span className={s.leaderboardName}>{rec.userName}</span>
+                  {rec.rx && <span className={s.leaderboardRx}>RX</span>}
+                  <span className={s.leaderboardScore}>{rec.score || "—"}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

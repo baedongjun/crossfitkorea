@@ -127,6 +127,15 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.success(null));
     }
 
+    @Operation(summary = "게시글 신고")
+    @PostMapping("/posts/{id}/report")
+    public ResponseEntity<ApiResponse<PostDto>> reportPost(
+        @PathVariable Long id,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(postService.reportPost(id, userDetails.getUsername())));
+    }
+
     @Operation(summary = "댓글 작성")
     @PostMapping("/posts/{id}/comments")
     public ResponseEntity<ApiResponse<CommentDto>> createComment(

@@ -59,6 +59,11 @@ public class WodRecordService {
         return WodRecordDto.from(wodRecordRepository.save(record));
     }
 
+    public List<WodRecordDto> getLeaderboard(LocalDate date) {
+        return wodRecordRepository.findByWodDateOrderByScoreAsc(date)
+            .stream().map(WodRecordDto::from).toList();
+    }
+
     @Transactional
     public void deleteRecord(Long recordId, String email) {
         WodRecord record = wodRecordRepository.findById(recordId)

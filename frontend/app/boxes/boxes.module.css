@@ -45,6 +45,38 @@
 .searchInput:focus { border-color: var(--red); }
 .searchInput::placeholder { color: var(--muted); }
 
+/* Autocomplete Suggestions */
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 10px 16px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+.suggestionItem:last-child { border-bottom: none; }
+.suggestionItem:hover { background: var(--bg-card-2); }
+
 .viewToggle {
   display: flex;
   background: var(--bg-card);

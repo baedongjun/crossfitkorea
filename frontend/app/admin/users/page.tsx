@@ -24,12 +24,20 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default function AdminUsersPage() {
   const [page, setPage] = useState(0);
+  const [keyword, setKeyword] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["admin", "users", page],
-    queryFn: async () => (await adminApi.getUsers(page)).data.data,
+    queryKey: ["admin", "users", page, keyword],
+    queryFn: async () => (await adminApi.getUsers(page, keyword || undefined)).data.data,
   });
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setKeyword(searchInput);
+    setPage(0);
+  };
 
   const activeMutation = useMutation({
     mutationFn: ({ id, active }: { id: number; active: boolean }) =>
@@ -53,7 +61,22 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <h1 className={s.pageTitle}>회원 관리</h1>
+      <div className={s.pageHeader}>
+        <h1 className={s.pageTitle}>회원 관리</h1>
+        <form onSubmit={handleSearch} className={s.searchForm}>
+          <input
+            type="text"
+            className={s.searchInput}
+            placeholder="이름 또는 이메일 검색"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <button type="submit" className={s.searchBtn}>검색</button>
+          {keyword && (
+            <button type="button" className={s.searchClear} onClick={() => { setKeyword(""); setSearchInput(""); setPage(0); }}>✕ 초기화</button>
+          )}
+        </form>
+      </div>
 
       <div className={s.tableWrap}>
         <table className={s.table}>

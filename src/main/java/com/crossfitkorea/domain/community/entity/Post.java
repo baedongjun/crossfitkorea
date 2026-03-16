@@ -61,4 +61,13 @@ public class Post extends BaseEntity {
 
     @Builder.Default
     private boolean pinned = false;
+
+    @Builder.Default
+    private int reportCount = 0;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "post_reports", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "user_id")
+    @Builder.Default
+    private java.util.Set<Long> reportedUserIds = new java.util.HashSet<>();
 }

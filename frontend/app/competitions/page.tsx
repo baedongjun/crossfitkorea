@@ -74,26 +74,30 @@ export default function CompetitionsPage() {
   const [selectedCity, setSelectedCity] = useState("전체");
   const [selectedFee, setSelectedFee] = useState("ALL");
   const [sortBy, setSortBy] = useState("date_asc");
+  const [keyword, setKeyword] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["competitions", selectedStatus],
+    queryKey: ["competitions", selectedStatus, selectedCity],
     queryFn: async () => {
       const res = await competitionApi.getAll({
         status: selectedStatus === "ALL" ? undefined : selectedStatus,
+        city: selectedCity === "전체" ? undefined : selectedCity,
       });
       return res.data.data;
     },
   });
 
-  // Client-side filter by level, city, fee
+  // Client-side filter by level, fee, keyword
   const filtered = data?.content?.filter((comp: Competition) => {
     const levelMatch = selectedLevel === "ALL" || comp.level === selectedLevel;
-    const cityMatch = selectedCity === "전체" || comp.city === selectedCity || comp.location?.includes(selectedCity);
+    const cityMatch = true; // server-side now
+    const kwMatch = !keyword || comp.name?.toLowerCase().includes(keyword.toLowerCase()) || comp.location?.toLowerCase().includes(keyword.toLowerCase());
     const feeMatch =
       selectedFee === "ALL" ? true :
       selectedFee === "FREE" ? (!comp.entryFee || comp.entryFee === 0) :
       (comp.entryFee ?? 0) <= Number(selectedFee);
-    return levelMatch && cityMatch && feeMatch;
+    return levelMatch && cityMatch && feeMatch && kwMatch;
   })?.sort((a: Competition, b: Competition) => {
     if (sortBy === "date_asc") return dayjs(a.startDate).diff(dayjs(b.startDate));
     if (sortBy === "date_desc") return dayjs(b.startDate).diff(dayjs(a.startDate));
@@ -124,6 +128,24 @@ export default function CompetitionsPage() {
 
       {/* Content */}
       <div className={s.content}>
+        {/* Search */}
+        <form
+          className={s.searchBar}
+          onSubmit={(e) => { e.preventDefault(); setKeyword(searchInput); }}
+        >
+          <input
+            type="text"
+            className={s.searchInput}
+            placeholder="대회명 또는 장소 검색"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <button type="submit" className={s.searchBtn}>검색</button>
+          {keyword && (
+            <button type="button" className={s.searchClear} onClick={() => { setKeyword(""); setSearchInput(""); }}>✕</button>
+          )}
+        </form>
+
         {/* Status Filter */}
         <div className={s.filterGroup}>
           <span className={s.filterGroupLabel}>상태</span>

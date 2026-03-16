@@ -189,6 +189,12 @@ export default function PostDetailPage() {
     },
   });
 
+  const reportMutation = useMutation({
+    mutationFn: () => communityApi.reportPost(postId),
+    onSuccess: () => toast.success("신고가 접수되었습니다."),
+    onError: () => toast.error("신고 처리에 실패했습니다."),
+  });
+
   if (isLoading) return <div className={s.loading}>로딩 중...</div>;
   if (!post) return null;
 
@@ -255,6 +261,19 @@ export default function PostDetailPage() {
               </svg>
               좋아요 {post.likeCount}
             </button>
+            {isLoggedIn() && currentUser?.name !== post.userName && (
+              <button
+                className={s.reportBtn}
+                onClick={() => { if (confirm("이 게시글을 신고하시겠습니까?")) reportMutation.mutate(); }}
+                disabled={reportMutation.isPending || reportMutation.isSuccess}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                {reportMutation.isSuccess ? "신고됨" : "신고"}
+              </button>
+            )}
             {(currentUser?.name === post.userName || currentUser?.role === "ROLE_ADMIN") && (
               <>
                 <Link

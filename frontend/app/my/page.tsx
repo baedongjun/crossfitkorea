@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, communityApi, uploadApi } from "@/lib/api";
+import { userApi, communityApi, uploadApi, boxApi } from "@/lib/api";
 import { clearAuth } from "@/lib/auth";
 import { Review, Box } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
@@ -105,6 +105,15 @@ export default function MyPage() {
       toast.success("회원 탈퇴가 완료되었습니다.");
     },
     onError: () => toast.error("탈퇴 처리 중 오류가 발생했습니다."),
+  });
+
+  const deleteReviewMutation = useMutation({
+    mutationFn: (reviewId: number) => boxApi.deleteReview(reviewId),
+    onSuccess: () => {
+      toast.success("후기가 삭제되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["reviews", "mine"] });
+    },
+    onError: () => toast.error("삭제에 실패했습니다."),
   });
 
   const updateMutation = useMutation({
@@ -310,11 +319,24 @@ export default function MyPage() {
           {myReviews?.content?.length > 0 ? (
             <div className={s.postList}>
               {myReviews.content.slice(0, 10).map((review: Review) => (
-                <Link key={review.id} href={`/boxes/${review.boxId}`} className={s.postItem}>
-                  <span className={s.reviewStars}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>
-                  <span className={s.postTitle}>{review.content}</span>
-                  <span className={s.postDate}>{dayjs(review.createdAt).format("MM.DD")}</span>
-                </Link>
+                <div key={review.id} className={s.postItem} style={{ textDecoration: "none" }}>
+                  <Link href={`/boxes/${review.boxId}`} style={{ display: "contents", textDecoration: "none", color: "inherit" }}>
+                    <span className={s.reviewStars}>{"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}</span>
+                    <span className={s.postTitle}>{review.content}</span>
+                    <span className={s.postDate}>{dayjs(review.createdAt).format("MM.DD")}</span>
+                  </Link>
+                  <button
+                    className={s.deleteReviewBtn}
+                    onClick={() => { if (confirm("후기를 삭제하시겠습니까?")) deleteReviewMutation.mutate(review.id); }}
+                    disabled={deleteReviewMutation.isPending}
+                    title="삭제"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/>
+                      <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                    </svg>
+                  </button>
+                </div>
               ))}
             </div>
           ) : (
@@ -324,7 +346,10 @@ export default function MyPage() {
 
         {/* 즐겨찾기 */}
         <div className={s.postsCard}>
-          <p className={s.postsHeader}>즐겨찾기 박스</p>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <p className={s.postsHeader} style={{ margin: 0 }}>즐겨찾기 박스</p>
+            <Link href="/my/favorites" style={{ fontSize: 12, color: "var(--muted)", textDecoration: "none" }}>전체 보기 →</Link>
+          </div>
           {myFavorites?.content?.length > 0 ? (
             <div className={s.favoriteGrid}>
               {myFavorites.content.slice(0, 6).map((box: Box) => (

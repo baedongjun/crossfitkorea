@@ -1,0 +1,137 @@
+.page { padding-top: 64px; min-height: 100vh; }
+
+.inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 80px 80px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+.back:hover { color: var(--text); }
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+
+.skeleton {
+  height: 260px;
+  background: var(--bg-card);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s;
+  position: relative;
+}
+.card:hover { border-color: rgba(232,34,10,0.3); }
+
+.cardLink { text-decoration: none; color: inherit; display: flex; flex-direction: column; flex: 1; }
+
+.cardImg {
+  height: 160px;
+  overflow: hidden;
+  background: var(--bg);
+  position: relative;
+}
+.cardImg img { width: 100%; height: 100%; object-fit: cover; }
+.imgPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--border);
+}
+
+.cardBody { padding: 16px; }
+.cardName { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.cardAddr { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.cardMeta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.cardRating { font-size: 13px; color: #eab308; font-weight: 700; }
+.cardReviews { font-size: 12px; color: var(--muted); }
+.cardFee { font-size: 12px; color: var(--text); margin-left: auto; }
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  padding: 10px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.removeBtn:hover { color: var(--red); background: rgba(232,34,10,0.05); }
+.removeBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 24px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 40px;
+}
+.pageBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 20px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.pageBtn:hover:not(:disabled) { border-color: rgba(232,34,10,0.5); }
+.pageBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pageInfo { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 768px) {
+  .inner { padding: 24px; }
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
+}

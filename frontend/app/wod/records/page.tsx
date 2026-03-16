@@ -97,6 +97,19 @@ export default function WodRecordsPage() {
   const rxCount = records.filter((r) => r.rx).length;
   const rxRatio = records.length > 0 ? Math.round((rxCount / records.length) * 100) : 0;
 
+  // 연속 기록 스트릭 계산 (recentRecords 기반)
+  const streak = (() => {
+    if (!recentRecords || recentRecords.length === 0) return 0;
+    const dateSet = new Set((recentRecords as WodRecord[]).map((r) => r.wodDate));
+    let count = 0;
+    let d = dayjs();
+    while (dateSet.has(d.format("YYYY-MM-DD"))) {
+      count++;
+      d = d.subtract(1, "day");
+    }
+    return count;
+  })();
+
   // 캘린더: 이번 달 기록 맵
   const calRecordMap: Record<string, WodRecord> = {};
   (recentRecords || []).forEach((r) => { calRecordMap[r.wodDate] = r; });
@@ -186,6 +199,10 @@ export default function WodRecordsPage() {
             <div className={s.statItem}>
               <p className={s.statNum}>{rxRatio}<span style={{ fontSize: 14 }}>%</span></p>
               <p className={s.statLabel}>RX 비율</p>
+            </div>
+            <div className={s.statItem}>
+              <p className={s.statNum}>{streak}<span style={{ fontSize: 14 }}>일</span></p>
+              <p className={s.statLabel}>연속 출석</p>
             </div>
           </div>
         )}

@@ -8,11 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
+import java.util.List;
+
 public interface CompetitionRepository extends JpaRepository<Competition, Long> {
 
     Page<Competition> findByActiveTrueOrderByStartDateAsc(Pageable pageable);
 
     long countByActiveTrue();
+
+    List<Competition> findByActiveTrueAndStatusNot(CompetitionStatus status);
 
     @Query("SELECT c FROM Competition c WHERE c.active = true " +
            "AND (:status IS NULL OR c.status = :status) " +

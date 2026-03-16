@@ -194,6 +194,21 @@ public class PostService {
         return PostDto.from(post);
     }
 
+    @Transactional
+    public PostDto reportPost(Long id, String userEmail) {
+        Post post = findActivePost(id);
+        User user = userService.getUserByEmail(userEmail);
+        if (!post.getReportedUserIds().contains(user.getId())) {
+            post.getReportedUserIds().add(user.getId());
+            post.setReportCount(post.getReportCount() + 1);
+            // 신고 5회 이상이면 자동 블라인드 처리
+            if (post.getReportCount() >= 5) {
+                post.setActive(false);
+            }
+        }
+        return PostDto.from(post);
+    }
+
     private Post findActivePost(Long id) {
         Post post = postRepository.findById(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));

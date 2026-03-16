@@ -52,6 +52,9 @@ services:
       AWS_REGION: ${AWS_REGION:-ap-northeast-2}
       KAKAO_REST_API_KEY: ${KAKAO_REST_API_KEY}
       TOSS_PAYMENTS_SECRET_KEY: ${TOSS_PAYMENTS_SECRET_KEY}
+      JAVA_OPTS: -Xms128m -Xmx384m -XX:MetaspaceSize=96m -XX:MaxMetaspaceSize=192m -XX:+UseG1GC -XX:+ExitOnOutOfMemoryError
+    mem_limit: 600m
+    memswap_limit: 600m
     depends_on:
       postgres:
         condition: service_healthy

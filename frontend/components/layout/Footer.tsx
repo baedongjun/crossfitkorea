@@ -25,6 +25,16 @@ export default function Footer() {
           </div>
 
           <div>
+            <p className={s.colTitle}>내 계정</p>
+            <div className={s.links}>
+              <Link href="/my"           className={s.link}>마이페이지</Link>
+              <Link href="/wod/records"  className={s.link}>내 WOD 기록</Link>
+              <Link href="/my/box"       className={s.link}>박스 오너</Link>
+              <Link href="/boxes/create" className={s.link}>박스 등록</Link>
+            </div>
+          </div>
+
+          <div>
             <p className={s.colTitle}>정보</p>
             <div className={s.links}>
               <Link href="/advertise" className={s.link}>광고 문의</Link>

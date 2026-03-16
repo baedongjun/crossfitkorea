@@ -40,7 +40,23 @@
   gap: 6px;
   font-size: 14px;
   color: rgba(245,240,232,0.6);
+  margin-bottom: 12px;
 }
+
+.shareBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(245,240,232,0.7);
+  padding: 7px 14px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.shareBtn:hover { background: rgba(255,255,255,0.14); color: var(--text); }
 
 /* Content */
 .loading { max-width: 960px; margin: 40px auto; padding: 0 80px; }

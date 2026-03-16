@@ -58,6 +58,9 @@ export default function Header() {
           <div className={s.auth}>
             {loggedIn ? (
               <>
+                {userRole === "ROLE_ADMIN" && (
+                  <Link href="/admin" className={s.adminLink}>어드민</Link>
+                )}
                 {(userRole === "ROLE_BOX_OWNER" || userRole === "ROLE_ADMIN") && (
                   <Link href="/my/box" className={s.ownerLink}>내 박스</Link>
                 )}

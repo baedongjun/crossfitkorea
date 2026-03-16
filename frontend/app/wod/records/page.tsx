@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { wodRecordApi } from "@/lib/api";
-import { WodRecord } from "@/types";
+import { wodRecordApi, wodApi } from "@/lib/api";
+import { WodRecord, Wod } from "@/types";
 import { isLoggedIn } from "@/lib/auth";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -27,6 +27,13 @@ export default function WodRecordsPage() {
     enabled: isLoggedIn(),
   });
 
+  const { data: wodHistory } = useQuery({
+    queryKey: ["wod", "history", 0, 90],
+    queryFn: async () => (await wodApi.getHistory(0, 90)).data.data,
+  });
+  const wodByDate: Record<string, Wod> = {};
+  (wodHistory?.content || []).forEach((w: Wod) => { wodByDate[w.wodDate] = w; });
+
   const deleteMutation = useMutation({
     mutationFn: (id: number) => wodRecordApi.deleteRecord(id),
     onSuccess: () => {
@@ -39,6 +46,12 @@ export default function WodRecordsPage() {
   const records: WodRecord[] = data?.content || [];
   const totalPages = data?.totalPages || 1;
   const totalElements = data?.totalElements || 0;
+
+  // 통계: 이번 달 기록 수, RX 비율 (전체 페이지 기준 현재 로드된 데이터)
+  const thisMonth = dayjs().format("YYYY-MM");
+  const thisMonthRecords = records.filter((r) => r.wodDate?.startsWith(thisMonth));
+  const rxCount = records.filter((r) => r.rx).length;
+  const rxRatio = records.length > 0 ? Math.round((rxCount / records.length) * 100) : 0;
 
   return (
     <div className={s.page}>
@@ -58,6 +71,24 @@ export default function WodRecordsPage() {
             + 오늘 기록 입력
           </Link>
         </div>
+
+        {/* 통계 */}
+        {!isLoading && totalElements > 0 && (
+          <div className={s.stats}>
+            <div className={s.statItem}>
+              <p className={s.statNum}>{totalElements}</p>
+              <p className={s.statLabel}>총 기록</p>
+            </div>
+            <div className={s.statItem}>
+              <p className={s.statNum}>{thisMonthRecords.length}</p>
+              <p className={s.statLabel}>이번 달</p>
+            </div>
+            <div className={s.statItem}>
+              <p className={s.statNum}>{rxRatio}<span style={{ fontSize: 14 }}>%</span></p>
+              <p className={s.statLabel}>RX 비율</p>
+            </div>
+          </div>
+        )}
 
         {isLoading ? (
           <div className={s.list}>
@@ -84,6 +115,9 @@ export default function WodRecordsPage() {
                     <p className={s.itemDow}>{dayjs(rec.wodDate).format("ddd")}</p>
                   </div>
                   <div className={s.itemBody}>
+                    {wodByDate[rec.wodDate] && (
+                      <p className={s.itemWodTitle}>{wodByDate[rec.wodDate].title}</p>
+                    )}
                     <div className={s.itemTop}>
                       {rec.rx && <span className={s.rxBadge}>RX</span>}
                       {rec.score && <span className={s.scoreText}>{rec.score}</span>}

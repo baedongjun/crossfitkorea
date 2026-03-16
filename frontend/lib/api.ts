@@ -205,7 +205,7 @@ export const competitionApi = {
 
 // Community API
 export const communityApi = {
-  getPosts: (params?: { category?: string; keyword?: string; page?: number }) =>
+  getPosts: (params?: { category?: string; keyword?: string; page?: number; sort?: string }) =>
     api.get("/api/v1/community/posts", { params }),
 
   getMyPosts: (page = 0) =>

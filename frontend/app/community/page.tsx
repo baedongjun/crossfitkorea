@@ -41,14 +41,16 @@ export default function CommunityPage() {
   const [page, setPage] = useState(0);
   const [keyword, setKeyword] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [sortBy, setSortBy] = useState("createdAt,desc");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["posts", selectedCategory, page, keyword],
+    queryKey: ["posts", selectedCategory, page, keyword, sortBy],
     queryFn: async () => {
       const res = await communityApi.getPosts({
         category: selectedCategory === "ALL" ? undefined : selectedCategory,
         keyword: keyword || undefined,
         page,
+        sort: sortBy,
       });
       return res.data.data;
     },
@@ -115,6 +117,19 @@ export default function CommunityPage() {
 
       {/* Content */}
       <div className={s.content}>
+        <div className={s.contentHeader}>
+          <p className={s.resultCount}>총 <strong>{data?.totalElements || 0}</strong>개 게시글</p>
+          <select
+            className={s.sortSelect}
+            value={sortBy}
+            onChange={(e) => { setSortBy(e.target.value); setPage(0); }}
+          >
+            <option value="createdAt,desc">최신순</option>
+            <option value="likeCount,desc">인기순</option>
+            <option value="commentCount,desc">댓글 많은순</option>
+            <option value="viewCount,desc">조회 많은순</option>
+          </select>
+        </div>
         {isLoading ? (
           <div className={s.postList}>
             {[...Array(8)].map((_, i) => (
@@ -145,6 +160,10 @@ export default function CommunityPage() {
                     {post.userName} · {dayjs(post.createdAt).fromNow()}
                   </p>
                 </div>
+
+                {post.imageUrls?.[0] && (
+                  <img src={post.imageUrls[0]} alt="" className={s.postThumb} />
+                )}
 
                 <div className={s.postStats}>
                   <span className={s.stat}>

@@ -21,7 +21,8 @@ export default function NotFound() {
           letterSpacing: 4,
         }}>404</p>
         <h1 style={{
-          fontFamily: "'Black Han Sans', sans-serif",
+          fontFamily: "'Noto Sans KR', sans-serif",
+          fontWeight: 700,
           fontSize: "clamp(24px, 4vw, 40px)",
           color: "var(--text)",
           marginTop: -16,

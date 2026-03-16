@@ -92,6 +92,19 @@
 }
 .userName:hover { color: var(--text); }
 
+.adminLink {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--red);
+  padding: 4px 10px;
+  border: 1px solid rgba(232, 34, 10, 0.35);
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.adminLink:hover { background: rgba(232, 34, 10, 0.12); color: var(--text); }
+
 .ownerLink {
   font-size: 13px;
   color: var(--orange);

@@ -29,12 +29,16 @@ public class UserService {
             throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
         }
 
+        UserRole role = Boolean.TRUE.equals(request.getBoxOwner())
+            ? UserRole.ROLE_BOX_OWNER
+            : UserRole.ROLE_USER;
+
         User user = User.builder()
             .email(request.getEmail())
             .password(passwordEncoder.encode(request.getPassword()))
             .name(request.getName())
             .phone(request.getPhone())
-            .role(UserRole.ROLE_USER)
+            .role(role)
             .build();
 
         userRepository.save(user);

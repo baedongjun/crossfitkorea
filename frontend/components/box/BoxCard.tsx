@@ -62,12 +62,13 @@ export default function BoxCard({ box }: { box: Box }) {
           )}
         </div>
 
-        {box.monthlyFee && (
-          <div className={s.footer}>
-            <span className={s.feeLabel}>월 회비</span>
-            <span className={s.feeValue}>{box.monthlyFee.toLocaleString()}원~</span>
-          </div>
-        )}
+        <div className={s.footer}>
+          <span className={s.feeLabel}>월 회비</span>
+          {box.monthlyFee > 0
+            ? <span className={s.feeValue}>{box.monthlyFee.toLocaleString()}<span className={s.feeUnit}>원~</span></span>
+            : <span className={s.feeInquiry}>문의</span>
+          }
+        </div>
       </div>
     </Link>
   );

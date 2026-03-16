@@ -22,4 +22,6 @@ public class SignupRequest {
     private String name;
 
     private String phone;
+
+    private Boolean boxOwner;
 }

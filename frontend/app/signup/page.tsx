@@ -16,6 +16,7 @@ const schema = z.object({
   passwordConfirm: z.string(),
   name: z.string().min(1, "이름을 입력해주세요."),
   phone: z.string().optional(),
+  boxOwner: z.boolean().optional(),
 }).refine((d) => d.password === d.passwordConfirm, {
   message: "비밀번호가 일치하지 않습니다.",
   path: ["passwordConfirm"],
@@ -84,6 +85,14 @@ export default function SignupPage() {
               <input type="password" {...register("passwordConfirm")} placeholder="비밀번호 재입력" className="input-field" autoComplete="new-password" />
               {errors.passwordConfirm && <p className={s.error}>{errors.passwordConfirm.message}</p>}
             </div>
+
+            <label className={s.checkRow}>
+              <input type="checkbox" {...register("boxOwner")} className={s.checkbox} />
+              <div>
+                <span className={s.checkLabel}>크로스핏 박스를 운영 중입니다</span>
+                <p className={s.checkDesc}>체크 시 박스 오너 계정으로 가입 — 박스 등록 및 WOD 관리 가능</p>
+              </div>
+            </label>
 
             <button type="submit" disabled={isSubmitting} className={`btn-primary ${s.submitBtn}`}>
               {isSubmitting ? "처리 중..." : "회원가입"}

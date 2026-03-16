@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, Suspense, useEffect, useRef, useCallback } from "react";
+import { useState, Suspense, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { boxApi } from "@/lib/api";
 import BoxCard from "@/components/box/BoxCard";
 import BoxMap from "@/components/box/BoxMap";
@@ -305,7 +306,7 @@ function BoxesContent() {
       {!isOwner && (
         <div className={s.ownerBanner}>
           <span className={s.ownerBannerText}>박스를 운영 중이신가요?</span>
-          <a href="/boxes/create" className={s.ownerBannerLink}>무료로 등록하기 →</a>
+          <Link href="/boxes/create" className={s.ownerBannerLink}>무료로 등록하기 →</Link>
         </div>
       )}
 
@@ -348,7 +349,7 @@ function BoxesContent() {
                 <div className={s.registerBanner}>
                   <p className={s.registerBannerTitle}>이 지역에 박스를 운영 중이신가요?</p>
                   <p className={s.registerBannerDesc}>CrossFit Korea에 무료로 등록하고 더 많은 회원과 연결하세요.</p>
-                  <a href="/boxes/create" className="btn-primary" style={{ display: "inline-block", marginTop: 16 }}>무료 등록하기</a>
+                  <Link href="/boxes/create" className="btn-primary" style={{ display: "inline-block", marginTop: 16 }}>무료 등록하기</Link>
                 </div>
               </div>
             ) : (

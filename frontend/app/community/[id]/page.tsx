@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Link from "next/link";
-import { communityApi, adminApi, notificationApi as _notif } from "@/lib/api";
+import { communityApi, adminApi } from "@/lib/api";
 import { Post, Comment } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";

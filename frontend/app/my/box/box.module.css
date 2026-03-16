@@ -21,7 +21,7 @@
   margin-bottom: 8px;
 }
 .title {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 40px;
   color: var(--text);
 }
@@ -39,7 +39,7 @@
   text-align: center;
 }
 .emptyTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 24px;
   color: var(--text);
   margin-bottom: 8px;
@@ -106,14 +106,14 @@
   margin-bottom: 20px;
 }
 .cardTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--text);
 }
 
 /* Box info */
 .boxName {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 24px;
   color: var(--text);
   margin-bottom: 4px;
@@ -209,7 +209,7 @@
 }
 .wodDate { font-size: 12px; color: var(--muted); }
 .wodTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--text);
   margin-bottom: 8px;

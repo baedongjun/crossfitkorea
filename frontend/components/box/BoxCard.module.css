@@ -65,7 +65,7 @@
 .body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
 
 .name {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--text);
   margin-bottom: 12px;

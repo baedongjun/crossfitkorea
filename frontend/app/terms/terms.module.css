@@ -16,7 +16,7 @@
   margin-bottom: 12px;
 }
 .title {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 40px;
   color: var(--text);
   margin-bottom: 8px;
@@ -27,7 +27,7 @@
 
 .section { display: flex; flex-direction: column; gap: 12px; }
 .sectionTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--text);
 }

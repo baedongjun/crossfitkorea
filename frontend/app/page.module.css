@@ -74,7 +74,7 @@
 .heroTitleRed { color: var(--red); display: block; }
 
 .heroSub {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: clamp(20px, 3vw, 36px);
   color: var(--muted);
   margin-top: 8px;
@@ -153,7 +153,7 @@
   transition: color 0.2s, border-color 0.2s;
 }
 .quickNavLabel {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 14px;
   color: var(--muted);
   transition: color 0.2s;
@@ -241,7 +241,7 @@
   letter-spacing: 1px;
 }
 .wodTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 28px;
   color: var(--text);
   margin-bottom: 16px;
@@ -293,7 +293,7 @@
 .wodEmpty:hover { border-color: rgba(232,34,10,0.3); }
 .wodEmptyIcon { color: var(--muted); }
 .wodEmptyText {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--muted);
 }
@@ -372,7 +372,7 @@
 .cityCard:hover .cityName { color: var(--red); }
 
 .cityName {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--text);
   transition: color 0.2s;
@@ -428,7 +428,7 @@
   min-width: 0;
 }
 .compName {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   color: var(--text);
   white-space: nowrap;
@@ -501,7 +501,7 @@
   color: var(--red);
 }
 .featureTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 20px;
   color: var(--text);
   margin-bottom: 12px;
@@ -605,7 +605,7 @@
   position: relative;
 }
 .ctaTitle {
-  font-family: 'Black Han Sans', sans-serif;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: clamp(36px, 4vw, 56px);
   color: var(--text);
   line-height: 1.2;

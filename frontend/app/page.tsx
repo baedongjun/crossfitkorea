@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { boxApi, wodApi, competitionApi, communityApi } from "@/lib/api";
+import { isLoggedIn, getUser } from "@/lib/auth";
 import { Box, Wod, Competition, Post } from "@/types";
 import BoxCard from "@/components/box/BoxCard";
 import dayjs from "dayjs";
@@ -163,6 +164,11 @@ const CATEGORY_BADGE: Record<string, string> = {
 };
 
 export default function HomePage() {
+  const currentUser = typeof window !== "undefined" ? getUser() : null;
+  const loggedIn = typeof window !== "undefined" ? isLoggedIn() : false;
+  const canRegisterBox = currentUser?.role === "ROLE_BOX_OWNER" || currentUser?.role === "ROLE_ADMIN";
+  const boxRegisterHref = !loggedIn ? "/signup" : canRegisterBox ? "/boxes/create" : "/my";
+
   const { data: premiumBoxes } = useQuery({
     queryKey: ["premium-boxes"],
     queryFn: async () => (await boxApi.getPremium()).data.data as Box[],
@@ -439,7 +445,7 @@ export default function HomePage() {
             프리미엄 노출로 더 높은 가시성을 확보하세요.
           </p>
           <div className={s.ctaButtons}>
-            <Link href="/signup" className="btn-primary">무료 박스 등록</Link>
+            <Link href={boxRegisterHref} className="btn-primary">무료 박스 등록</Link>
             <Link href="/advertise" className="btn-secondary">프리미엄 광고 문의</Link>
           </div>
         </div>

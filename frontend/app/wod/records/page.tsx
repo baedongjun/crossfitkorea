@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -21,10 +21,9 @@ export default function WodRecordsPage() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
 
-  if (typeof window !== "undefined" && !isLoggedIn()) {
-    router.replace("/login");
-    return null;
-  }
+  useEffect(() => {
+    if (!isLoggedIn()) router.replace("/login");
+  }, [router]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["wod-records", page],

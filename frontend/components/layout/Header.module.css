@@ -141,8 +141,24 @@
 }
 .mobileMenuOpen {
   display: block;
-  max-height: 400px;
+  max-height: 520px;
 }
+
+.mobileAdminLink {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--red);
+  border: 1px solid rgba(232, 34, 10, 0.35);
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.mobileAdminLink:hover { background: rgba(232, 34, 10, 0.1); }
 
 .mobileNav {
   padding: 8px 24px 0;

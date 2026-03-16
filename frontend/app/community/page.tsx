@@ -43,6 +43,12 @@ export default function CommunityPage() {
   const [searchInput, setSearchInput] = useState("");
   const [sortBy, setSortBy] = useState("createdAt,desc");
 
+  const { data: hotPosts } = useQuery({
+    queryKey: ["posts", "hot"],
+    queryFn: async () => (await communityApi.getHotPosts()).data.data as Post[],
+    staleTime: 1000 * 60 * 5,
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["posts", selectedCategory, page, keyword, sortBy],
     queryFn: async () => {
@@ -115,7 +121,8 @@ export default function CommunityPage() {
         </form>
       </div>
 
-      {/* Content */}
+      {/* Content + Sidebar */}
+      <div className={s.layout}>
       <div className={s.content}>
         <div className={s.contentHeader}>
           <p className={s.resultCount}>총 <strong>{data?.totalElements || 0}</strong>개 게시글</p>
@@ -197,6 +204,52 @@ export default function CommunityPage() {
             <button onClick={() => setPage(page + 1)} disabled={data.last} className="btn-secondary">다음</button>
           </div>
         )}
+      </div>
+
+      {/* Sidebar */}
+      <aside className={s.sidebar}>
+        <div className={s.sideCard}>
+          <p className={s.sideTitle}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: "var(--red)" }}>
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            인기 게시글 TOP 5
+          </p>
+          {(hotPosts?.length ?? 0) === 0 ? (
+            <p className={s.sideEmpty}>아직 인기 게시글이 없습니다</p>
+          ) : (
+            <ol className={s.hotList}>
+              {hotPosts?.map((post, idx) => (
+                <li key={post.id} className={s.hotItem}>
+                  <span className={`${s.hotRank} ${idx === 0 ? s.hotRank1 : ""}`}>{idx + 1}</span>
+                  <Link href={`/community/${post.id}`} className={s.hotTitle}>{post.title}</Link>
+                  <span className={s.hotLike}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    {post.likeCount}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+
+        <div className={s.sideCard}>
+          <p className={s.sideTitle}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ color: "var(--red)" }}>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            글쓰기
+          </p>
+          {isLoggedIn() ? (
+            <Link href="/community/write" className={`btn-primary ${s.sideWriteBtn}`}>새 글 작성하기</Link>
+          ) : (
+            <Link href="/login" className={`btn-secondary ${s.sideWriteBtn}`}>로그인 후 작성</Link>
+          )}
+        </div>
+      </aside>
       </div>
     </div>
   );

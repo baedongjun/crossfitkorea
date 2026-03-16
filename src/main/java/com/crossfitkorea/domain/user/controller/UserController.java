@@ -3,6 +3,8 @@ package com.crossfitkorea.domain.user.controller;
 import com.crossfitkorea.common.ApiResponse;
 import com.crossfitkorea.domain.box.dto.BoxDto;
 import com.crossfitkorea.domain.box.service.BoxFavoriteService;
+import com.crossfitkorea.domain.community.entity.Comment;
+import com.crossfitkorea.domain.community.repository.CommentRepository;
 import com.crossfitkorea.domain.review.dto.ReviewDto;
 import com.crossfitkorea.domain.review.service.ReviewService;
 import com.crossfitkorea.domain.user.dto.PasswordChangeRequest;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -22,6 +25,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -32,6 +38,7 @@ public class UserController {
     private final UserService userService;
     private final ReviewService reviewService;
     private final BoxFavoriteService boxFavoriteService;
+    private final CommentRepository commentRepository;
 
     @Operation(summary = "내 정보 조회")
     @GetMapping("/me")
@@ -78,5 +85,24 @@ public class UserController {
     ) {
         return ResponseEntity.ok(ApiResponse.success(
             boxFavoriteService.getMyFavorites(userDetails.getUsername(), pageable)));
+    }
+
+    @Operation(summary = "내 댓글 목록")
+    @GetMapping("/me/comments")
+    public ResponseEntity<ApiResponse<Page<Map<String, Object>>>> getMyComments(
+        @RequestParam(defaultValue = "0") int page,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        PageRequest pageable = PageRequest.of(page, 20, Sort.by("createdAt").descending());
+        Page<Comment> comments = commentRepository.findByUserEmailAndActiveTrueOrderByCreatedAtDesc(
+            userDetails.getUsername(), pageable);
+        Page<Map<String, Object>> result = comments.map(c -> Map.of(
+            "id", c.getId(),
+            "content", c.getContent(),
+            "postId", c.getPost().getId(),
+            "postTitle", c.getPost().getTitle(),
+            "createdAt", c.getCreatedAt().toString()
+        ));
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 }

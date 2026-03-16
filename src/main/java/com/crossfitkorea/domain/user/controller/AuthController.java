@@ -32,6 +32,18 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(userService.login(request)));
     }
 
+    @Operation(summary = "비밀번호 찾기 (임시 비밀번호 발급)")
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody java.util.Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.isBlank()) {
+            throw new com.crossfitkorea.common.exception.BusinessException(
+                    com.crossfitkorea.common.exception.ErrorCode.INVALID_INPUT_VALUE);
+        }
+        String tempPassword = userService.resetPassword(email);
+        return ResponseEntity.ok(ApiResponse.success(tempPassword));
+    }
+
     @Operation(summary = "토큰 갱신 (Refresh Token)")
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<AuthResponse>> refresh(@RequestBody java.util.Map<String, String> body) {

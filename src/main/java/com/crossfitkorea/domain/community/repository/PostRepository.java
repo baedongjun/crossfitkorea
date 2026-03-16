@@ -25,4 +25,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         @Param("keyword") String keyword,
         Pageable pageable
     );
+
+    List<Post> findTop5ByActiveTrueOrderByLikeCountDesc();
 }

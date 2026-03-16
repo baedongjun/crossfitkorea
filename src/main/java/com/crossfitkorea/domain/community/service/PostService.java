@@ -34,6 +34,11 @@ public class PostService {
             .map(PostDto::from);
     }
 
+    public List<PostDto> getHotPosts() {
+        return postRepository.findTop5ByActiveTrueOrderByLikeCountDesc()
+            .stream().map(PostDto::from).toList();
+    }
+
     public Page<PostDto> getPosts(PostCategory category, String keyword, Pageable pageable) {
         if (keyword != null && !keyword.isBlank()) {
             return postRepository.searchPosts(category, keyword, pageable).map(PostDto::from);

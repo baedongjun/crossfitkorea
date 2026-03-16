@@ -9,7 +9,12 @@ import { WodRecord, Wod } from "@/types";
 import { isLoggedIn } from "@/lib/auth";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko";
 import s from "./records.module.css";
+
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
 
 export default function WodRecordsPage() {
   const router = useRouter();
@@ -33,6 +38,29 @@ export default function WodRecordsPage() {
   });
   const wodByDate: Record<string, Wod> = {};
   (wodHistory?.content || []).forEach((w: Wod) => { wodByDate[w.wodDate] = w; });
+
+  // 히트맵: 최근 16주(112일)
+  const { data: recentRecords } = useQuery({
+    queryKey: ["wod-records-recent"],
+    queryFn: async () => (await wodRecordApi.getRecentRecords(112)).data.data as WodRecord[],
+    enabled: isLoggedIn(),
+  });
+  const recordDateSet = new Set<string>((recentRecords || []).map((r) => r.wodDate));
+
+  // 히트맵 셀 생성 (일요일 기준 16주)
+  const heatmapEnd = dayjs().endOf("week");
+  const heatmapStart = heatmapEnd.subtract(15, "week").startOf("week");
+  const heatmapWeeks: Array<Array<dayjs.Dayjs | null>> = [];
+  let cur = heatmapStart;
+  while (cur.isBefore(heatmapEnd) || cur.isSame(heatmapEnd, "day")) {
+    const week: Array<dayjs.Dayjs | null> = [];
+    for (let d = 0; d < 7; d++) {
+      const cell = cur.add(d, "day");
+      week.push(cell.isAfter(dayjs()) ? null : cell);
+    }
+    heatmapWeeks.push(week);
+    cur = cur.add(1, "week");
+  }
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => wodRecordApi.deleteRecord(id),
@@ -71,6 +99,43 @@ export default function WodRecordsPage() {
             + 오늘 기록 입력
           </Link>
         </div>
+
+        {/* 출석 히트맵 */}
+        {recentRecords && recentRecords.length > 0 && (
+          <div className={s.heatmap}>
+            <p className={s.heatmapTitle}>출석 현황 (최근 16주)</p>
+            <div style={{ overflowX: "auto" }}>
+              <div style={{ display: "flex", gap: 3, minWidth: "fit-content" }}>
+                {heatmapWeeks.map((week, wi) => (
+                  <div key={wi} className={s.heatmapWeek}>
+                    {week.map((day, di) => {
+                      if (!day) return <div key={di} className={s.heatmapCell} style={{ opacity: 0 }} />;
+                      const dateStr = day.format("YYYY-MM-DD");
+                      const hasRecord = recordDateSet.has(dateStr);
+                      const isToday = dateStr === dayjs().format("YYYY-MM-DD");
+                      return (
+                        <div
+                          key={di}
+                          className={`${s.heatmapCell} ${hasRecord ? s.heatmapCellL3 : ""}`}
+                          style={isToday ? { outline: "1px solid rgba(255,255,255,0.4)" } : {}}
+                          title={`${day.format("MM/DD")}${hasRecord ? " ✓" : ""}`}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={s.heatmapLegend}>
+              <span>적음</span>
+              <div className={s.heatmapLegendBox} />
+              <div className={s.heatmapLegendBox} style={{ background: "rgba(232,34,10,0.25)", borderColor: "rgba(232,34,10,0.3)" }} />
+              <div className={s.heatmapLegendBox} style={{ background: "rgba(232,34,10,0.5)", borderColor: "rgba(232,34,10,0.5)" }} />
+              <div className={s.heatmapLegendBox} style={{ background: "rgba(232,34,10,0.8)", borderColor: "rgba(232,34,10,0.7)" }} />
+              <span>많음</span>
+            </div>
+          </div>
+        )}
 
         {/* 통계 */}
         {!isLoading && totalElements > 0 && (

@@ -99,11 +99,20 @@
   color: var(--text);
 }
 
-/* Content */
-.content {
-  max-width: 860px;
+/* Layout */
+.layout {
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 80px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 32px;
+  align-items: start;
+}
+
+/* Content */
+.content {
+  min-width: 0;
 }
 
 .contentHeader {
@@ -226,7 +235,72 @@
 }
 .pageInfo { font-size: 14px; color: var(--muted); }
 
+/* Sidebar */
+.sidebar { position: sticky; top: calc(64px + 120px); display: flex; flex-direction: column; gap: 16px; }
+.sideCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+.sideTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+.sideEmpty { font-size: 12px; color: var(--muted); text-align: center; padding: 12px 0; }
+.hotList { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.hotItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.hotItem:last-child { border-bottom: none; }
+.hotRank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--muted);
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+  line-height: 1;
+}
+.hotRank1 { color: var(--red); }
+.hotTitle {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+.hotTitle:hover { color: var(--red); }
+.hotLike {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: var(--red);
+  flex-shrink: 0;
+}
+.sideWriteBtn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  font-size: 13px;
+}
+
 @media (max-width: 768px) {
-  .bar     { padding: 0 24px; }
-  .content { padding: 24px 24px; }
+  .bar    { padding: 0 24px; }
+  .layout { padding: 24px 24px; grid-template-columns: 1fr; }
+  .sidebar { position: static; }
 }

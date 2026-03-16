@@ -808,8 +808,61 @@ Scaled: 6/4kg, 타겟 높이 동일
 'TIME', true, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-03-31' AND box_id IS NULL);
 
+-- ===========================
+-- 대회 데이터 (2026년 3~5월, 12개)
+-- ===========================
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '2026 CrossFit Korea Spring Open', '전국 크로스핏 선수들이 한자리에 모이는 봄 시즌 오픈 대회. RX 및 Scaled 부문으로 나뉘며 개인전과 팀전을 동시 진행합니다. 서울 최대 규모의 크로스핏 경기장에서 개최됩니다.', '2026-04-05', '2026-04-06', '서울특별시 강남구 테헤란로 456 COEX 홀', '서울', '2026-03-25', 'https://crossfitkorea.com/register', 'CrossFit Korea', 'RX', 'OPEN', 200, 50000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '2026 CrossFit Korea Spring Open');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '제5회 강남 크로스핏 챌린지', '강남구 크로스핏 박스들이 연합 주최하는 지역 최대 대회. 초보자부터 엘리트까지 모든 레벨이 참여 가능합니다. 이번 시즌은 팀 이벤트 2개를 포함한 총 4개 이벤트로 구성됩니다.', '2026-03-22', '2026-03-22', '서울특별시 강남구 봉은사로 324 박스킹 강남', '서울', '2026-03-15', 'https://gangnam-cf.kr/challenge', 'CF 강남 연합', 'SCALED', 'OPEN', 120, 35000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '제5회 강남 크로스핏 챌린지');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '부산 CrossFit Games 2026', '부산 해운대를 배경으로 펼쳐지는 대한민국 최고의 크로스핏 대회. 2일간 총 6개 이벤트를 통해 최강자를 가립니다. 국제 선수 초청전 및 시범 경기도 함께 개최됩니다.', '2026-05-16', '2026-05-17', '부산광역시 해운대구 해운대해변로 30 벡스코', '부산', '2026-04-30', 'https://busan-cf-games.kr', 'Busan CrossFit Alliance', 'ELITE', 'UPCOMING', 300, 80000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '부산 CrossFit Games 2026');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '2026 판교 IT 크로스핏 대회', '판교 테크 밸리의 IT 직장인들을 위한 특별 대회. 회사별 팀전으로 진행되며 평일 저녁 시간대에 진행합니다. 기업 후원 대회로 참가비 무료.', '2026-04-18', '2026-04-18', '경기도 성남시 분당구 판교역로 235 에이치스퀘어', '경기', '2026-04-10', NULL, '판교 크로스핏 클럽', 'INTERMEDIATE', 'UPCOMING', 80, 0, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '2026 판교 IT 크로스핏 대회');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '제3회 인천 크로스핏 클래식', '인천 송도국제도시에서 개최되는 클래식 대회. 전통적인 CrossFit 벤치마크 WOD 위주로 구성된 정통 대회입니다. 개인전 RX/Scaled/Beginner 3부문 운영.', '2026-04-26', '2026-04-26', '인천광역시 연수구 컨벤시아대로 165 송도 스포츠파크', '인천', '2026-04-15', 'https://incheon-cf-classic.kr', '인천 크로스핏 연맹', 'BEGINNER', 'UPCOMING', 150, 30000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '제3회 인천 크로스핏 클래식');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '대구 CrossFit Throwdown 2026', '대구 수성구에서 개최되는 영남권 최대 크로스핏 대회. 개인전 및 파트너팀(2인)으로 진행. 대구·경북·부산·울산 선수들의 열전이 기대됩니다.', '2026-05-09', '2026-05-10', '대구광역시 수성구 동대구로 447 엑스코', '대구', '2026-04-25', 'https://daegu-cf.kr/throwdown', 'CrossFit 대구 연합', 'RX', 'UPCOMING', 160, 55000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '대구 CrossFit Throwdown 2026');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '제주 CrossFit Festival 2026', '아름다운 제주에서 펼쳐지는 크로스핏 축제. 경쟁보다는 참가와 즐김에 초점을 맞춘 페스티벌 형식으로 진행됩니다. 관광과 운동을 동시에 즐길 수 있는 특별한 행사입니다.', '2026-05-23', '2026-05-24', '제주특별자치도 제주시 노형로 50 제주 스포츠 콤플렉스', '제주', '2026-05-10', 'https://jeju-cf-festival.kr', '제주 크로스핏 협회', 'ALL', 'UPCOMING', 250, 45000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '제주 CrossFit Festival 2026');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '2026 광주 크로스핏 오픈', '호남권 선수들의 실력을 겨루는 광주 대회. 전통 크로스핏 무브먼트와 올림픽 리프팅이 조화된 6개 이벤트로 구성됩니다. 지역 박스 자존심을 건 팀전도 병행됩니다.', '2026-03-29', '2026-03-29', '광주광역시 서구 상무중앙로 110 상무 시민공원 체육관', '광주', '2026-03-20', 'https://gwangju-cf-open.kr', '광주 크로스핏 연맹', 'INTERMEDIATE', 'OPEN', 100, 40000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '2026 광주 크로스핏 오픈');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT 'Seoul CrossFit Summit 2026', '서울의 모든 크로스핏 박스가 참여하는 연간 최대 규모 서밋 대회. 올해는 특별히 국제 CrossFit 공인 심판진이 참여하여 국제 규격으로 진행됩니다. Masters 부문(35세 이상) 별도 운영.', '2026-05-30', '2026-05-31', '서울특별시 송파구 올림픽로 424 올림픽 체조경기장', '서울', '2026-05-15', 'https://seoul-cf-summit.kr', 'Seoul CrossFit Association', 'ELITE', 'UPCOMING', 400, 90000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = 'Seoul CrossFit Summit 2026');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '2026 CrossFit Korea Open (온라인)', 'CrossFit Open 형식의 온라인 대회. 전국 어디서나 참가 가능하며, 3주간 매주 1개씩 WOD가 공개됩니다. 각 박스에서 영상 촬영 후 제출하는 방식으로 진행됩니다.', '2026-03-01', '2026-03-21', '전국 온라인 (각 소속 박스)', '서울', '2026-03-05', 'https://crossfitkorea.com/online-open', 'CrossFit Korea', 'ALL', 'CLOSED', 1000, 15000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '2026 CrossFit Korea Open (온라인)');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '제4회 수원 크로스핏 배틀', '경기 남부권 최대 크로스핏 대회. 수원·화성·오산 지역 박스들이 연합하여 주최합니다. 개인전 Beginner/Scaled/RX 3부문 및 팀전(4인) 부문으로 나뉩니다.', '2026-04-12', '2026-04-12', '경기도 수원시 팔달구 효원로 307 수원월드컵경기장', '경기', '2026-04-01', 'https://suwon-cf-battle.kr', '경기남부 크로스핏 연합', 'SCALED', 'UPCOMING', 180, 38000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '제4회 수원 크로스핏 배틀');
+
+INSERT INTO competitions (name, description, start_date, end_date, location, city, registration_deadline, registration_url, organizer, level, status, max_participants, entry_fee, active, created_at, updated_at)
+SELECT '대전 CrossFit Championships 2026', '충청권 대표 크로스핏 대회. 대전·세종·충남·충북 선수들이 참여하는 지역 챔피언십입니다. 우승자에게는 CrossFit Korea 전국 대회 시드권을 부여합니다.', '2026-05-03', '2026-05-03', '대전광역시 유성구 대학로 99 충남대학교 체육관', '대전', '2026-04-20', 'https://daejeon-cf-champs.kr', '충청 크로스핏 협회', 'RX', 'UPCOMING', 120, 45000, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '대전 CrossFit Championships 2026');
+
 SELECT '=== 결과 ===' AS result;
 SELECT 'users: ' || COUNT(*) FROM users;
 SELECT 'boxes: ' || COUNT(*) FROM boxes;
 SELECT 'posts: ' || COUNT(*) FROM posts;
 SELECT 'wods: ' || COUNT(*) FROM wods;
+SELECT 'competitions: ' || COUNT(*) FROM competitions;

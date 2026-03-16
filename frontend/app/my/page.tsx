@@ -65,6 +65,12 @@ export default function MyPage() {
     enabled: isLoggedIn(),
   });
 
+  const { data: myComments } = useQuery({
+    queryKey: ["comments", "mine"],
+    queryFn: async () => (await userApi.getMyComments()).data.data,
+    enabled: isLoggedIn(),
+  });
+
   useEffect(() => {
     if (me) {
       setName(me.name || "");
@@ -220,6 +226,10 @@ export default function MyPage() {
                 <p className={s.statNum}>{myFavorites?.totalElements || 0}</p>
                 <p className={s.statLabel}>즐겨찾기</p>
               </div>
+              <div className={s.statItem}>
+                <p className={s.statNum}>{myComments?.totalElements || 0}</p>
+                <p className={s.statLabel}>작성 댓글</p>
+              </div>
             </div>
           </div>
         </div>
@@ -241,6 +251,31 @@ export default function MyPage() {
             </div>
           ) : (
             <div className={s.empty}>아직 작성한 게시글이 없습니다</div>
+          )}
+        </div>
+
+        {/* 내 댓글 */}
+        <div className={s.postsCard}>
+          <p className={s.postsHeader}>내가 쓴 댓글</p>
+          {myComments?.content?.length > 0 ? (
+            <div className={s.postList}>
+              {myComments.content.slice(0, 10).map((comment: { id: number; content: string; postId: number; postTitle: string; createdAt: string }) => (
+                <Link key={comment.id} href={`/community/${comment.postId}`} className={s.postItem}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, color: "var(--muted)" }}>
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span className={s.postTitle} style={{ fontSize: 12, color: "var(--muted)" }}>
+                    {comment.postTitle}
+                  </span>
+                  <span className={s.postTitle} style={{ marginLeft: 0, flex: "unset", maxWidth: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flexShrink: 1, minWidth: 0 }}>
+                    {comment.content}
+                  </span>
+                  <span className={s.postDate}>{dayjs(comment.createdAt).format("MM.DD")}</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className={s.empty}>아직 작성한 댓글이 없습니다</div>
           )}
         </div>
 

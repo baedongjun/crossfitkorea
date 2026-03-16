@@ -45,4 +45,6 @@ public interface BoxRepository extends JpaRepository<Box, Long> {
     Page<Box> findByOwnerEmailAndActiveTrue(String email, Pageable pageable);
 
     long countByActiveTrue();
+
+    long countByActiveTrueAndVerifiedFalse();
 }

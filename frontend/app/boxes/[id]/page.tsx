@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { boxApi } from "@/lib/api";
+import BoxDetailMap from "@/components/box/BoxDetailMap";
 import { Box, Coach, Schedule, Review, Page } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
@@ -641,12 +642,18 @@ export default function BoxDetailPage() {
 
           <div className={s.sideCard}>
             <p className={s.sideTitle}>위치</p>
-            <div className={s.contactItem} style={{ gap: 10 }}>
+            <div className={s.contactItem} style={{ gap: 10, marginBottom: 12 }}>
               <svg className={s.contactIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
               </svg>
               <span style={{ fontSize: 13, color: "var(--muted)" }}>{box.address}</span>
             </div>
+            <BoxDetailMap
+              name={box.name}
+              address={box.address}
+              latitude={box.latitude}
+              longitude={box.longitude}
+            />
           </div>
 
           {relatedBoxes && relatedBoxes.content.filter((b) => b.id !== boxId).length > 0 && (

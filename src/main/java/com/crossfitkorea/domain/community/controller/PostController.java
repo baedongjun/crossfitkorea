@@ -29,6 +29,12 @@ public class PostController {
 
     private final PostService postService;
 
+    @Operation(summary = "인기 게시글 TOP5 (좋아요 순)")
+    @GetMapping("/posts/hot")
+    public ResponseEntity<ApiResponse<List<PostDto>>> getHotPosts() {
+        return ResponseEntity.ok(ApiResponse.success(postService.getHotPosts()));
+    }
+
     @Operation(summary = "내 게시글 목록 (로그인 필요)")
     @GetMapping("/posts/mine")
     public ResponseEntity<ApiResponse<Page<PostDto>>> getMyPosts(

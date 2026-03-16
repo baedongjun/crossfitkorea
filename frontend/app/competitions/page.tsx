@@ -53,10 +53,27 @@ const LEVEL_FILTERS: { value: string; label: string }[] = [
 
 const CITIES = ["전체", "서울", "경기", "부산", "인천", "대구", "대전", "광주", "제주"];
 
+const FEE_FILTERS = [
+  { value: "ALL", label: "전체" },
+  { value: "FREE", label: "무료" },
+  { value: "30000", label: "3만원 이하" },
+  { value: "50000", label: "5만원 이하" },
+  { value: "100000", label: "10만원 이하" },
+];
+
+const SORT_OPTIONS = [
+  { value: "date_asc", label: "날짜 오름차순" },
+  { value: "date_desc", label: "날짜 내림차순" },
+  { value: "deadline_asc", label: "접수 마감 임박순" },
+  { value: "fee_asc", label: "참가비 낮은순" },
+];
+
 export default function CompetitionsPage() {
   const [selectedStatus, setSelectedStatus] = useState<CompetitionStatus | "ALL">("ALL");
   const [selectedLevel, setSelectedLevel] = useState("ALL");
   const [selectedCity, setSelectedCity] = useState("전체");
+  const [selectedFee, setSelectedFee] = useState("ALL");
+  const [sortBy, setSortBy] = useState("date_asc");
 
   const { data, isLoading } = useQuery({
     queryKey: ["competitions", selectedStatus],
@@ -68,11 +85,25 @@ export default function CompetitionsPage() {
     },
   });
 
-  // Client-side filter by level and city
+  // Client-side filter by level, city, fee
   const filtered = data?.content?.filter((comp: Competition) => {
     const levelMatch = selectedLevel === "ALL" || comp.level === selectedLevel;
     const cityMatch = selectedCity === "전체" || comp.city === selectedCity || comp.location?.includes(selectedCity);
-    return levelMatch && cityMatch;
+    const feeMatch =
+      selectedFee === "ALL" ? true :
+      selectedFee === "FREE" ? (!comp.entryFee || comp.entryFee === 0) :
+      (comp.entryFee ?? 0) <= Number(selectedFee);
+    return levelMatch && cityMatch && feeMatch;
+  })?.sort((a: Competition, b: Competition) => {
+    if (sortBy === "date_asc") return dayjs(a.startDate).diff(dayjs(b.startDate));
+    if (sortBy === "date_desc") return dayjs(b.startDate).diff(dayjs(a.startDate));
+    if (sortBy === "deadline_asc") {
+      const da = a.registrationDeadline ? dayjs(a.registrationDeadline).unix() : Infinity;
+      const db = b.registrationDeadline ? dayjs(b.registrationDeadline).unix() : Infinity;
+      return da - db;
+    }
+    if (sortBy === "fee_asc") return (a.entryFee ?? 0) - (b.entryFee ?? 0);
+    return 0;
   });
 
   return (
@@ -126,7 +157,7 @@ export default function CompetitionsPage() {
         </div>
 
         {/* City Filter */}
-        <div className={s.filterGroup} style={{ marginBottom: 32 }}>
+        <div className={s.filterGroup}>
           <span className={s.filterGroupLabel}>지역</span>
           <div className={s.filters}>
             {CITIES.map((city) => (
@@ -139,6 +170,43 @@ export default function CompetitionsPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Fee Filter + Sort */}
+        <div className={s.filterRow}>
+          <div className={s.filterGroup} style={{ flex: 1, marginBottom: 0 }}>
+            <span className={s.filterGroupLabel}>참가비</span>
+            <div className={s.filters}>
+              {FEE_FILTERS.map((f) => (
+                <button
+                  key={f.value}
+                  onClick={() => setSelectedFee(f.value)}
+                  className={`${s.pill} ${selectedFee === f.value ? s.pillActive : ""}`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <span className={s.filterGroupLabel} style={{ margin: 0 }}>정렬</span>
+            <select
+              className={s.sortSelect}
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              {SORT_OPTIONS.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Result count */}
+        <div className={s.resultRow}>
+          <p className={s.resultCount}>
+            <strong>{filtered?.length ?? 0}</strong>개 대회
+          </p>
         </div>
 
         {/* List */}

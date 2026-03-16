@@ -110,7 +110,114 @@
   border-radius: 50%;
 }
 
+.quickLink {
+  display: flex;
+  align-items: center;
+}
+.quickLinkBadge {
+  margin-left: 8px;
+  background: var(--red);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Feed Grid */
+.feedGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-top: 1px;
+}
+.feedPanel {
+  background: var(--bg-card);
+  padding: 24px;
+}
+.feedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.feedHeader .panelTitle { margin-bottom: 0; }
+.feedMore {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.feedMore:hover { color: var(--text); }
+
+.feedItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.feedItem:last-child { border-bottom: none; }
+
+.feedAvatar {
+  width: 32px;
+  height: 32px;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.feedIcon {
+  width: 32px;
+  height: 32px;
+  background: rgba(232, 34, 10, 0.08);
+  border: 1px solid rgba(232, 34, 10, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--red);
+  flex-shrink: 0;
+}
+.feedInfo { flex: 1; min-width: 0; }
+.feedName {
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.feedMeta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.feedTime {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.feedEmpty {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 20px 0;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .statsGrid  { grid-template-columns: 1fr; }
   .bottomGrid { grid-template-columns: 1fr; }
+  .feedGrid   { grid-template-columns: 1fr; }
 }

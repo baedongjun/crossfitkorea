@@ -24,7 +24,7 @@ export default function MyBoxPage() {
   const user = getUser();
 
   const [selectedBoxId, setSelectedBoxId] = useState<number | null>(null);
-  const [wodForm, setWodForm] = useState({ title: "", type: "AMRAP", content: "", scoreType: "TIME" });
+  const [wodForm, setWodForm] = useState({ title: "", type: "AMRAP", content: "", scoreType: "TIME", wodDate: dayjs().format("YYYY-MM-DD") });
   const [showWodForm, setShowWodForm] = useState(false);
 
   useEffect(() => {
@@ -66,14 +66,11 @@ export default function MyBoxPage() {
 
   const wodMutation = useMutation({
     mutationFn: () =>
-      wodApi.createBoxWod(boxId!, {
-        ...wodForm,
-        wodDate: dayjs().format("YYYY-MM-DD"),
-      }),
+      wodApi.createBoxWod(boxId!, wodForm),
     onSuccess: () => {
       toast.success("WOD가 등록되었습니다.");
       setShowWodForm(false);
-      setWodForm({ title: "", type: "AMRAP", content: "", scoreType: "TIME" });
+      setWodForm({ title: "", type: "AMRAP", content: "", scoreType: "TIME", wodDate: dayjs().format("YYYY-MM-DD") });
       queryClient.invalidateQueries({ queryKey: ["wod-today", boxId] });
     },
     onError: () => toast.error("WOD 등록에 실패했습니다."),
@@ -180,12 +177,12 @@ export default function MyBoxPage() {
                     <div className={s.wodForm}>
                       <div className={s.wodFormGrid}>
                         <div className={s.field}>
-                          <label className={s.label}>WOD 제목</label>
+                          <label className={s.label}>날짜</label>
                           <input
+                            type="date"
                             className="input-field"
-                            placeholder="오늘의 WOD 제목"
-                            value={wodForm.title}
-                            onChange={(e) => setWodForm((f) => ({ ...f, title: e.target.value }))}
+                            value={wodForm.wodDate}
+                            onChange={(e) => setWodForm((f) => ({ ...f, wodDate: e.target.value }))}
                           />
                         </div>
                         <div className={s.field}>
@@ -196,6 +193,28 @@ export default function MyBoxPage() {
                             onChange={(e) => setWodForm((f) => ({ ...f, type: e.target.value }))}
                           >
                             {WOD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                          </select>
+                        </div>
+                        <div className={s.field}>
+                          <label className={s.label}>WOD 제목</label>
+                          <input
+                            className="input-field"
+                            placeholder="오늘의 WOD 제목"
+                            value={wodForm.title}
+                            onChange={(e) => setWodForm((f) => ({ ...f, title: e.target.value }))}
+                          />
+                        </div>
+                        <div className={s.field}>
+                          <label className={s.label}>점수 유형</label>
+                          <select
+                            className={s.select}
+                            value={wodForm.scoreType}
+                            onChange={(e) => setWodForm((f) => ({ ...f, scoreType: e.target.value }))}
+                          >
+                            <option value="TIME">TIME</option>
+                            <option value="ROUNDS">ROUNDS</option>
+                            <option value="REPS">REPS</option>
+                            <option value="WEIGHT">WEIGHT</option>
                           </select>
                         </div>
                       </div>

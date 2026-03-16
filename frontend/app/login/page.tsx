@@ -78,6 +78,9 @@ export default function LoginPage() {
           </form>
 
           <p className={s.footer}>
+            <Link href="/forgot-password" className={s.footerLink}>비밀번호를 잊으셨나요?</Link>
+          </p>
+          <p className={s.footer}>
             계정이 없으신가요?{" "}
             <Link href="/signup" className={s.footerLink}>회원가입</Link>
           </p>

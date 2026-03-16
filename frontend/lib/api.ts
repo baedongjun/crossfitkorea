@@ -102,6 +102,9 @@ export const authApi = {
 
   refresh: (refreshToken: string) =>
     api.post("/api/v1/auth/refresh", { refreshToken }),
+
+  forgotPassword: (email: string) =>
+    api.post<ApiResponse<string>>("/api/v1/auth/forgot-password", { email }),
 };
 
 // Upload API
@@ -205,6 +208,9 @@ export const competitionApi = {
 
 // Community API
 export const communityApi = {
+  getHotPosts: () =>
+    api.get("/api/v1/community/posts/hot"),
+
   getPosts: (params?: { category?: string; keyword?: string; page?: number; sort?: string }) =>
     api.get("/api/v1/community/posts", { params }),
 
@@ -270,6 +276,9 @@ export const userApi = {
 
   getMyFavorites: (page = 0) =>
     api.get("/api/v1/users/me/favorites", { params: { page } }),
+
+  getMyComments: (page = 0) =>
+    api.get("/api/v1/users/me/comments", { params: { page } }),
 };
 
 // Admin API

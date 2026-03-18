@@ -1,0 +1,14 @@
+﻿ubuntu@ip-172-31-12-212:~/crossfitkorea$ cd /home/ubuntu/crossfitkorea                                                 
+  docker compose -f docker-compose.prod.yml --env-file .env.prod up -d 
+[+] up 3/3
+ ✔ Container crossfitkorea-redis-1    Running                                                                                                                                                                  0.0s
+ ✔ Container crossfitkorea-frontend-1 Started                                                                                                                                                                  0.9s
+ ✔ Container crossfitkorea-backend-1  Started                                                                                                                                                                  0.9s
+ubuntu@ip-172-31-12-212:~/crossfitkorea$ docker ps
+CONTAINER ID   IMAGE                                                                             COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+683b62f342b7   619178382069.dkr.ecr.ap-northeast-2.amazonaws.com/crossfitkorea-backend:latest    "java -jar app.jar"      13 seconds ago   Up 13 seconds   0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp   crossfitkorea-backend-1
+366f859bfbae   619178382069.dkr.ecr.ap-northeast-2.amazonaws.com/crossfitkorea-frontend:latest   "docker-entrypoint.s…"   13 seconds ago   Up 13 seconds   0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp   crossfitkorea-frontend-1
+f33b9973d725   redis:7-alpine                                                                    "docker-entrypoint.s…"   18 hours ago     Up 18 hours     6379/tcp                                      crossfitkorea-redis-1
+ubuntu@ip-172-31-12-212:~/crossfitkorea$ docker ps -a | grep postgres 
+ubuntu@ip-172-31-12-212:~/crossfitkorea$ docker logs crossfitkorea-postgres 
+Error response from daemon: No such container: crossfitkorea-postgres

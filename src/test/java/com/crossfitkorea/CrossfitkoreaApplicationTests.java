@@ -21,7 +21,9 @@ import org.springframework.test.context.TestPropertySource;
     "aws.access-key=test",
     "aws.secret-key=test",
     "aws.s3.bucket=test-bucket",
-    "aws.s3.region=ap-northeast-2"
+    "aws.s3.region=ap-northeast-2",
+    "toss.payments.secret-key=test-toss-secret-key",
+    "toss.payments.client-key=test-toss-client-key"
 })
 class CrossfitkoreaApplicationTests {
 

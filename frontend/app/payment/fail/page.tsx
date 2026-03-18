@@ -10,7 +10,6 @@ function PaymentFailContent() {
   const router = useRouter();
   const message = searchParams.get("message") || "결제가 취소되었습니다.";
   const code = searchParams.get("code");
-  const orderId = searchParams.get("orderId");
 
   return (
     <div className={s.page}>

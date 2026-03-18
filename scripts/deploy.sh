@@ -32,11 +32,12 @@ cd "$APP_DIR"
 COMPOSE_CMD="docker compose"
 command -v docker-compose &>/dev/null && COMPOSE_CMD="docker-compose"
 
+$COMPOSE_CMD -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
 IMAGE_TAG=$IMAGE_TAG $COMPOSE_CMD -f docker-compose.prod.yml up -d --no-build
 
 # 헬스체크
 echo "[4/4] 헬스체크..."
-sleep 15
+sleep 60
 if curl -sf http://localhost:8080/actuator/health > /dev/null; then
   echo "✓ 백엔드 정상"
 else

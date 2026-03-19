@@ -53,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/coaches/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/schedules/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/badges/users/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/search").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/profile").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/posts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/followers").permitAll()

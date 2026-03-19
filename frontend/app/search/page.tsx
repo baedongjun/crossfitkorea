@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { boxApi, competitionApi, communityApi } from "@/lib/api";
+import { boxApi, competitionApi, communityApi, userApi } from "@/lib/api";
 import { Box, Competition, Post } from "@/types";
 import dayjs from "dayjs";
 import s from "./search.module.css";
@@ -15,7 +15,8 @@ const STATUS_LABELS: Record<string, string> = {
   UPCOMING: "예정", OPEN: "접수 중", CLOSED: "접수 마감", COMPLETED: "종료",
 };
 
-type TabType = "all" | "boxes" | "competitions" | "community";
+interface UserResult { id: number; name: string; profileImageUrl?: string; role: string; }
+type TabType = "all" | "boxes" | "competitions" | "community" | "users";
 
 function useDebounce(value: string, delay = 400) {
   const [debounced, setDebounced] = useState(value);
@@ -62,19 +63,27 @@ export default function SearchPage() {
     enabled,
   });
 
+  const { data: userData, isLoading: userLoading } = useQuery({
+    queryKey: ["search", "users", debouncedQuery],
+    queryFn: async () => (await userApi.searchUsers(debouncedQuery)).data.data,
+    enabled,
+  });
+
   const boxes: Box[] = boxData?.content ?? [];
   const competitions: Competition[] = (compData?.content ?? []).filter((c: Competition) =>
     c.name.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
     (c.location || "").toLowerCase().includes(debouncedQuery.toLowerCase())
   );
   const posts: Post[] = postData?.content ?? [];
+  const users: UserResult[] = (userData?.content ?? []).slice(0, 5);
 
-  const totalCount = boxes.length + competitions.length + posts.length;
-  const isLoading = boxLoading || compLoading || postLoading;
+  const totalCount = boxes.length + competitions.length + posts.length + users.length;
+  const isLoading = boxLoading || compLoading || postLoading || userLoading;
 
   const showBoxes = tab === "all" || tab === "boxes";
   const showComps = tab === "all" || tab === "competitions";
   const showPosts = tab === "all" || tab === "community";
+  const showUsers = tab === "all" || tab === "users";
 
   return (
     <div className={s.page}>
@@ -111,6 +120,7 @@ export default function SearchPage() {
               <Link href="/boxes" className={s.hintLink}>박스 찾기</Link>
               <Link href="/competitions" className={s.hintLink}>대회 일정</Link>
               <Link href="/community" className={s.hintLink}>커뮤니티</Link>
+              <Link href="/users" className={s.hintLink}>회원 검색</Link>
             </div>
           </div>
         ) : (
@@ -122,6 +132,7 @@ export default function SearchPage() {
                 { key: "boxes", label: `박스 (${isLoading ? "..." : boxes.length})` },
                 { key: "competitions", label: `대회 (${isLoading ? "..." : competitions.length})` },
                 { key: "community", label: `커뮤니티 (${isLoading ? "..." : posts.length})` },
+              { key: "users", label: `회원 (${isLoading ? "..." : users.length})` },
               ] as const).map(({ key, label }) => (
                 <button
                   key={key}
@@ -195,6 +206,35 @@ export default function SearchPage() {
                           <span className={`badge ${STATUS_BADGE[comp.status]}`} style={{ fontSize: 10, whiteSpace: "nowrap" }}>
                             {STATUS_LABELS[comp.status]}
                           </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Users */}
+                {showUsers && users.length > 0 && (
+                  <div className={s.section}>
+                    <div className={s.sectionHeader}>
+                      <p className={s.sectionTitle}>회원</p>
+                      {tab === "all" && users.length >= 5 && (
+                        <Link href={`/users?keyword=${encodeURIComponent(debouncedQuery)}`} className={s.sectionMore}>더 보기 →</Link>
+                      )}
+                    </div>
+                    <div className={s.list}>
+                      {users.map((u) => (
+                        <Link key={u.id} href={`/users/${u.id}`} className={s.item}>
+                          <div className={s.itemIcon} style={{ fontSize: 20 }}>
+                            {u.profileImageUrl ? (
+                              <img src={u.profileImageUrl} alt={u.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : "👤"}
+                          </div>
+                          <div className={s.itemBody}>
+                            <p className={s.itemTitle}>{u.name}</p>
+                            {u.role !== "ROLE_USER" && (
+                              <p className={s.itemMeta}>{u.role === "ROLE_BOX_OWNER" ? "박스 오너" : "관리자"}</p>
+                            )}
+                          </div>
                         </Link>
                       ))}
                     </div>

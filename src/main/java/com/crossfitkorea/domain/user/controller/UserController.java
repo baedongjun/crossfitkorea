@@ -7,10 +7,13 @@ import com.crossfitkorea.domain.box.dto.BoxDto;
 import com.crossfitkorea.domain.box.dto.BoxMembershipDto;
 import com.crossfitkorea.domain.box.service.BoxFavoriteService;
 import com.crossfitkorea.domain.box.service.BoxMembershipService;
+import com.crossfitkorea.domain.badge.repository.UserBadgeRepository;
 import com.crossfitkorea.domain.community.dto.PostDto;
 import com.crossfitkorea.domain.community.entity.Comment;
 import com.crossfitkorea.domain.community.repository.CommentRepository;
 import com.crossfitkorea.domain.community.repository.PostRepository;
+import com.crossfitkorea.domain.follow.repository.FollowRepository;
+import com.crossfitkorea.domain.wod.repository.WodRecordRepository;
 import com.crossfitkorea.domain.review.dto.ReviewDto;
 import com.crossfitkorea.domain.review.service.ReviewService;
 import com.crossfitkorea.domain.user.dto.PasswordChangeRequest;
@@ -49,6 +52,9 @@ public class UserController {
     private final BadgeService badgeService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final FollowRepository followRepository;
+    private final WodRecordRepository wodRecordRepository;
+    private final UserBadgeRepository userBadgeRepository;
 
     @Operation(summary = "내 정보 조회")
     @GetMapping("/me")
@@ -147,13 +153,33 @@ public class UserController {
     @GetMapping("/{id}/profile")
     public ResponseEntity<ApiResponse<UserDto>> getPublicProfile(@PathVariable Long id) {
         User user = userService.getUserById(id);
+        long followerCount = followRepository.countByFollowing(user);
+        long followingCount = followRepository.countByFollower(user);
+        long badgeCount = userBadgeRepository.findByUserOrderByAwardedAtDesc(user).size();
+        long wodCount = wodRecordRepository.countByUserEmail(user.getEmail());
+        long postCount = postRepository.countByUserEmailAndActiveTrue(user.getEmail());
+
         UserDto dto = UserDto.builder()
             .id(user.getId())
             .name(user.getName())
             .profileImageUrl(user.getProfileImageUrl())
             .role(user.getRole().name())
+            .followerCount(followerCount)
+            .followingCount(followingCount)
+            .badgeCount(badgeCount)
+            .wodCount(wodCount)
+            .postCount(postCount)
             .build();
         return ResponseEntity.ok(ApiResponse.success(dto));
+    }
+
+    @Operation(summary = "사용자 검색")
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<UserDto>>> searchUsers(
+            @RequestParam String keyword,
+            @PageableDefault(size = 20) Pageable pageable) {
+        Page<UserDto> result = userService.searchUsers(keyword, pageable);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     @Operation(summary = "사용자 공개 게시글 목록")

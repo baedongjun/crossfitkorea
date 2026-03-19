@@ -5,7 +5,11 @@ import com.crossfitkorea.common.exception.ErrorCode;
 import com.crossfitkorea.domain.box.dto.BoxAnnouncementDto;
 import com.crossfitkorea.domain.box.entity.Box;
 import com.crossfitkorea.domain.box.entity.BoxAnnouncement;
+import com.crossfitkorea.domain.box.entity.BoxMembership;
 import com.crossfitkorea.domain.box.repository.BoxAnnouncementRepository;
+import com.crossfitkorea.domain.box.repository.BoxMembershipRepository;
+import com.crossfitkorea.domain.notification.entity.NotificationType;
+import com.crossfitkorea.domain.notification.service.NotificationService;
 import com.crossfitkorea.domain.user.entity.User;
 import com.crossfitkorea.domain.user.entity.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +25,8 @@ public class BoxAnnouncementService {
 
     private final BoxAnnouncementRepository boxAnnouncementRepository;
     private final BoxService boxService;
+    private final BoxMembershipRepository boxMembershipRepository;
+    private final NotificationService notificationService;
 
     public List<BoxAnnouncementDto> getAnnouncements(Long boxId) {
         return boxAnnouncementRepository.findByBoxIdAndActiveOrderByPinnedDescCreatedAtDesc(boxId, true)
@@ -47,7 +53,17 @@ public class BoxAnnouncementService {
             .pinned(pinned)
             .build();
 
-        return BoxAnnouncementDto.from(boxAnnouncementRepository.save(announcement));
+        BoxAnnouncementDto result = BoxAnnouncementDto.from(boxAnnouncementRepository.save(announcement));
+
+        // 박스 활성 멤버 전체에게 공지 알림 발송
+        List<BoxMembership> members = boxMembershipRepository.findByBoxIdAndActiveTrueOrderByJoinedAtAsc(boxId);
+        String notifMessage = "[" + box.getName() + "] 새 공지: " + title;
+        String link = "/boxes/" + boxId;
+        for (BoxMembership membership : members) {
+            notificationService.createNotification(membership.getUser(), NotificationType.SYSTEM, notifMessage, link);
+        }
+
+        return result;
     }
 
     @Transactional

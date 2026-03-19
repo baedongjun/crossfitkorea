@@ -20,6 +20,9 @@ public interface CompetitionRegistrationRepository extends JpaRepository<Competi
     @Query("SELECT r FROM CompetitionRegistration r JOIN FETCH r.competition WHERE r.user.email = :email AND r.cancelled = false ORDER BY r.createdAt DESC")
     List<CompetitionRegistration> findByUserEmailAndCancelledFalseOrderByCreatedAtDesc(String email);
 
+    @Query("SELECT r FROM CompetitionRegistration r JOIN FETCH r.user WHERE r.competition.id = :competitionId AND r.cancelled = false")
+    List<CompetitionRegistration> findActiveRegistrationsByCompetitionId(@Param("competitionId") Long competitionId);
+
     @Query("SELECT r FROM CompetitionRegistration r JOIN FETCH r.competition WHERE r.user IN :users AND r.cancelled = false ORDER BY r.createdAt DESC")
     List<CompetitionRegistration> findByUserInAndCancelledFalseOrderByCreatedAtDesc(@Param("users") List<User> users);
 }

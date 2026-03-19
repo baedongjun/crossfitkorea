@@ -398,6 +398,9 @@ export const userApi = {
 
   getUserPosts: (id: number, page = 0) =>
     api.get(`/api/v1/users/${id}/posts`, { params: { page, size: 10 } }),
+
+  searchUsers: (keyword: string, page = 0) =>
+    api.get("/api/v1/users/search", { params: { keyword, page, size: 20 } }),
 };
 
 // Stats API

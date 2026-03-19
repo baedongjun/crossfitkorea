@@ -130,13 +130,13 @@ export default function UserProfilePage() {
             <span className={`badge badge-default`}>
               {ROLE_LABEL[profile.role] || profile.role}
             </span>
-            {/* 팔로워/팔로잉 수 */}
+            {/* 통계 */}
             <div className={s.followCounts}>
               <button
                 className={activeTab === "followers" ? s.followCountActive : s.followCount}
                 onClick={() => setActiveTab("followers")}
               >
-                <span className={s.followNum}>{followCounts?.followerCount ?? 0}</span>
+                <span className={s.followNum}>{(profile as { followerCount?: number }).followerCount ?? followCounts?.followerCount ?? 0}</span>
                 <span className={s.followLabel}>팔로워</span>
               </button>
               <div className={s.followDivider} />
@@ -144,8 +144,21 @@ export default function UserProfilePage() {
                 className={activeTab === "following" ? s.followCountActive : s.followCount}
                 onClick={() => setActiveTab("following")}
               >
-                <span className={s.followNum}>{followCounts?.followingCount ?? 0}</span>
+                <span className={s.followNum}>{(profile as { followingCount?: number }).followingCount ?? followCounts?.followingCount ?? 0}</span>
                 <span className={s.followLabel}>팔로잉</span>
+              </button>
+              <div className={s.followDivider} />
+              <div className={s.followCount}>
+                <span className={s.followNum}>{(profile as { wodCount?: number }).wodCount ?? 0}</span>
+                <span className={s.followLabel}>WOD</span>
+              </div>
+              <div className={s.followDivider} />
+              <button
+                className={activeTab === "posts" ? s.followCountActive : s.followCount}
+                onClick={() => setActiveTab("posts")}
+              >
+                <span className={s.followNum}>{(profile as { postCount?: number }).postCount ?? 0}</span>
+                <span className={s.followLabel}>게시글</span>
               </button>
             </div>
           </div>

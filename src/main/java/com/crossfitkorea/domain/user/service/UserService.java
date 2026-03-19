@@ -6,9 +6,12 @@ import com.crossfitkorea.common.service.EmailService;
 import com.crossfitkorea.domain.user.dto.AuthResponse;
 import com.crossfitkorea.domain.user.dto.LoginRequest;
 import com.crossfitkorea.domain.user.dto.SignupRequest;
+import com.crossfitkorea.domain.user.dto.UserDto;
 import com.crossfitkorea.domain.user.entity.User;
 import com.crossfitkorea.domain.user.entity.UserRole;
 import com.crossfitkorea.domain.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.crossfitkorea.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -75,12 +78,22 @@ public class UserService {
             .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
     }
 
-    public com.crossfitkorea.domain.user.dto.UserDto getMyInfo(String email) {
-        return com.crossfitkorea.domain.user.dto.UserDto.from(getUserByEmail(email));
+    public UserDto getMyInfo(String email) {
+        return UserDto.from(getUserByEmail(email));
+    }
+
+    public Page<UserDto> searchUsers(String keyword, Pageable pageable) {
+        return userRepository.searchUsers(keyword, pageable)
+            .map(u -> UserDto.builder()
+                .id(u.getId())
+                .name(u.getName())
+                .profileImageUrl(u.getProfileImageUrl())
+                .role(u.getRole().name())
+                .build());
     }
 
     @Transactional
-    public com.crossfitkorea.domain.user.dto.UserDto updateMyInfo(String email,
+    public UserDto updateMyInfo(String email,
             com.crossfitkorea.domain.user.dto.UserUpdateRequest request) {
         User user = getUserByEmail(email);
         user.setName(request.getName());
@@ -88,7 +101,7 @@ public class UserService {
         if (request.getProfileImageUrl() != null) {
             user.setProfileImageUrl(request.getProfileImageUrl());
         }
-        return com.crossfitkorea.domain.user.dto.UserDto.from(user);
+        return UserDto.from(user);
     }
 
     @Transactional

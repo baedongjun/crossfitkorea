@@ -40,7 +40,7 @@ public class FollowService {
             })
             .orElseGet(() -> {
                 followRepository.save(Follow.builder().follower(me).following(target).build());
-                notificationService.createNotification(target, NotificationType.SYSTEM,
+                notificationService.createNotification(target, NotificationType.FOLLOW,
                     me.getName() + "님이 팔로우했습니다.", "/users/" + me.getId());
                 return Map.<String, Object>of("following", true,
                     "followerCount", followRepository.countByFollowing(target));

@@ -5,6 +5,8 @@ import com.crossfitkorea.common.exception.ErrorCode;
 import com.crossfitkorea.domain.badge.service.BadgeService;
 import com.crossfitkorea.domain.box.entity.BoxMembership;
 import com.crossfitkorea.domain.box.repository.BoxMembershipRepository;
+import com.crossfitkorea.domain.notification.entity.NotificationType;
+import com.crossfitkorea.domain.notification.service.NotificationService;
 import com.crossfitkorea.domain.user.entity.User;
 import com.crossfitkorea.domain.user.service.UserService;
 import com.crossfitkorea.domain.wod.dto.BoxRankingDto;
@@ -34,6 +36,9 @@ public class WodRecordService {
     private final BoxMembershipRepository membershipRepository;
     private final UserService userService;
     private final BadgeService badgeService;
+    private final NotificationService notificationService;
+
+    private static final Set<Integer> STREAK_MILESTONES = Set.of(3, 7, 14, 30, 60, 100);
 
     public Page<WodRecordDto> getMyRecords(String email, Pageable pageable) {
         return wodRecordRepository.findByUserEmailOrderByWodDateDesc(email, pageable)
@@ -82,6 +87,15 @@ public class WodRecordService {
 
         // 연속 기록 계산
         int streak = calculateStreak(email, date);
+
+        // 스트릭 마일스톤 알림
+        if (STREAK_MILESTONES.contains(streak)) {
+            notificationService.createNotification(
+                user, NotificationType.SYSTEM,
+                "🔥 " + streak + "일 연속 WOD 달성! 대단해요, " + user.getName() + "님!",
+                "/wod/records"
+            );
+        }
 
         WodRecordDto dto = toDto(saved);
         dto.setCurrentStreak(streak);

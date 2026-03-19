@@ -2,7 +2,10 @@ package com.crossfitkorea.domain.competition.service;
 
 import com.crossfitkorea.domain.competition.entity.Competition;
 import com.crossfitkorea.domain.competition.entity.CompetitionStatus;
+import com.crossfitkorea.domain.competition.repository.CompetitionRegistrationRepository;
 import com.crossfitkorea.domain.competition.repository.CompetitionRepository;
+import com.crossfitkorea.domain.notification.entity.NotificationType;
+import com.crossfitkorea.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,6 +21,8 @@ import java.util.List;
 public class CompetitionScheduler {
 
     private final CompetitionRepository competitionRepository;
+    private final CompetitionRegistrationRepository registrationRepository;
+    private final NotificationService notificationService;
 
     /**
      * 매일 자정 대회 상태 자동 업데이트
@@ -41,6 +46,33 @@ public class CompetitionScheduler {
         }
         if (updated > 0) {
             log.info("[CompetitionScheduler] 대회 상태 자동 업데이트: {}건", updated);
+        }
+    }
+
+    /**
+     * 매일 오전 9시 — 대회 D-7, D-1 알림
+     */
+    @Scheduled(cron = "0 0 9 * * *")
+    @Transactional
+    public void sendCompetitionReminders() {
+        LocalDate today = LocalDate.now();
+        LocalDate d7 = today.plusDays(7);
+        LocalDate d1 = today.plusDays(1);
+
+        List<Competition> upcoming = competitionRepository.findByActiveTrueAndStatusNot(CompetitionStatus.COMPLETED);
+        for (Competition comp : upcoming) {
+            boolean isD7 = comp.getStartDate().equals(d7);
+            boolean isD1 = comp.getStartDate().equals(d1);
+            if (!isD7 && !isD1) continue;
+
+            String dLabel = isD1 ? "내일" : "7일 후";
+            String message = "[대회] " + comp.getName() + " " + dLabel + " 시작합니다!";
+            String link = "/competitions/" + comp.getId();
+
+            registrationRepository.findActiveRegistrationsByCompetitionId(comp.getId())
+                .forEach(reg -> notificationService.createNotification(
+                    reg.getUser(), NotificationType.COMPETITION, message, link
+                ));
         }
     }
 

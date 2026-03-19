@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import QueryProvider from "@/components/providers/QueryProvider";
 import FadeInObserver from "@/components/common/FadeInObserver";
+import ServiceWorkerRegistrar from "@/components/common/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
   title: {
@@ -51,6 +52,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap"
           rel="stylesheet"
         />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#e8220a" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
       <body>
         <QueryProvider>
@@ -60,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </div>
           <FadeInObserver />
+          <ServiceWorkerRegistrar />
           <ToastContainer
             position="top-right"
             autoClose={3000}

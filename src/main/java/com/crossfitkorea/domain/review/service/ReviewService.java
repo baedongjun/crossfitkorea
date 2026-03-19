@@ -9,6 +9,8 @@ import com.crossfitkorea.domain.review.dto.ReviewCreateRequest;
 import com.crossfitkorea.domain.review.dto.ReviewDto;
 import com.crossfitkorea.domain.review.entity.Review;
 import com.crossfitkorea.domain.review.repository.ReviewRepository;
+import com.crossfitkorea.domain.notification.entity.NotificationType;
+import com.crossfitkorea.domain.notification.service.NotificationService;
 import com.crossfitkorea.domain.user.entity.User;
 import com.crossfitkorea.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ public class ReviewService {
     private final BoxService boxService;
     private final BoxRepository boxRepository;
     private final UserService userService;
+    private final NotificationService notificationService;
 
     public Page<ReviewDto> getReviewsByBox(Long boxId, Pageable pageable) {
         return reviewRepository.findByBoxIdAndActiveTrueOrderByCreatedAtDesc(boxId, pageable)
@@ -58,6 +61,16 @@ public class ReviewService {
 
         reviewRepository.save(review);
         updateBoxRating(box);
+
+        // 박스 오너에게 후기 알림
+        if (box.getOwner() != null && !box.getOwner().getEmail().equals(userEmail)) {
+            notificationService.createNotification(
+                box.getOwner(),
+                NotificationType.REVIEW,
+                user.getName() + "님이 " + box.getName() + "에 " + request.getRating() + "점 후기를 남겼습니다.",
+                "/boxes/" + boxId
+            );
+        }
 
         return ReviewDto.from(review);
     }

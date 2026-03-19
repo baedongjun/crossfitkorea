@@ -16,6 +16,13 @@ public class UserDto {
     private String role;
     private boolean active;
 
+    // 공개 프로필용 추가 필드
+    private Long followerCount;
+    private Long followingCount;
+    private Long badgeCount;
+    private Long wodCount;
+    private Long postCount;
+
     public static UserDto from(User user) {
         return UserDto.builder()
             .id(user.getId())

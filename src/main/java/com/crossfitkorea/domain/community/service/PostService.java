@@ -220,6 +220,15 @@ public class PostService {
         } else {
             post.getLikedUserIds().add(user.getId());
             post.setLikeCount(post.getLikeCount() + 1);
+            // 좋아요 알림: 게시글 작성자에게 (본인 제외)
+            if (!post.getUser().getEmail().equals(userEmail)) {
+                notificationService.createNotification(
+                    post.getUser(),
+                    NotificationType.COMMUNITY,
+                    user.getName() + "님이 회원님의 게시글을 좋아합니다.",
+                    "/community/" + post.getId()
+                );
+            }
         }
         return PostDto.from(post);
     }

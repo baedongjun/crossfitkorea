@@ -59,4 +59,25 @@ public class AdminPostController {
         postService.adminDeleteComment(id);
         return ResponseEntity.ok(ApiResponse.success(null));
     }
+
+    @Operation(summary = "[어드민] 신고된 게시글 목록 (신고 1건 이상)")
+    @GetMapping("/posts/reported")
+    public ResponseEntity<ApiResponse<Page<PostDto>>> getReportedPosts(
+        @PageableDefault(size = 20) Pageable pageable
+    ) {
+        Page<PostDto> posts = postRepository
+            .findByActiveTrueAndReportCountGreaterThanOrderByReportCountDesc(0, pageable)
+            .map(PostDto::from);
+        return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
+    @Operation(summary = "[어드민] 신고 카운트 초기화")
+    @Transactional
+    @PatchMapping("/posts/{id}/clear-reports")
+    public ResponseEntity<ApiResponse<Void>> clearReports(@PathVariable Long id) {
+        Post post = postRepository.findById(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.POST_NOT_FOUND));
+        post.clearReports();
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
 }

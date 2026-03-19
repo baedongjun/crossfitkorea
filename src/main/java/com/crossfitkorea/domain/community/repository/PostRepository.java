@@ -36,4 +36,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByActiveTrueOrderByPinnedDescCreatedAtDesc(Pageable pageable);
 
     List<Post> findByUserInAndActiveTrueOrderByCreatedAtDesc(List<User> users);
+
+    Page<Post> findByActiveTrueAndReportCountGreaterThanOrderByReportCountDesc(int minReports, Pageable pageable);
 }

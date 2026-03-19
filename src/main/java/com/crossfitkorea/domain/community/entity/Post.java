@@ -70,4 +70,9 @@ public class Post extends BaseEntity {
     @Column(name = "user_id")
     @Builder.Default
     private java.util.Set<Long> reportedUserIds = new java.util.HashSet<>();
+
+    public void clearReports() {
+        this.reportCount = 0;
+        this.reportedUserIds.clear();
+    }
 }

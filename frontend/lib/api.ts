@@ -479,6 +479,12 @@ export const adminApi = {
 
   updateCompetition: (id: number, data: object) =>
     api.put(`/api/v1/admin/competitions/${id}`, data),
+
+  getReportedPosts: (page = 0) =>
+    api.get("/api/v1/admin/posts/reported", { params: { page } }),
+
+  clearReports: (id: number) =>
+    api.patch(`/api/v1/admin/posts/${id}/clear-reports`),
 };
 
 // Challenge API
@@ -579,6 +585,18 @@ export const competitionResultApi = {
     api.get(`/api/v1/competitions/${competitionId}/results`),
   saveResults: (competitionId: number, results: Array<{ userId?: number; userName: string; rank: number; score?: string; notes?: string }>) =>
     api.post(`/api/v1/competitions/${competitionId}/results`, results),
+};
+
+// Check-in API
+export const checkInApi = {
+  checkIn: (boxId: number) =>
+    api.post(`/api/v1/boxes/${boxId}/checkin`),
+
+  getMyCheckIns: (page = 0) =>
+    api.get("/api/v1/users/me/checkins", { params: { page, size: 20 } }),
+
+  getBoxCheckIns: (boxId: number, page = 0) =>
+    api.get(`/api/v1/boxes/${boxId}/checkins`, { params: { page, size: 30 } }),
 };
 
 // Goal API

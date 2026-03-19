@@ -21,8 +21,8 @@ export default function BoxCheckinPage() {
   });
 
   const checkinUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/boxes/${boxId}`
-    : `https://crossfitkorea.com/boxes/${boxId}`;
+    ? `${window.location.origin}/boxes/${boxId}/scan`
+    : `https://crossfitkorea.com/boxes/${boxId}/scan`;
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -62,7 +62,7 @@ export default function BoxCheckinPage() {
           </div>
 
           <p className={s.desc}>
-            이 QR 코드를 스캔하면 박스 페이지로 이동합니다.<br />
+            회원이 이 QR 코드를 스캔하면 자동으로 출석이 기록됩니다.<br />
             인쇄하여 박스 입구에 부착해보세요.
           </p>
 
@@ -90,7 +90,7 @@ export default function BoxCheckinPage() {
           <ol className={s.infoList}>
             <li>QR 코드를 인쇄하여 박스 입구에 부착</li>
             <li>회원이 스마트폰으로 QR 코드 스캔</li>
-            <li>박스 페이지에서 멤버십 가입 확인</li>
+            <li>출석 체크인 자동 기록 (1시간 중복 방지)</li>
             <li>WOD 기록 작성 및 출석 완료</li>
           </ol>
         </div>

@@ -147,6 +147,7 @@ export default function WodPage() {
           </div>
           <h1 className={s.heroTitle}>오늘의 WOD</h1>
           <p className={s.heroDate}>{today}</p>
+          <Link href="/wod/timer" className={s.timerLink}>⏱ WOD 타이머 →</Link>
         </div>
       </div>
 

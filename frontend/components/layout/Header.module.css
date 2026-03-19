@@ -187,6 +187,18 @@
   text-align: center;
 }
 
+/* Search */
+.searchBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.searchBtn:hover { color: var(--text); }
+
 /* Bell notification */
 .bellWrap {
   position: relative;

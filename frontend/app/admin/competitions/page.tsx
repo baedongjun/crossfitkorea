@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminApi, competitionApi } from "@/lib/api";
+import { adminApi, competitionApi, competitionResultApi } from "@/lib/api";
 import { Competition, CompetitionStatus } from "@/types";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -39,6 +39,10 @@ export default function AdminCompetitionsPage() {
   });
 
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [resultCompId, setResultCompId] = useState<number | null>(null);
+  const [resultRows, setResultRows] = useState<{ rank: string; userName: string; score: string; notes: string }[]>([
+    { rank: "1", userName: "", score: "", notes: "" },
+  ]);
   const [editForm, setEditForm] = useState({
     name: "", description: "", organizer: "", imageUrl: "",
     startDate: "", endDate: "", location: "", city: "",
@@ -85,6 +89,21 @@ export default function AdminCompetitionsPage() {
       queryClient.invalidateQueries({ queryKey: ["competitions"] });
     },
     onError: () => toast.error("변경에 실패했습니다."),
+  });
+
+  const saveResultsMutation = useMutation({
+    mutationFn: () => competitionResultApi.saveResults(
+      resultCompId!,
+      resultRows
+        .filter((r) => r.userName.trim())
+        .map((r) => ({ rank: Number(r.rank), userName: r.userName, score: r.score || undefined, notes: r.notes || undefined }))
+    ),
+    onSuccess: () => {
+      toast.success("결과가 저장되었습니다.");
+      setResultCompId(null);
+      setResultRows([{ rank: "1", userName: "", score: "", notes: "" }]);
+    },
+    onError: () => toast.error("저장에 실패했습니다."),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -235,6 +254,17 @@ export default function AdminCompetitionsPage() {
                           <option key={st} value={st}>{STATUS_LABELS[st]}</option>
                         ))}
                       </select>
+                      {comp.status === "COMPLETED" && (
+                        <button
+                          className={s.editBtn}
+                          onClick={() => {
+                            if (resultCompId === comp.id) { setResultCompId(null); }
+                            else { setResultCompId(comp.id); setEditingId(null); }
+                          }}
+                        >
+                          {resultCompId === comp.id ? "결과 닫기" : "결과 입력"}
+                        </button>
+                      )}
                       <button
                         className={s.editBtn}
                         onClick={() => editingId === comp.id ? setEditingId(null) : startEdit(comp)}
@@ -254,6 +284,28 @@ export default function AdminCompetitionsPage() {
                       </button>
                     </div>
                   </div>
+                  {resultCompId === comp.id && (
+                    <div className={s.editForm}>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 16 }}>대회 결과 입력</p>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {resultRows.map((row, idx) => (
+                          <div key={idx} style={{ display: "grid", gridTemplateColumns: "60px 1fr 1fr 1fr auto", gap: 8, alignItems: "center" }}>
+                            <input className="input-field" style={{ textAlign: "center" }} placeholder="순위" value={row.rank} onChange={(e) => { const nr = [...resultRows]; nr[idx] = { ...nr[idx], rank: e.target.value }; setResultRows(nr); }} />
+                            <input className="input-field" placeholder="참가자 이름" value={row.userName} onChange={(e) => { const nr = [...resultRows]; nr[idx] = { ...nr[idx], userName: e.target.value }; setResultRows(nr); }} />
+                            <input className="input-field" placeholder="기록 (선택)" value={row.score} onChange={(e) => { const nr = [...resultRows]; nr[idx] = { ...nr[idx], score: e.target.value }; setResultRows(nr); }} />
+                            <input className="input-field" placeholder="메모 (선택)" value={row.notes} onChange={(e) => { const nr = [...resultRows]; nr[idx] = { ...nr[idx], notes: e.target.value }; setResultRows(nr); }} />
+                            <button className="btn-secondary" style={{ padding: "8px 10px", fontSize: 12 }} onClick={() => setResultRows((r) => r.filter((_, i) => i !== idx))}>✕</button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className={s.editActions} style={{ marginTop: 12 }}>
+                        <button className="btn-secondary" style={{ padding: "8px 16px", fontSize: 13 }} onClick={() => setResultRows((r) => [...r, { rank: String(r.length + 1), userName: "", score: "", notes: "" }])}>+ 행 추가</button>
+                        <button className="btn-primary" style={{ padding: "8px 20px", fontSize: 13 }} onClick={() => saveResultsMutation.mutate()} disabled={saveResultsMutation.isPending}>
+                          {saveResultsMutation.isPending ? "저장 중..." : "결과 저장"}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   {editingId === comp.id && (
                     <div className={s.editForm}>
                       <div className={s.editRow}>

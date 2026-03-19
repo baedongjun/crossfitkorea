@@ -228,7 +228,7 @@ export const wodApi = {
 
 // Competition API
 export const competitionApi = {
-  getAll: (params?: { status?: string; city?: string; page?: number }) =>
+  getAll: (params?: { status?: string; city?: string; page?: number; size?: number }) =>
     api.get("/api/v1/competitions", { params }),
 
   getOne: (id: number) =>
@@ -267,7 +267,7 @@ export const communityApi = {
   getHotPosts: () =>
     api.get("/api/v1/community/posts/hot"),
 
-  getPosts: (params?: { category?: string; keyword?: string; page?: number; sort?: string }) =>
+  getPosts: (params?: { category?: string; keyword?: string; page?: number; sort?: string; size?: number }) =>
     api.get("/api/v1/community/posts", { params }),
 
   getMyPosts: (page = 0) =>
@@ -533,4 +533,43 @@ export const advertisementApi = {
 
   deleteAd: (id: number) =>
     api.delete(`/api/v1/admin/advertisements/${id}`),
+};
+
+// Bookmark API
+export const bookmarkApi = {
+  toggle: (postId: number) =>
+    api.post(`/api/v1/community/posts/${postId}/bookmark`),
+  getStatus: (postId: number) =>
+    api.get(`/api/v1/community/posts/${postId}/bookmark`),
+  getMyBookmarks: (page = 0) =>
+    api.get("/api/v1/community/posts/bookmarks", { params: { page, size: 20 } }),
+};
+
+// Announcement API
+export const announcementApi = {
+  getByBox: (boxId: number) =>
+    api.get(`/api/v1/boxes/${boxId}/announcements`),
+  create: (boxId: number, data: { title: string; content: string; pinned?: boolean }) =>
+    api.post(`/api/v1/boxes/${boxId}/announcements`, data),
+  delete: (boxId: number, announcementId: number) =>
+    api.delete(`/api/v1/boxes/${boxId}/announcements/${announcementId}`),
+};
+
+// Competition Results API
+export const competitionResultApi = {
+  getResults: (competitionId: number) =>
+    api.get(`/api/v1/competitions/${competitionId}/results`),
+  saveResults: (competitionId: number, results: Array<{ userId?: number; userName: string; rank: number; score?: string; notes?: string }>) =>
+    api.post(`/api/v1/competitions/${competitionId}/results`, results),
+};
+
+// Goal API
+export const goalApi = {
+  getAll: () => api.get("/api/v1/goals"),
+  create: (data: { exerciseType: string; targetValue: number; unit?: string; targetDate?: string; notes?: string }) =>
+    api.post("/api/v1/goals", data),
+  update: (id: number, data: { targetValue?: number; currentValue?: number; notes?: string }) =>
+    api.put(`/api/v1/goals/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/goals/${id}`),
+  achieve: (id: number) => api.patch(`/api/v1/goals/${id}/achieve`),
 };

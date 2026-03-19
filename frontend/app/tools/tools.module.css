@@ -1,0 +1,163 @@
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg); }
+
+.inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--text);
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+
+.sub { font-size: 13px; color: var(--muted); }
+
+.timerBtn {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  letter-spacing: 1px;
+  transition: border-color 0.2s;
+}
+.timerBtn:hover { border-color: var(--text); }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.select, .input {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  width: 100%;
+}
+
+.select:focus, .input:focus { border-color: var(--red); }
+
+/* Result */
+.result1rm {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(232,34,10,0.06);
+  border: 1px solid rgba(232,34,10,0.3);
+  margin-bottom: 20px;
+}
+
+.result1rmLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.result1rmValue {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  color: var(--red);
+  letter-spacing: 2px;
+}
+
+.result1rmSub { font-size: 14px; color: var(--muted); margin-left: auto; }
+
+/* Formula Row */
+.formulaRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.formulaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  min-width: 110px;
+}
+
+.formulaName { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.formulaVal { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text); }
+
+/* Table */
+.tableWrap { overflow-x: auto; }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+}
+
+.table th {
+  background: var(--bg-card-2);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: 10px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: var(--bg-card-2); }
+
+.rowMax td { background: rgba(232,34,10,0.06) !important; }
+.tdPct { font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--red); }
+.tdWeight { font-weight: 700; }
+.tdReps { color: var(--muted); }
+
+@media (max-width: 640px) {
+  .formRow { grid-template-columns: 1fr 1fr; }
+  .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+}

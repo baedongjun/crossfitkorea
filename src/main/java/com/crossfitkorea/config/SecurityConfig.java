@@ -62,6 +62,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/advertisements").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/challenges").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/challenges/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/competitions/*/results").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/boxes/*/announcements").permitAll()
                 // Swagger
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // Actuator

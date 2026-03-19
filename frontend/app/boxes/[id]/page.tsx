@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { boxApi, membershipApi, uploadApi } from "@/lib/api";
+import { boxApi, membershipApi, uploadApi, announcementApi } from "@/lib/api";
 import BoxDetailMap from "@/components/box/BoxDetailMap";
-import { Box, Coach, Schedule, Review, Page } from "@/types";
+import { Box, Coach, Schedule, Review, Page, BoxAnnouncement } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
@@ -20,7 +20,7 @@ const DAY_LABEL: Record<string, string> = {
   THURSDAY:"목요일", FRIDAY:"금요일", SATURDAY:"토요일", SUNDAY:"일요일",
 };
 
-const TABS = ["정보", "코치", "시간표", "후기"] as const;
+const TABS = ["정보", "공지사항", "코치", "시간표", "후기"] as const;
 type Tab = typeof TABS[number];
 
 export default function BoxDetailPage() {
@@ -56,6 +56,10 @@ export default function BoxDetailPage() {
   const [hoverRating, setHoverRating] = useState(0);
   const [reviewContent, setReviewContent] = useState("");
   const [favorited, setFavorited] = useState(false);
+
+  // Announcements state
+  const [showAnnouncementForm, setShowAnnouncementForm] = useState(false);
+  const [announcementForm, setAnnouncementForm] = useState({ title: "", content: "", pinned: false });
   const [isMember, setIsMember] = useState(false);
   const [reviewPage, setReviewPage] = useState(0);
 
@@ -80,6 +84,12 @@ export default function BoxDetailPage() {
     queryKey: ["box", boxId, "reviews", reviewPage],
     queryFn: async () => (await boxApi.getReviews(boxId, reviewPage)).data.data,
     enabled: tab === "후기",
+  });
+
+  const { data: announcements } = useQuery({
+    queryKey: ["box", boxId, "announcements"],
+    queryFn: async () => (await announcementApi.getByBox(boxId)).data.data as BoxAnnouncement[],
+    enabled: tab === "공지사항",
   });
 
   const { data: favoriteData } = useQuery({
@@ -240,6 +250,26 @@ export default function BoxDetailPage() {
     onError: () => toast.error("수정에 실패했습니다."),
   });
 
+  const addAnnouncementMutation = useMutation({
+    mutationFn: () => announcementApi.create(boxId, announcementForm),
+    onSuccess: () => {
+      toast.success("공지가 등록되었습니다.");
+      setAnnouncementForm({ title: "", content: "", pinned: false });
+      setShowAnnouncementForm(false);
+      queryClient.invalidateQueries({ queryKey: ["box", boxId, "announcements"] });
+    },
+    onError: () => toast.error("공지 등록에 실패했습니다."),
+  });
+
+  const deleteAnnouncementMutation = useMutation({
+    mutationFn: (aId: number) => announcementApi.delete(boxId, aId),
+    onSuccess: () => {
+      toast.success("공지가 삭제되었습니다.");
+      queryClient.invalidateQueries({ queryKey: ["box", boxId, "announcements"] });
+    },
+    onError: () => toast.error("삭제에 실패했습니다."),
+  });
+
   const handleShare = () => {
     if (typeof navigator !== "undefined" && "share" in navigator) {
       (navigator as Navigator).share({ title: box?.name, text: `${box?.name} - ${box?.city} ${box?.district}`, url: window.location.href }).catch(() => {});
@@ -366,9 +396,10 @@ export default function BoxDetailPage() {
               )}
               {(currentUser?.role === "ROLE_ADMIN" ||
                 (currentUser?.role === "ROLE_BOX_OWNER" && box.ownerName === currentUser?.name)) && (
-                <Link href={`/boxes/${boxId}/edit`} className={s.editBtn}>
-                  정보 수정
-                </Link>
+                <>
+                  <Link href={`/boxes/${boxId}/edit`} className={s.editBtn}>정보 수정</Link>
+                  <Link href={`/boxes/${boxId}/checkin`} className={s.editBtn} style={{ marginLeft: 8 }}>QR 체크인</Link>
+                </>
               )}
             </div>
           </div>
@@ -439,6 +470,66 @@ export default function BoxDetailPage() {
                 )}
               </div>
               {box.description && <div className={s.description}>{box.description}</div>}
+            </div>
+          )}
+
+          {/* 공지사항 */}
+          {tab === "공지사항" && (
+            <div>
+              {isOwner && (
+                <div className={s.ownerBar}>
+                  <button className="btn-primary" style={{ padding: "10px 20px", fontSize: 13 }} onClick={() => setShowAnnouncementForm(!showAnnouncementForm)}>
+                    {showAnnouncementForm ? "취소" : "+ 공지 등록"}
+                  </button>
+                </div>
+              )}
+              {showAnnouncementForm && (
+                <div className={s.addForm}>
+                  <div className={s.addField}>
+                    <label className={s.addLabel}>제목</label>
+                    <input className="input-field" value={announcementForm.title} onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })} placeholder="공지 제목" />
+                  </div>
+                  <div className={s.addField}>
+                    <label className={s.addLabel}>내용</label>
+                    <textarea className={s.reviewTextarea} value={announcementForm.content} onChange={(e) => setAnnouncementForm({ ...announcementForm, content: e.target.value })} placeholder="공지 내용을 입력하세요" rows={4} />
+                  </div>
+                  <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--muted)", cursor: "pointer" }}>
+                    <input type="checkbox" checked={announcementForm.pinned} onChange={(e) => setAnnouncementForm({ ...announcementForm, pinned: e.target.checked })} />
+                    상단 고정
+                  </label>
+                  <div className={s.addFormActions}>
+                    <button className="btn-primary" style={{ padding: "10px 24px", fontSize: 13 }} onClick={() => addAnnouncementMutation.mutate()} disabled={!announcementForm.title.trim() || !announcementForm.content.trim() || addAnnouncementMutation.isPending}>
+                      {addAnnouncementMutation.isPending ? "등록 중..." : "공지 등록"}
+                    </button>
+                  </div>
+                </div>
+              )}
+              {announcements && announcements.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {announcements.map((a) => (
+                    <div key={a.id} className={s.announcementItem}>
+                      <div className={s.announcementHeader}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          {a.pinned && <span className="badge badge-default" style={{ fontSize: 10 }}>고정</span>}
+                          <p className={s.announcementTitle}>{a.title}</p>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span className={s.announcementDate}>{dayjs(a.createdAt).format("YYYY.MM.DD")}</span>
+                          {isOwner && (
+                            <button className="btn-secondary" style={{ padding: "4px 10px", fontSize: 11 }} onClick={() => { if (window.confirm("공지를 삭제하시겠습니까?")) deleteAnnouncementMutation.mutate(a.id); }}>삭제</button>
+                          )}
+                        </div>
+                      </div>
+                      <p className={s.announcementContent}>{a.content}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={s.empty}>
+                  <div className={s.emptyIcon}>📢</div>
+                  <p>등록된 공지사항이 없습니다</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -617,6 +708,41 @@ export default function BoxDetailPage() {
                 <div className={s.empty}>
                   <div className={s.emptyIcon}>📅</div>
                   <p>등록된 시간표가 없습니다</p>
+                </div>
+              )}
+              {schedules && schedules.length > 0 && (
+                <div style={{ marginTop: 16 }}>
+                  <button
+                    className="btn-secondary"
+                    style={{ fontSize: 12, padding: "8px 16px" }}
+                    onClick={() => {
+                      const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//CrossFitKorea//Schedule//KO"];
+                      const dayMap: Record<string, string> = { MONDAY: "MO", TUESDAY: "TU", WEDNESDAY: "WE", THURSDAY: "TH", FRIDAY: "FR", SATURDAY: "SA", SUNDAY: "SU" };
+                      schedules.forEach((sc) => {
+                        lines.push("BEGIN:VEVENT");
+                        lines.push(`SUMMARY:${box?.name || "CrossFit"} - ${sc.className || "CrossFit"}`);
+                        lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${dayMap[sc.dayOfWeek] || "MO"}`);
+                        const today = dayjs().format("YYYYMMDD");
+                        lines.push(`DTSTART:${today}T${(sc.startTime || "06:00").replace(":", "")}00`);
+                        lines.push(`DTEND:${today}T${(sc.endTime || "07:00").replace(":", "")}00`);
+                        lines.push("END:VEVENT");
+                      });
+                      lines.push("END:VCALENDAR");
+                      const blob = new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8;" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `${box?.name || "schedule"}_schedule.ics`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                      toast.success("시간표가 다운로드됩니다.");
+                    }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }}>
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    캘린더에 추가 (.ics)
+                  </button>
                 </div>
               )}
             </div>

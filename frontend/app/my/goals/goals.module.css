@@ -1,0 +1,199 @@
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg); }
+.inner { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+
+.back { font-size: 13px; color: var(--muted); text-decoration: none; display: block; margin-bottom: 8px; }
+.back:hover { color: var(--text); }
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--text);
+  letter-spacing: 3px;
+  margin: 0 0 4px;
+}
+
+.sub { font-size: 13px; color: var(--muted); }
+
+.loading { text-align: center; padding: 60px; color: var(--muted); font-size: 13px; letter-spacing: 2px; }
+
+/* Form */
+.formWrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.formTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.select {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  width: 100%;
+}
+.select:focus { border-color: var(--red); }
+
+.formActions { display: flex; gap: 12px; margin-top: 16px; }
+
+/* Section */
+.sectionTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* Goal Cards */
+.goalList { display: flex; flex-direction: column; gap: 12px; }
+
+.goalCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 20px;
+  transition: border-color 0.2s;
+}
+
+.goalCard:hover { border-color: rgba(255,255,255,0.15); }
+
+.goalAchieved {
+  opacity: 0.7;
+  border-color: rgba(76,175,80,0.3);
+}
+
+.goalTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.goalExercise {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-right: 8px;
+}
+
+.goalDate { font-size: 12px; color: var(--muted); }
+
+.achievedBadge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #4caf50;
+  border: 1px solid rgba(76,175,80,0.4);
+  padding: 2px 8px;
+  margin-right: 8px;
+  background: rgba(76,175,80,0.1);
+}
+
+.goalActions { display: flex; gap: 6px; }
+
+.btnSmall {
+  padding: 4px 12px;
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: border-color 0.2s;
+}
+.btnSmall:hover { border-color: var(--text); color: var(--text); }
+
+.btnAchieve { border-color: rgba(76,175,80,0.4); color: #4caf50; }
+.btnAchieve:hover { border-color: #4caf50; opacity: 0.8; }
+
+.btnDelete { border-color: rgba(232,34,10,0.3); color: var(--red); }
+.btnDelete:hover { border-color: var(--red); }
+
+.goalValue {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.goalCurrent {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--orange);
+}
+
+.goalSep { color: var(--muted); }
+
+.goalTarget {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--text);
+}
+
+.goalUnit { font-size: 14px; color: var(--muted); }
+
+/* Progress */
+.progressBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 6px;
+  background: var(--bg-card-2);
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--orange);
+  transition: width 0.5s ease;
+}
+
+.progressPct { font-size: 11px; color: var(--muted); }
+
+.goalNotes { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+/* Empty */
+.empty { text-align: center; padding: 80px 24px; }
+.emptyText { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+.emptyHint { font-size: 13px; color: var(--muted); }
+
+@media (max-width: 640px) {
+  .formGrid { grid-template-columns: 1fr 1fr; }
+  .header { flex-direction: column; gap: 12px; }
+}

@@ -117,10 +117,12 @@ export interface Post {
   likeCount: number;
   commentCount: number;
   imageUrls: string[];
+  userId?: number;
   userName: string;
   userProfileImageUrl: string | null;
   createdAt: string;
   pinned?: boolean;
+  reportCount?: number;
 }
 
 export interface Comment {
@@ -160,6 +162,7 @@ export interface WodRecord {
   rx: boolean;
   userName: string;
   boxName: string | null;
+  wodTitle?: string;
 }
 
 export interface BoxMembership {
@@ -200,4 +203,36 @@ export interface BoxRanking {
   participantCount: number;
   rxCount: number;
   topScores: string[];
+}
+
+export interface BoxAnnouncement {
+  id: number;
+  boxId: number;
+  title: string;
+  content: string;
+  pinned: boolean;
+  createdAt: string;
+}
+
+export interface CompetitionResult {
+  id: number;
+  competitionId: number;
+  userId?: number;
+  userName: string;
+  rank: number;
+  score?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface UserGoal {
+  id: number;
+  exerciseType: string;
+  targetValue: number;
+  currentValue?: number;
+  unit?: string;
+  targetDate?: string;
+  achieved: boolean;
+  notes?: string;
+  createdAt: string;
 }

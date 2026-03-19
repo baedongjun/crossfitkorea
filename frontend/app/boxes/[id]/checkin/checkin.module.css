@@ -1,0 +1,129 @@
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg); }
+
+.inner { max-width: 500px; margin: 0 auto; padding: 48px 24px; }
+
+.back { font-size: 13px; color: var(--muted); text-decoration: none; display: block; margin-bottom: 24px; }
+.back:hover { color: var(--text); }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 36px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header { margin-bottom: 28px; }
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 4px;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.boxName { font-size: 14px; color: var(--muted); }
+
+.qrWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  background: #1a1a1a;
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+.qrCanvas { display: block; }
+
+.qrPlaceholder {
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.urlBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.urlLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.url {
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* Info Card */
+.infoCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.infoTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.infoList {
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+}
+
+.infoList li {
+  counter-increment: step;
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.infoList li:last-child { border-bottom: none; }
+
+.infoList li::before {
+  content: counter(step);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--red);
+  min-width: 20px;
+}
+
+@media print {
+  .back, .actions, .infoCard, .desc, .urlBox { display: none; }
+  .page { padding: 0; }
+  .inner { max-width: 100%; padding: 0; }
+  .card { border: none; padding: 20px; }
+}

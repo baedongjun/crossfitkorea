@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { communityApi, adminApi } from "@/lib/api";
+import { communityApi, adminApi, bookmarkApi } from "@/lib/api";
 import { Post, Comment } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
@@ -170,6 +170,7 @@ export default function PostDetailPage() {
   const currentUser = getUser();
   const [commentText, setCommentText] = useState("");
   const [liked, setLiked] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
 
   const { data: post, isLoading, refetch: refetchPost } = useQuery({
     queryKey: ["post", postId],
@@ -197,6 +198,15 @@ export default function PostDetailPage() {
       refetchPost();
     },
     onError: () => toast.error("좋아요 처리에 실패했습니다."),
+  });
+
+  const bookmarkMutation = useMutation({
+    mutationFn: () => bookmarkApi.toggle(postId),
+    onSuccess: (res) => {
+      setBookmarked(res.data.data.bookmarked);
+      toast.success(res.data.data.bookmarked ? "북마크에 저장됐습니다." : "북마크가 해제됐습니다.");
+    },
+    onError: () => toast.error("북마크 처리에 실패했습니다."),
   });
 
   const deleteMutation = useMutation({
@@ -237,7 +247,11 @@ export default function PostDetailPage() {
             <h1 className={s.postTitle}>{post.title}</h1>
             <div className={s.postMeta}>
               <div className={s.postMetaLeft}>
-                <span>{post.userName}</span>
+                {post.userId ? (
+                  <a href={`/users/${post.userId}`} style={{ color: "inherit", textDecoration: "none" }}>{post.userName}</a>
+                ) : (
+                  <span>{post.userName}</span>
+                )}
                 <span>·</span>
                 <span>{dayjs(post.createdAt).fromNow()}</span>
               </div>
@@ -281,6 +295,19 @@ export default function PostDetailPage() {
               </svg>
               좋아요 {post.likeCount}
             </button>
+            {isLoggedIn() && (
+              <button
+                className={`${s.reportBtn} ${bookmarked ? s.bookmarkActive : ""}`}
+                style={{ color: bookmarked ? "var(--orange)" : undefined, borderColor: bookmarked ? "rgba(255,107,26,0.4)" : undefined }}
+                onClick={() => bookmarkMutation.mutate()}
+                disabled={bookmarkMutation.isPending}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                </svg>
+                {bookmarked ? "저장됨" : "저장"}
+              </button>
+            )}
             {isLoggedIn() && currentUser?.name !== post.userName && (
               <button
                 className={s.reportBtn}

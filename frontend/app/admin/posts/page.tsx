@@ -14,6 +14,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export default function AdminPostsPage() {
   const [page, setPage] = useState(0);
+  const [showReportedOnly, setShowReportedOnly] = useState(false);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -48,6 +49,14 @@ export default function AdminPostsPage() {
     <div>
       <h1 className={s.pageTitle}>게시글 관리</h1>
 
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--muted)", cursor: "pointer" }}>
+          <input type="checkbox" checked={showReportedOnly} onChange={(e) => { setShowReportedOnly(e.target.checked); setPage(0); }} />
+          신고된 게시글만 보기
+        </label>
+        {showReportedOnly && <span style={{ fontSize: 12, color: "var(--red)" }}>⚠ 신고 접수된 게시글 필터링 중</span>}
+      </div>
+
       <div className={s.tableWrap}>
         <table className={s.table}>
           <thead className={s.thead}>
@@ -56,6 +65,7 @@ export default function AdminPostsPage() {
               <th className={s.th}>제목</th>
               <th className={s.th}>작성자</th>
               <th className={`${s.th} ${s.thCenter}`}>조회/좋아요/댓글</th>
+              <th className={`${s.th} ${s.thCenter}`}>신고</th>
               <th className={`${s.th} ${s.thCenter}`}>작성일</th>
               <th className={`${s.th} ${s.thCenter}`}>관리</th>
             </tr>
@@ -64,13 +74,13 @@ export default function AdminPostsPage() {
             {isLoading ? (
               [...Array(10)].map((_, i) => (
                 <tr key={i} className={s.tr}>
-                  {[...Array(6)].map((_, j) => (
+                  {[...Array(7)].map((_, j) => (
                     <td key={j} className={s.td}><div className={s.skeletonCell} /></td>
                   ))}
                 </tr>
               ))
             ) : (
-              data?.content?.map((post: { id: number; category: string; title: string; userName: string; viewCount: number; likeCount: number; commentCount: number; createdAt: string; pinned: boolean }) => (
+              data?.content?.filter((post: { reportCount?: number }) => !showReportedOnly || (post.reportCount ?? 0) > 0).map((post: { id: number; category: string; title: string; userName: string; viewCount: number; likeCount: number; commentCount: number; createdAt: string; pinned: boolean; reportCount?: number }) => (
                 <tr key={post.id} className={`${s.tr} ${post.pinned ? ps.pinnedRow : ""}`}>
                   <td className={s.td}>
                     <span className={ps.catBadge}>{CATEGORY_LABEL[post.category] || post.category}</span>
@@ -84,6 +94,13 @@ export default function AdminPostsPage() {
                     <span className={ps.stats}>
                       {post.viewCount} / {post.likeCount} / {post.commentCount}
                     </span>
+                  </td>
+                  <td className={`${s.td} ${s.tdCenter}`}>
+                    {(post.reportCount ?? 0) > 0 ? (
+                      <span style={{ color: "var(--red)", fontWeight: 600, fontSize: 13 }}>⚠ {post.reportCount}</span>
+                    ) : (
+                      <span style={{ color: "var(--muted)", fontSize: 12 }}>-</span>
+                    )}
                   </td>
                   <td className={`${s.td} ${s.tdCenter}`}>
                     {dayjs(post.createdAt).format("MM.DD HH:mm")}

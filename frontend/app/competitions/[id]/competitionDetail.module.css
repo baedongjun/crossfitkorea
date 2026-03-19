@@ -178,6 +178,49 @@
 }
 .calendarBtn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
 
+/* Results */
+.resultsCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px;
+}
+
+.resultsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.resultsTable th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.resultsTable td {
+  padding: 12px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+}
+
+.resultsTable tr:last-child td { border-bottom: none; }
+
+.topRow td { color: var(--text); font-weight: 600; }
+
+.rankCell {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--red);
+  width: 60px;
+}
+
+.scoreCell { font-family: 'Bebas Neue', sans-serif; font-size: 17px; letter-spacing: 1px; }
+
 @media (max-width: 768px) {
   .heroContent { left: 24px; right: 24px; bottom: 24px; }
   .content { grid-template-columns: 1fr; padding: 24px; }

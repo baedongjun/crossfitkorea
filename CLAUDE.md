@@ -155,6 +155,9 @@ DELETE /api/v1/boxes/{id}/join             ← 박스 탈퇴 [AUTH]
 GET    /api/v1/boxes/{id}/membership       ← 가입 여부 [AUTH] → { member: boolean }
 GET    /api/v1/boxes/{id}/members          ← 멤버 목록 [BOX_OWNER/ADMIN]
 GET    /api/v1/boxes/{id}/members/count    ← 멤버 수 [PUBLIC] → { count: long }
+GET    /api/v1/boxes/{id}/announcements    ← 공지사항 목록 [PUBLIC]
+POST   /api/v1/boxes/{id}/announcements    ← 공지 등록 [BOX_OWNER/ADMIN] (title, content, pinned?)
+DELETE /api/v1/boxes/{id}/announcements/{aId} ← 공지 삭제 [BOX_OWNER/ADMIN]
 
 PUT    /api/v1/coaches/{id}                ← 코치 수정 [BOX_OWNER/ADMIN]
 DELETE /api/v1/coaches/{id}                ← 코치 삭제 [BOX_OWNER/ADMIN]
@@ -187,11 +190,14 @@ GET    /api/v1/competitions/{id}/registration-status ← 신청 상태 [PUBLIC+A
 POST   /api/v1/competitions/{id}/register         ← 참가 신청 [AUTH]
 DELETE /api/v1/competitions/{id}/register         ← 신청 취소 [AUTH]
 GET    /api/v1/competitions/my                    ← 내 신청 대회 목록 [AUTH]
+GET    /api/v1/competitions/{id}/results          ← 대회 결과 [PUBLIC]
+POST   /api/v1/competitions/{id}/results          ← 대회 결과 저장 [ADMIN]
 ```
 
 ### Community
 ```
 GET    /api/v1/community/posts?category=&keyword=&page=&sort=  ← 목록 [PUBLIC]
+GET    /api/v1/community/posts/bookmarks?page=    ← 내 북마크 게시글 [AUTH]
 POST   /api/v1/community/posts                    ← 글 작성 [AUTH]
 GET    /api/v1/community/posts/mine?page=          ← 내 게시글 [AUTH]
 GET    /api/v1/community/posts/hot                 ← 인기 글 TOP5 [PUBLIC]
@@ -199,6 +205,8 @@ GET    /api/v1/community/posts/{id}                ← 상세 (조회수 증가)
 PUT    /api/v1/community/posts/{id}                ← 수정 [AUTH]
 DELETE /api/v1/community/posts/{id}                ← 삭제 [AUTH]
 POST   /api/v1/community/posts/{id}/like           ← 좋아요 토글 [AUTH]
+POST   /api/v1/community/posts/{id}/bookmark       ← 북마크 토글 [AUTH] → { bookmarked: boolean }
+GET    /api/v1/community/posts/{id}/bookmark       ← 북마크 여부 [AUTH] → { bookmarked: boolean }
 POST   /api/v1/community/posts/{id}/report         ← 신고 [AUTH]
 GET    /api/v1/community/posts/{id}/comments       ← 댓글 [PUBLIC]
 POST   /api/v1/community/posts/{id}/comments       ← 댓글 작성 [AUTH] (content, parentId?)
@@ -282,6 +290,15 @@ DELETE /api/v1/performance/{id}         ← 기록 삭제 [AUTH]
 ```
 ExerciseType: `BACK_SQUAT | FRONT_SQUAT | DEADLIFT | CLEAN | SNATCH | CLEAN_AND_JERK | OVERHEAD_SQUAT | PRESS | PUSH_PRESS | PUSH_JERK | BENCH_PRESS | PULL_UP | MUSCLE_UP | BODYWEIGHT | BODY_FAT | HEIGHT | CUSTOM`
 
+### Goals (개인 목표)
+```
+GET    /api/v1/goals              ← 내 목표 목록 [AUTH]
+POST   /api/v1/goals              ← 목표 생성 [AUTH] (exerciseType, targetValue, unit?, targetDate?, notes?)
+PUT    /api/v1/goals/{id}         ← 목표 수정 [AUTH] (targetValue?, currentValue?, notes?)
+DELETE /api/v1/goals/{id}         ← 목표 삭제 [AUTH]
+PATCH  /api/v1/goals/{id}/achieve ← 달성 처리 [AUTH]
+```
+
 ### Admin (ROLE_ADMIN 전용)
 ```
 GET   /api/v1/admin/dashboard?months=            ← 통계 + 월별 신규 회원 (months 기본값 6, 3/6/12 선택)
@@ -336,11 +353,19 @@ PATCH  /api/v1/admin/challenges/{id}/active?active= ← (챌린지 섹션 참조
 /my/favorites              ← 즐겨찾기 박스
 /my/competitions           ← 신청한 대회 (취소 가능)
 /my/performance            ← 개인 기록 트래킹 (종목별 PR, 꺾은선 그래프, CRUD)
+/my/goals                  ← 개인 목표 (CRUD, 달성률 프로그레스바, 달성 토글)
+/my/bookmarks              ← 북마크한 게시글 (무한스크롤)
+/my/notification-settings  ← 알림 설정 (종류별 토글, localStorage 저장)
 /notifications             ← 알림 목록 (읽음처리, 전체읽음)
 /users/[id]                ← 사용자 공개 프로필 (배지 표시, 팔로우/언팔로우, 팔로워/팔로잉 목록 탭)
 /challenges                ← 챌린지 목록 (내 참여 챌린지, 전체 챌린지)
 /challenges/[id]           ← 챌린지 상세 (참가/취소, 오늘 인증, 랭킹, 내 인증 기록)
 /feed                      ← 활동 피드 (팔로우한 사람들의 WOD/배지/대회/게시글 활동, 무한스크롤)
+/wod/timer                 ← WOD 타이머 (AMRAP/ForTime/EMOM/Tabata/Stopwatch, Web Audio 비프음)
+/wod/history               ← WOD 전체 히스토리 (무한스크롤)
+/tools                     ← 1RM 계산기 (4가지 공식, 퍼센테이지 테이블)
+/boxes/[id]/checkin        ← QR 체크인 코드 [BOX_OWNER/ADMIN] (qrcode 라이브러리, 다운로드/인쇄)
+/search                    ← 전체 검색 (박스/대회/커뮤니티 통합, 디바운스 400ms, 탭 필터)
 /payment/success
 /payment/fail
 /advertise

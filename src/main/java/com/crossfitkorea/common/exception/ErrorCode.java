@@ -63,7 +63,17 @@ public enum ErrorCode {
     CHALLENGE_NOT_FOUND(HttpStatus.NOT_FOUND, "챌린지를 찾을 수 없습니다."),
     CHALLENGE_ALREADY_JOINED(HttpStatus.CONFLICT, "이미 참가 중인 챌린지입니다."),
     CHALLENGE_NOT_JOINED(HttpStatus.BAD_REQUEST, "참가 중인 챌린지가 아닙니다."),
-    CHALLENGE_ALREADY_VERIFIED(HttpStatus.CONFLICT, "오늘 이미 인증을 완료했습니다.");
+    CHALLENGE_ALREADY_VERIFIED(HttpStatus.CONFLICT, "오늘 이미 인증을 완료했습니다."),
+
+    // Announcement
+    ANNOUNCEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
+
+    // Competition Result
+    COMPETITION_RESULT_NOT_FOUND(HttpStatus.NOT_FOUND, "대회 결과를 찾을 수 없습니다."),
+
+    // Goal
+    GOAL_NOT_FOUND(HttpStatus.NOT_FOUND, "목표를 찾을 수 없습니다."),
+    GOAL_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "목표 수정/삭제 권한이 없습니다.");
 
     private final HttpStatus status;
     private final String message;

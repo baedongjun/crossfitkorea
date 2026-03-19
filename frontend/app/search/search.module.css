@@ -1,0 +1,182 @@
+.page { padding-top: 64px; min-height: 100vh; background: var(--bg); }
+
+.inner { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+
+.header { margin-bottom: 32px; }
+.tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--red);
+  margin-bottom: 8px;
+}
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  letter-spacing: 4px;
+  color: var(--text);
+}
+
+/* Search box */
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+  margin-bottom: 24px;
+}
+.searchBox:focus-within { border-color: rgba(255,255,255,0.25); }
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 16px;
+  font-family: var(--font-body);
+  padding: 16px 48px 16px 48px;
+}
+.searchInput::placeholder { color: var(--muted); }
+
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  transition: color 0.2s;
+}
+.clearBtn:hover { color: var(--text); }
+
+/* Hint state */
+.hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+.hintLinks {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hintLink {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.hintLink:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+  overflow-x: auto;
+}
+.tab {
+  padding: 10px 20px;
+  font-size: 13px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); }
+.tabActive { color: var(--text); border-bottom-color: var(--red); }
+
+.loading { font-size: 14px; color: var(--muted); padding: 40px 0; text-align: center; }
+.empty { font-size: 14px; color: var(--muted); padding: 60px 0; text-align: center; }
+
+.results { display: flex; flex-direction: column; gap: 32px; }
+
+.section {}
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.sectionTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.sectionMore { font-size: 12px; color: var(--red); text-decoration: none; transition: opacity 0.2s; }
+.sectionMore:hover { opacity: 0.7; }
+
+.list { display: flex; flex-direction: column; gap: 1px; }
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.item:hover { background: var(--bg-card-2); }
+
+.itemIcon {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.itemBody { flex: 1; min-width: 0; }
+.itemTitle {
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.itemMeta { font-size: 12px; color: var(--muted); }
+
+.itemRating { font-size: 12px; color: var(--orange); white-space: nowrap; flex-shrink: 0; }
+.itemStats { font-size: 12px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
+
+@media (max-width: 768px) {
+  .tab { padding: 10px 14px; font-size: 12px; }
+  .item { padding: 12px; }
+}

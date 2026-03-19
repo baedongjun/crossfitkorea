@@ -196,6 +196,30 @@ export default function WodRecordsPage() {
   const totalPages = data?.totalPages || 1;
   const totalElements = data?.totalElements || 0;
 
+  const exportCsv = () => {
+    const rows = recentRecords ?? records;
+    if (!rows.length) { toast.info("내보낼 기록이 없습니다."); return; }
+    const header = ["날짜", "WOD 제목", "기록", "RX", "메모"];
+    const lines = [
+      header.join(","),
+      ...rows.map((r) => [
+        r.wodDate,
+        `"${(r.wodTitle || "").replace(/"/g, '""')}"`,
+        `"${(r.score || "").replace(/"/g, '""')}"`,
+        r.rx ? "Y" : "N",
+        `"${(r.notes || "").replace(/"/g, '""')}"`,
+      ].join(",")),
+    ];
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `wod_records_${dayjs().format("YYYYMMDD")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV 파일이 다운로드됩니다.");
+  };
+
   // 통계: 이번 달 기록 수, RX 비율 (전체 페이지 기준 현재 로드된 데이터)
   const thisMonth = dayjs().format("YYYY-MM");
   const thisMonthRecords = records.filter((r) => r.wodDate?.startsWith(thisMonth));
@@ -260,6 +284,12 @@ export default function WodRecordsPage() {
               <button className={`${s.viewBtn} ${viewMode === "list" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("list")}>목록</button>
               <button className={`${s.viewBtn} ${viewMode === "calendar" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("calendar")}>캘린더</button>
             </div>
+            <button className="btn-secondary" style={{ padding: "12px 16px", fontSize: 13 }} onClick={exportCsv} title="CSV 내보내기">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ display: "inline", marginRight: 4, verticalAlign: "middle" }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              CSV
+            </button>
             <Link href="/wod" className="btn-primary" style={{ padding: "12px 24px", fontSize: 14 }}>
               + 오늘 기록 입력
             </Link>

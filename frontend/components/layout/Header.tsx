@@ -23,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/community",    label: "커뮤니티" },
   { href: "/challenges",   label: "챌린지" },
   { href: "/feed",         label: "피드" },
+  { href: "/tools",        label: "도구" },
 ];
 
 export default function Header() {
@@ -127,6 +128,13 @@ export default function Header() {
           </nav>
 
           <div className={s.auth}>
+            {/* 검색 버튼 */}
+            <Link href="/search" className={s.searchBtn} aria-label="검색">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </Link>
+
             {loggedIn ? (
               <>
                 {userRole === "ROLE_ADMIN" && (
@@ -235,6 +243,9 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+          <Link href="/search" className={s.mobileNavLink} onClick={() => setOpen(false)}>
+            🔍 전체 검색
+          </Link>
         </nav>
         <div className={s.mobileAuth}>
           {loggedIn ? (

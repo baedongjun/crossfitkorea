@@ -1,5 +1,16 @@
 .page { padding-top: 64px; min-height: 100vh; }
 
+.timerLink {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--red);
+  text-decoration: none;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+.timerLink:hover { opacity: 0.75; }
+
 /* Hero */
 .hero {
   background: var(--bg-card);

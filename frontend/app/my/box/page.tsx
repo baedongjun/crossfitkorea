@@ -22,7 +22,7 @@ const WOD_COLORS: Record<string, string> = {
   REST_DAY: "#888", CUSTOM: "#888",
 };
 
-const BOX_TABS = ["관리", "WOD 프로그래밍"] as const;
+const BOX_TABS = ["관리", "WOD 프로그래밍", "멤버 통계"] as const;
 type BoxTab = typeof BOX_TABS[number];
 
 interface WodEntry {
@@ -32,6 +32,92 @@ interface WodEntry {
   content: string;
   wodDate: string;
   scoreType: string;
+}
+
+interface MemberEntry { id: number; boxId: number; boxName: string; joinedAt: string; daysInBox: number; userName?: string; userEmail?: string; }
+
+function MemberStats({ members }: { members: MemberEntry[] | undefined }) {
+  const list = members ?? [];
+  const now = dayjs();
+  const thisMonth = now.format("YYYY-MM");
+  const lastMonth = now.subtract(1, "month").format("YYYY-MM");
+
+  const joinedThisMonth = list.filter((m) => dayjs(m.joinedAt).format("YYYY-MM") === thisMonth).length;
+  const joinedLastMonth = list.filter((m) => dayjs(m.joinedAt).format("YYYY-MM") === lastMonth).length;
+  const veterans = list.filter((m) => m.daysInBox >= 180).length;
+  const newbies = list.filter((m) => m.daysInBox < 30).length;
+
+  // Group by month joined (last 6 months)
+  const monthGroups: { label: string; count: number }[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const m = now.subtract(i, "month");
+    monthGroups.push({
+      label: m.format("M월"),
+      count: list.filter((mem) => dayjs(mem.joinedAt).format("YYYY-MM") === m.format("YYYY-MM")).length,
+    });
+  }
+  const maxCount = Math.max(...monthGroups.map((g) => g.count), 1);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {/* KPI */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+        {[
+          { label: "전체 멤버", value: list.length, unit: "명" },
+          { label: "이번 달 신규", value: joinedThisMonth, unit: "명" },
+          { label: "6개월+ 장기 멤버", value: veterans, unit: "명" },
+          { label: "신규 (30일 이내)", value: newbies, unit: "명" },
+        ].map(({ label, value, unit }) => (
+          <div key={label} style={{ background: "var(--bg-card-2)", border: "1px solid var(--border)", padding: "16px 20px" }}>
+            <p style={{ fontSize: 11, color: "var(--muted)", letterSpacing: 1, marginBottom: 6, textTransform: "uppercase" }}>{label}</p>
+            <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 32, color: "var(--red)", lineHeight: 1 }}>{value}<span style={{ fontSize: 14, color: "var(--muted)", marginLeft: 4 }}>{unit}</span></p>
+          </div>
+        ))}
+      </div>
+
+      {/* Monthly join chart */}
+      <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", padding: 24 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: "var(--red)", marginBottom: 20, textTransform: "uppercase" }}>월별 신규 가입</p>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 12, height: 120 }}>
+          {monthGroups.map(({ label, count }) => (
+            <div key={label} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 12, color: "var(--text)", fontFamily: "'Bebas Neue', sans-serif" }}>{count}</span>
+              <div style={{ width: "100%", background: "var(--red)", height: `${Math.max((count / maxCount) * 90, count > 0 ? 4 : 0)}px`, transition: "height 0.3s" }} />
+              <span style={{ fontSize: 11, color: "var(--muted)" }}>{label}</span>
+            </div>
+          ))}
+        </div>
+        {joinedLastMonth > 0 && (
+          <p style={{ fontSize: 12, color: "var(--muted)", marginTop: 16 }}>
+            지난 달 대비: {joinedThisMonth >= joinedLastMonth ? "+" : ""}{joinedThisMonth - joinedLastMonth}명 ({joinedLastMonth > 0 ? Math.round(((joinedThisMonth - joinedLastMonth) / joinedLastMonth) * 100) : 0}%)
+          </p>
+        )}
+      </div>
+
+      {/* Full member list */}
+      <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", padding: 24 }}>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, color: "var(--red)", marginBottom: 16, textTransform: "uppercase" }}>멤버 목록 ({list.length})</p>
+        {list.length === 0 ? (
+          <p style={{ fontSize: 13, color: "var(--muted)" }}>등록된 멤버가 없습니다.</p>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {list.map((m) => (
+              <div key={m.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 32, height: 32, background: "var(--bg-card-2)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>👤</div>
+                  <div>
+                    <p style={{ fontSize: 13, color: "var(--text)" }}>{m.userName || m.userEmail || `멤버 #${m.id}`}</p>
+                    <p style={{ fontSize: 11, color: "var(--muted)" }}>가입: {dayjs(m.joinedAt).format("YYYY.MM.DD")}</p>
+                  </div>
+                </div>
+                <span style={{ fontSize: 12, color: "var(--muted)" }}>{m.daysInBox}일째</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function MyBoxPage() {
@@ -105,7 +191,7 @@ export default function MyBoxPage() {
 
   const { data: members } = useQuery({
     queryKey: ["box-members", boxId],
-    queryFn: async () => (await membershipApi.getBoxMembers(boxId!)).data.data,
+    queryFn: async () => (await membershipApi.getBoxMembers(boxId!)).data.data as MemberEntry[],
     enabled: !!boxId,
   });
 
@@ -622,6 +708,11 @@ export default function MyBoxPage() {
                       )}
                     </div>
                   </>
+                )}
+
+                {/* 멤버 통계 탭 */}
+                {activeBoxTab === "멤버 통계" && (
+                  <MemberStats members={members} />
                 )}
 
                 {/* WOD 프로그래밍 탭 */}

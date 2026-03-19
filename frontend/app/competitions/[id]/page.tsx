@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { competitionApi, paymentApi } from "@/lib/api";
+import { competitionApi, paymentApi, competitionResultApi } from "@/lib/api";
 import { Competition } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
@@ -24,6 +24,50 @@ const STATUS_BADGE: Record<string, string> = {
 const LEVEL_LABELS: Record<string, string> = {
   BEGINNER: "입문", SCALED: "스케일드", INTERMEDIATE: "중급", RX: "Rx", ELITE: "엘리트", ALL: "전체",
 };
+
+interface CompetitionResult {
+  id: number;
+  rank: number;
+  userName: string;
+  score?: string;
+  notes?: string;
+}
+
+function ResultsSection({ competitionId }: { competitionId: number }) {
+  const { data: results, isLoading } = useQuery({
+    queryKey: ["competition", competitionId, "results"],
+    queryFn: async () => (await competitionResultApi.getResults(competitionId)).data.data as CompetitionResult[],
+  });
+
+  if (isLoading) return <div className={s.resultsCard}><p className={s.cardLabel}>대회 결과</p><p style={{ fontSize: 13, color: "var(--muted)" }}>로딩 중...</p></div>;
+  if (!results || results.length === 0) return null;
+
+  return (
+    <div className={s.resultsCard}>
+      <p className={s.cardLabel}>대회 결과</p>
+      <table className={s.resultsTable}>
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>참가자</th>
+            <th>기록</th>
+          </tr>
+        </thead>
+        <tbody>
+          {results.map((r) => (
+            <tr key={r.id} className={r.rank <= 3 ? s.topRow : ""}>
+              <td className={s.rankCell}>
+                {r.rank === 1 ? "🥇" : r.rank === 2 ? "🥈" : r.rank === 3 ? "🥉" : r.rank}
+              </td>
+              <td>{r.userName}</td>
+              <td className={s.scoreCell}>{r.score || "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default function CompetitionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -231,6 +275,11 @@ export default function CompetitionDetailPage() {
               <p className={s.cardLabel}>대회 소개</p>
               <p className={s.descText}>{comp.description}</p>
             </div>
+          )}
+
+          {/* Results */}
+          {comp.status === "COMPLETED" && (
+            <ResultsSection competitionId={Number(id)} />
           )}
         </div>
 

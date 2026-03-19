@@ -728,6 +728,32 @@
 }
 @keyframes shimmer { 0%,100%{opacity:.6} 50%{opacity:.3} }
 
+/* Announcements */
+.announcementItem {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+}
+.announcementHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.announcementTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.announcementDate { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.announcementContent {
+  font-size: 13px;
+  color: rgba(245,240,232,0.75);
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
 @media (max-width: 768px) {
   .heroContent { padding: 24px; }
   .heroName    { font-size: 36px; }

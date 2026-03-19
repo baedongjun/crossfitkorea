@@ -80,7 +80,13 @@ public class WodRecordService {
             badgeService.checkMembershipBadges(user, days);
         });
 
-        return toDto(saved);
+        // 연속 기록 계산
+        int streak = calculateStreak(email, date);
+
+        WodRecordDto dto = toDto(saved);
+        dto.setCurrentStreak(streak);
+        dto.setTotalWodCount(totalCount);
+        return dto;
     }
 
     public List<WodRecordDto> getLeaderboard(LocalDate date) {
@@ -145,5 +151,25 @@ public class WodRecordService {
         wodRepository.findByWodDateAndBoxIdIsNull(r.getWodDate())
             .ifPresent(wod -> dto.setWodTitle(wod.getTitle()));
         return dto;
+    }
+
+    /** 오늘부터 거슬러 올라가며 연속 기록 일수 계산 */
+    private int calculateStreak(String email, LocalDate today) {
+        LocalDate from = today.minusDays(365);
+        List<WodRecord> records = wodRecordRepository
+            .findByUserEmailAndWodDateBetweenOrderByWodDateAsc(email, from, today);
+
+        Set<LocalDate> dates = new java.util.HashSet<>();
+        for (WodRecord r : records) dates.add(r.getWodDate());
+
+        int streak = 0;
+        for (int i = 0; i <= 365; i++) {
+            if (dates.contains(today.minusDays(i))) {
+                streak++;
+            } else if (i > 0) {
+                break;
+            }
+        }
+        return streak;
     }
 }

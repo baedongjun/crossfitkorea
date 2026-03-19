@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { boxApi, membershipApi, uploadApi, announcementApi } from "@/lib/api";
+import { boxApi, membershipApi, uploadApi, announcementApi, checkInApi } from "@/lib/api";
 import BoxDetailMap from "@/components/box/BoxDetailMap";
 import { Box, Coach, Schedule, Review, Page, BoxAnnouncement } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
@@ -154,6 +154,21 @@ export default function BoxDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["box", boxId, "membership"] });
     },
     onError: () => toast.error("탈퇴에 실패했습니다."),
+  });
+
+  const [checkInDone, setCheckInDone] = useState(false);
+  const checkInMutation = useMutation({
+    mutationFn: () => checkInApi.checkIn(boxId),
+    onSuccess: (res) => {
+      const data = res.data.data;
+      if (data.alreadyCheckedIn) {
+        toast.info("이미 체크인했습니다.");
+      } else {
+        toast.success("체크인 완료! 오늘도 파이팅 💪");
+        setCheckInDone(true);
+      }
+    },
+    onError: () => toast.error("체크인에 실패했습니다."),
   });
 
   const { data: relatedBoxes } = useQuery({
@@ -380,19 +395,31 @@ export default function BoxDetailPage() {
                 링크 복사
               </button>
               {isLoggedIn() && currentUser?.role === "ROLE_USER" && (
-                <button
-                  className={isMember ? s.leaveBtn : s.joinBtn}
-                  onClick={() => {
-                    if (isMember) {
-                      if (window.confirm("이 박스를 탈퇴하시겠습니까?")) leaveMutation.mutate();
-                    } else {
-                      joinMutation.mutate();
-                    }
-                  }}
-                  disabled={joinMutation.isPending || leaveMutation.isPending}
-                >
-                  {isMember ? "박스 탈퇴" : "박스 가입"}
-                </button>
+                <>
+                  {isMember && (
+                    <button
+                      className={s.joinBtn}
+                      style={{ background: checkInDone ? "rgba(34,197,94,0.15)" : undefined, borderColor: checkInDone ? "rgba(34,197,94,0.4)" : undefined, color: checkInDone ? "#22c55e" : undefined }}
+                      onClick={() => !checkInDone && checkInMutation.mutate()}
+                      disabled={checkInMutation.isPending || checkInDone}
+                    >
+                      {checkInDone ? "✓ 체크인 완료" : checkInMutation.isPending ? "처리 중..." : "체크인"}
+                    </button>
+                  )}
+                  <button
+                    className={isMember ? s.leaveBtn : s.joinBtn}
+                    onClick={() => {
+                      if (isMember) {
+                        if (window.confirm("이 박스를 탈퇴하시겠습니까?")) leaveMutation.mutate();
+                      } else {
+                        joinMutation.mutate();
+                      }
+                    }}
+                    disabled={joinMutation.isPending || leaveMutation.isPending}
+                  >
+                    {isMember ? "박스 탈퇴" : "박스 가입"}
+                  </button>
+                </>
               )}
               {(currentUser?.role === "ROLE_ADMIN" ||
                 (currentUser?.role === "ROLE_BOX_OWNER" && box.ownerName === currentUser?.name)) && (

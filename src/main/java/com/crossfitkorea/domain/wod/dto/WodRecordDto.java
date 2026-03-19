@@ -20,6 +20,8 @@ public class WodRecordDto {
     private String userName;
     private String boxName;   // 유저의 소속 박스명 (없으면 null)
     private String wodTitle;  // 해당 날짜 WOD 제목 (없으면 null, WodRecordService에서 별도 설정)
+    private Integer currentStreak; // 연속 기록 일수 (saveRecord 응답에만 포함)
+    private Long totalWodCount;    // 누적 WOD 기록 수 (saveRecord 응답에만 포함)
 
     public static WodRecordDto from(WodRecord record) {
         return WodRecordDto.builder()

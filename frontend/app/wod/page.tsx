@@ -101,8 +101,15 @@ export default function WodPage() {
       notes: recordNotes || undefined,
       rx: recordRx,
     }),
-    onSuccess: () => {
-      toast.success("기록이 저장되었습니다.");
+    onSuccess: (res) => {
+      const data = res.data.data;
+      const streak = data?.currentStreak;
+      const total = data?.totalWodCount;
+      if (streak && streak >= 3) {
+        toast.success(`🔥 ${streak}일 연속 WOD 기록! 총 ${total}회`);
+      } else {
+        toast.success("기록이 저장되었습니다.");
+      }
       setShowRecordForm(false);
       queryClient.invalidateQueries({ queryKey: ["wod", "record"] });
     },

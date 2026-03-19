@@ -74,7 +74,9 @@
       "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\workflows\\\\deploy.yml\":*)",
       "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\workflows\\\\pr-check.yml\":*)",
       "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\SECRETS_GUIDE.md\":*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(sed -i '121,315s/, false, true, NOW\\(\\)/, 0, false, true, NOW\\(\\)/g' D:/gitWorkspace/workspace/crossfitkorea/seed.sql)",
+      "Bash(sed -n '138p' D:/gitWorkspace/workspace/crossfitkorea/seed.sql)"
     ]
   }
 }

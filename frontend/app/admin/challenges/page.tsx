@@ -29,7 +29,7 @@ const EMPTY_FORM = {
   startDate: dayjs().format("YYYY-MM-DD"),
   endDate: dayjs().add(30, "day").format("YYYY-MM-DD"),
   targetDays: 30,
-  type: "WOD" as const,
+  type: "WOD" as "WOD" | "EXERCISE" | "DIET" | "FREE",
   imageUrl: "",
 };
 

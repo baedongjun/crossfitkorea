@@ -13,6 +13,7 @@ import java.util.List;
 public class PostDto {
 
     private Long id;
+    private Long userId;
     private String title;
     private String content;
     private PostCategory category;
@@ -29,6 +30,7 @@ public class PostDto {
     public static PostDto from(Post post) {
         return PostDto.builder()
             .id(post.getId())
+            .userId(post.getUser().getId())
             .title(post.getTitle())
             .content(post.getContent())
             .category(post.getCategory())

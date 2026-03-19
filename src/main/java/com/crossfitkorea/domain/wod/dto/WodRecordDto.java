@@ -18,7 +18,8 @@ public class WodRecordDto {
     private String notes;
     private boolean rx;
     private String userName;
-    private String boxName; // 유저의 소속 박스명 (없으면 null)
+    private String boxName;   // 유저의 소속 박스명 (없으면 null)
+    private String wodTitle;  // 해당 날짜 WOD 제목 (없으면 null, WodRecordService에서 별도 설정)
 
     public static WodRecordDto from(WodRecord record) {
         return WodRecordDto.builder()
@@ -28,7 +29,8 @@ public class WodRecordDto {
             .notes(record.getNotes())
             .rx(record.isRx())
             .userName(record.getUser().getName())
-            .boxName(null) // WodRecordService에서 별도 설정
+            .boxName(null)   // WodRecordService에서 별도 설정
+            .wodTitle(null)  // WodRecordService에서 별도 설정
             .build();
     }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { wodApi } from "@/lib/api";
@@ -23,8 +23,11 @@ const WOD_LABELS: Record<string, string> = {
   REST_DAY: "REST DAY", CUSTOM: "CUSTOM",
 };
 
+const WOD_TYPES_ALL = ["AMRAP", "FOR_TIME", "EMOM", "TABATA", "STRENGTH", "SKILL", "REST_DAY", "CUSTOM"];
+
 export default function WodHistoryPage() {
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const [filterType, setFilterType] = useState<string | null>(null);
 
   const {
     data,
@@ -43,7 +46,8 @@ export default function WodHistoryPage() {
     },
   });
 
-  const allWods: Wod[] = data?.pages.flatMap((p) => p.content as Wod[]) ?? [];
+  const allWodsRaw: Wod[] = data?.pages.flatMap((p) => p.content as Wod[]) ?? [];
+  const allWods = filterType ? allWodsRaw.filter((w) => w.type === filterType) : allWodsRaw;
   const totalElements = data?.pages[0]?.totalElements ?? 0;
 
   const handleObserver = useCallback(
@@ -82,6 +86,43 @@ export default function WodHistoryPage() {
           <Link href="/wod/records" className="btn-secondary" style={{ padding: "10px 20px", fontSize: 13 }}>
             내 기록 보기
           </Link>
+        </div>
+
+        {/* Type Filter */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 20 }}>
+          <button
+            style={{
+              background: !filterType ? "var(--red)" : "transparent",
+              border: !filterType ? "none" : "1px solid var(--border)",
+              color: !filterType ? "var(--text)" : "var(--muted)",
+              padding: "5px 12px",
+              fontSize: 11,
+              letterSpacing: 1,
+              fontFamily: "var(--font-body)",
+              cursor: "pointer",
+            }}
+            onClick={() => setFilterType(null)}
+          >
+            전체
+          </button>
+          {WOD_TYPES_ALL.map((t) => (
+            <button
+              key={t}
+              style={{
+                background: filterType === t ? (WOD_COLORS[t] || "#888") + "22" : "transparent",
+                border: `1px solid ${filterType === t ? (WOD_COLORS[t] || "#888") + "66" : "var(--border)"}`,
+                color: filterType === t ? (WOD_COLORS[t] || "#888") : "var(--muted)",
+                padding: "5px 12px",
+                fontSize: 11,
+                letterSpacing: 1,
+                fontFamily: "var(--font-body)",
+                cursor: "pointer",
+              }}
+              onClick={() => setFilterType(filterType === t ? null : t)}
+            >
+              {WOD_LABELS[t]}
+            </button>
+          ))}
         </div>
 
         {isLoading ? (

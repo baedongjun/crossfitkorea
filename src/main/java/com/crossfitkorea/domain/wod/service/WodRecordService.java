@@ -137,11 +137,13 @@ public class WodRecordService {
         wodRecordRepository.delete(record);
     }
 
-    // WodRecordDto 변환 + 박스명 포함
+    // WodRecordDto 변환 + 박스명 + WOD 제목 포함
     private WodRecordDto toDto(WodRecord r) {
         WodRecordDto dto = WodRecordDto.from(r);
         membershipRepository.findByUserAndActiveTrue(r.getUser())
             .ifPresent(m -> dto.setBoxName(m.getBox().getName()));
+        wodRepository.findByWodDateAndBoxIdIsNull(r.getWodDate())
+            .ifPresent(wod -> dto.setWodTitle(wod.getTitle()));
         return dto;
     }
 }

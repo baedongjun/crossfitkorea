@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,6 +17,8 @@ const CATEGORIES: { value: PostCategory; label: string }[] = [
   { value: "MARKET", label: "중고장터" },
 ];
 
+const DRAFT_KEY = "community_write_draft";
+
 export default function CommunityWritePage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -24,7 +26,36 @@ export default function CommunityWritePage() {
   const [category, setCategory] = useState<PostCategory>("FREE");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const draft = localStorage.getItem(DRAFT_KEY);
+      if (draft) {
+        const { title: t, content: c, category: cat } = JSON.parse(draft);
+        if (t || c) {
+          setTitle(t || "");
+          setContent(c || "");
+          setCategory(cat || "FREE");
+          toast.info("임시저장된 내용을 불러왔습니다.", { autoClose: 2000 });
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Auto-save draft every 30s
+  useEffect(() => {
+    if (!title && !content) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, content, category }));
+        setLastSaved(new Date());
+      } catch {}
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [title, content, category]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -48,6 +79,7 @@ export default function CommunityWritePage() {
   const mutation = useMutation({
     mutationFn: () => communityApi.createPost({ title, content, category, imageUrls }),
     onSuccess: (res) => {
+      try { localStorage.removeItem(DRAFT_KEY); } catch {}
       toast.success("게시글이 등록되었습니다.");
       router.push(`/community/${res.data.data.id}`);
     },
@@ -103,12 +135,25 @@ export default function CommunityWritePage() {
             </div>
 
             <div className={s.field}>
-              <label className={s.label}>내용</label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <label className={s.label} style={{ margin: 0 }}>내용</label>
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  {lastSaved && (
+                    <span style={{ fontSize: 11, color: "var(--muted)" }}>
+                      자동저장 완료
+                    </span>
+                  )}
+                  <span style={{ fontSize: 11, color: content.length > 4500 ? "var(--red)" : "var(--muted)" }}>
+                    {content.length.toLocaleString()} / 5,000자
+                  </span>
+                </div>
+              </div>
               <textarea
                 className={s.textarea}
                 placeholder="내용을 입력하세요"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                maxLength={5000}
               />
             </div>
 

@@ -347,7 +347,10 @@ export default function WodPage() {
         {/* 박스 랭킹 */}
         {todayWod && boxRanking && boxRanking.length > 0 && (
           <div className={s.leaderboard}>
-            <p className={s.leaderboardTitle}>박스 랭킹</p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+              <p className={s.leaderboardTitle} style={{ margin: 0 }}>박스 랭킹</p>
+              <Link href="/wod/box-ranking" style={{ fontSize: 12, color: "var(--muted)", textDecoration: "none" }}>더보기 →</Link>
+            </div>
             <p className={s.boxRankingDesc}>오늘 WOD에 참여한 박스별 현황</p>
             <div className={s.leaderboardList}>
               {boxRanking.map((box, idx) => (

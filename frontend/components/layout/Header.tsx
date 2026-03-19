@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { clearAuth, getUser, isLoggedIn } from "@/lib/auth";
 import { notificationApi } from "@/lib/api";
+import { useNotificationSse } from "@/lib/useNotificationSse";
+import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
@@ -19,6 +21,8 @@ const NAV_ITEMS = [
   { href: "/wod",          label: "오늘의 WOD" },
   { href: "/competitions", label: "대회 일정" },
   { href: "/community",    label: "커뮤니티" },
+  { href: "/challenges",   label: "챌린지" },
+  { href: "/feed",         label: "피드" },
 ];
 
 export default function Header() {
@@ -56,8 +60,22 @@ export default function Header() {
     queryKey: ["notifications", "count"],
     queryFn: async () => (await notificationApi.getUnreadCount()).data.data as { count: number },
     enabled: loggedIn,
-    refetchInterval: 30000,  // 30초마다 폴링
   });
+
+  // SSE 실시간 알림
+  const handleSseNotification = useCallback((event: { id: number; message: string; type: string; link: string }) => {
+    qc.invalidateQueries({ queryKey: ["notifications", "count"] });
+    qc.invalidateQueries({ queryKey: ["notifications"] });
+    toast.info(event.message, {
+      onClick: () => {
+        if (event.link) router.push(event.link);
+      },
+      autoClose: 5000,
+      closeOnClick: true,
+    });
+  }, [qc, router]);
+
+  useNotificationSse(loggedIn ? handleSseNotification : () => {});
 
   const { data: notifications } = useQuery({
     queryKey: ["notifications"],

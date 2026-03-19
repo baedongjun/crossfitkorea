@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { boxApi, wodApi, membershipApi } from "@/lib/api";
+import { boxApi, wodApi, membershipApi, adminApi } from "@/lib/api";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { Box, Review } from "@/types";
 import { toast } from "react-toastify";
@@ -21,14 +22,34 @@ const WOD_COLORS: Record<string, string> = {
   REST_DAY: "#888", CUSTOM: "#888",
 };
 
+const BOX_TABS = ["관리", "WOD 프로그래밍"] as const;
+type BoxTab = typeof BOX_TABS[number];
+
+interface WodEntry {
+  id: number;
+  title: string;
+  type: string;
+  content: string;
+  wodDate: string;
+  scoreType: string;
+}
+
 export default function MyBoxPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const user = getUser();
 
   const [selectedBoxId, setSelectedBoxId] = useState<number | null>(null);
+  const [activeBoxTab, setActiveBoxTab] = useState<BoxTab>("관리");
   const [wodForm, setWodForm] = useState({ title: "", type: "AMRAP", content: "", scoreType: "TIME", wodDate: dayjs().format("YYYY-MM-DD") });
   const [showWodForm, setShowWodForm] = useState(false);
+
+  // WOD Programming state
+  const [calendarMonth, setCalendarMonth] = useState(dayjs().startOf("month"));
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [progWodForm, setProgWodForm] = useState({ title: "", type: "AMRAP", content: "", scoreType: "TIME" });
+  const [showProgForm, setShowProgForm] = useState(false);
+  const [editingWodId, setEditingWodId] = useState<number | null>(null);
 
   // Coach management
   const [showCoachForm, setShowCoachForm] = useState(false);
@@ -44,6 +65,7 @@ export default function MyBoxPage() {
       toast.error("박스 오너 권한이 필요합니다.");
       router.replace("/my");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { data: boxPage, isLoading } = useQuery({
@@ -87,6 +109,24 @@ export default function MyBoxPage() {
     enabled: !!boxId,
   });
 
+  // WOD Programming: load WODs for current calendar month
+  const monthStart = calendarMonth.format("YYYY-MM-DD");
+  const monthEnd = calendarMonth.endOf("month").format("YYYY-MM-DD");
+
+  const { data: monthWods } = useQuery({
+    queryKey: ["wod-range", boxId, monthStart, monthEnd],
+    queryFn: async () => (await wodApi.getRange(boxId!, monthStart, monthEnd)).data.data as WodEntry[],
+    enabled: !!boxId && activeBoxTab === "WOD 프로그래밍",
+  });
+
+  // Build a map: date string -> WodEntry
+  const wodByDate: Record<string, WodEntry> = {};
+  (monthWods || []).forEach((w) => {
+    wodByDate[w.wodDate] = w;
+  });
+
+  const selectedDateWod = selectedDate ? wodByDate[selectedDate] : null;
+
   const wodMutation = useMutation({
     mutationFn: () =>
       wodApi.createBoxWod(boxId!, wodForm),
@@ -97,6 +137,38 @@ export default function MyBoxPage() {
       queryClient.invalidateQueries({ queryKey: ["wod-today", boxId] });
     },
     onError: () => toast.error("WOD 등록에 실패했습니다."),
+  });
+
+  const progWodMutation = useMutation({
+    mutationFn: () =>
+      wodApi.createBoxWod(boxId!, { ...progWodForm, wodDate: selectedDate }),
+    onSuccess: () => {
+      toast.success("WOD가 등록되었습니다.");
+      setShowProgForm(false);
+      setProgWodForm({ title: "", type: "AMRAP", content: "", scoreType: "TIME" });
+      queryClient.invalidateQueries({ queryKey: ["wod-range", boxId, monthStart, monthEnd] });
+    },
+    onError: () => toast.error("WOD 등록에 실패했습니다."),
+  });
+
+  const updateWodMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: object }) => adminApi.updateWod(id, data),
+    onSuccess: () => {
+      toast.success("WOD가 수정되었습니다.");
+      setEditingWodId(null);
+      queryClient.invalidateQueries({ queryKey: ["wod-range", boxId, monthStart, monthEnd] });
+    },
+    onError: () => toast.error("수정에 실패했습니다."),
+  });
+
+  const deleteWodMutation = useMutation({
+    mutationFn: (id: number) => adminApi.deleteWod(id),
+    onSuccess: () => {
+      toast.success("WOD가 삭제되었습니다.");
+      setSelectedDate(null);
+      queryClient.invalidateQueries({ queryKey: ["wod-range", boxId, monthStart, monthEnd] });
+    },
+    onError: () => toast.error("삭제에 실패했습니다."),
   });
 
   const addCoachMutation = useMutation({
@@ -143,6 +215,17 @@ export default function MyBoxPage() {
     },
     onError: () => toast.error("삭제에 실패했습니다."),
   });
+
+  // Calendar helpers
+  const daysInMonth = calendarMonth.daysInMonth();
+  const startDayOfWeek = calendarMonth.startOf("month").day(); // 0=Sun
+  const today = dayjs().format("YYYY-MM-DD");
+
+  const calendarDays: (string | null)[] = [];
+  for (let i = 0; i < startDayOfWeek; i++) calendarDays.push(null);
+  for (let d = 1; d <= daysInMonth; d++) {
+    calendarDays.push(calendarMonth.date(d).format("YYYY-MM-DD"));
+  }
 
   if (!isLoggedIn()) return null;
 
@@ -228,300 +311,604 @@ export default function MyBoxPage() {
                   </div>
                 </div>
 
-                {/* 오늘의 WOD */}
-                <div className={s.card}>
-                  <div className={s.cardHeader}>
-                    <h3 className={s.cardTitle}>오늘의 WOD</h3>
+                {/* 탭 */}
+                <div className={s.boxTabNav}>
+                  {BOX_TABS.map((t) => (
                     <button
-                      className="btn-primary"
-                      style={{ padding: "8px 16px", fontSize: 13 }}
-                      onClick={() => setShowWodForm(!showWodForm)}
+                      key={t}
+                      className={`${s.boxTabBtn} ${activeBoxTab === t ? s.boxTabBtnActive : ""}`}
+                      onClick={() => setActiveBoxTab(t)}
                     >
-                      {showWodForm ? "취소" : "WOD 등록"}
+                      {t}
                     </button>
-                  </div>
-
-                  {showWodForm && (
-                    <div className={s.wodForm}>
-                      <div className={s.wodFormGrid}>
-                        <div className={s.field}>
-                          <label className={s.label}>날짜</label>
-                          <input
-                            type="date"
-                            className="input-field"
-                            value={wodForm.wodDate}
-                            onChange={(e) => setWodForm((f) => ({ ...f, wodDate: e.target.value }))}
-                          />
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>WOD 타입</label>
-                          <select
-                            className={s.select}
-                            value={wodForm.type}
-                            onChange={(e) => setWodForm((f) => ({ ...f, type: e.target.value }))}
-                          >
-                            {WOD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-                          </select>
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>WOD 제목</label>
-                          <input
-                            className="input-field"
-                            placeholder="오늘의 WOD 제목"
-                            value={wodForm.title}
-                            onChange={(e) => setWodForm((f) => ({ ...f, title: e.target.value }))}
-                          />
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>점수 유형</label>
-                          <select
-                            className={s.select}
-                            value={wodForm.scoreType}
-                            onChange={(e) => setWodForm((f) => ({ ...f, scoreType: e.target.value }))}
-                          >
-                            <option value="TIME">TIME</option>
-                            <option value="ROUNDS">ROUNDS</option>
-                            <option value="REPS">REPS</option>
-                            <option value="WEIGHT">WEIGHT</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div className={s.field}>
-                        <label className={s.label}>WOD 내용</label>
-                        <textarea
-                          className={s.textarea}
-                          placeholder="WOD 내용을 입력하세요"
-                          value={wodForm.content}
-                          onChange={(e) => setWodForm((f) => ({ ...f, content: e.target.value }))}
-                        />
-                      </div>
-                      <button
-                        className="btn-primary"
-                        disabled={wodMutation.isPending || !wodForm.title || !wodForm.content}
-                        onClick={() => wodMutation.mutate()}
-                      >
-                        {wodMutation.isPending ? "등록 중..." : "WOD 등록"}
-                      </button>
-                    </div>
-                  )}
-
-                  {todayWod ? (
-                    <div className={s.wodCard}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                        <span className={s.wodTypeBadge} style={{ background: WOD_COLORS[todayWod.type] + "22", color: WOD_COLORS[todayWod.type], border: `1px solid ${WOD_COLORS[todayWod.type]}44` }}>
-                          {todayWod.type}
-                        </span>
-                        <span className={s.wodDate}>{dayjs(todayWod.wodDate).format("YYYY.MM.DD")}</span>
-                      </div>
-                      <p className={s.wodTitle}>{todayWod.title}</p>
-                      <p className={s.wodContent}>{todayWod.content}</p>
-                    </div>
-                  ) : (
-                    <p className={s.emptyText}>오늘 등록된 WOD가 없습니다.</p>
-                  )}
+                  ))}
                 </div>
 
-                {/* 코치 관리 */}
-                <div className={s.card}>
-                  <div className={s.cardHeader}>
-                    <h3 className={s.cardTitle}>코치진 ({coaches?.length || 0})</h3>
-                    <button
-                      className="btn-primary"
-                      style={{ padding: "8px 16px", fontSize: 13 }}
-                      onClick={() => setShowCoachForm(!showCoachForm)}
-                    >
-                      {showCoachForm ? "취소" : "+ 코치 추가"}
-                    </button>
-                  </div>
+                {/* 관리 탭 */}
+                {activeBoxTab === "관리" && (
+                  <>
+                    {/* 오늘의 WOD */}
+                    <div className={s.card}>
+                      <div className={s.cardHeader}>
+                        <h3 className={s.cardTitle}>오늘의 WOD</h3>
+                        <button
+                          className="btn-primary"
+                          style={{ padding: "8px 16px", fontSize: 13 }}
+                          onClick={() => setShowWodForm(!showWodForm)}
+                        >
+                          {showWodForm ? "취소" : "WOD 등록"}
+                        </button>
+                      </div>
 
-                  {showCoachForm && (
-                    <div className={s.manageForm}>
-                      <div className={s.manageFormGrid}>
-                        <div className={s.field}>
-                          <label className={s.label}>이름 *</label>
-                          <input className="input-field" placeholder="코치 이름" value={coachForm.name} onChange={(e) => setCoachForm(f => ({ ...f, name: e.target.value }))} />
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>경력 (년)</label>
-                          <input type="number" className="input-field" min={0} value={coachForm.experienceYears} onChange={(e) => setCoachForm(f => ({ ...f, experienceYears: Number(e.target.value) }))} />
-                        </div>
-                      </div>
-                      <div className={s.field}>
-                        <label className={s.label}>소개</label>
-                        <input className="input-field" placeholder="간단한 소개" value={coachForm.bio} onChange={(e) => setCoachForm(f => ({ ...f, bio: e.target.value }))} />
-                      </div>
-                      <div className={s.field}>
-                        <label className={s.label}>자격증 (쉼표로 구분)</label>
-                        <input className="input-field" placeholder="CrossFit L1, CrossFit L2" value={coachForm.certifications} onChange={(e) => setCoachForm(f => ({ ...f, certifications: e.target.value }))} />
-                      </div>
-                      <button className="btn-primary" style={{ padding: "10px 24px" }} disabled={!coachForm.name.trim() || addCoachMutation.isPending} onClick={() => addCoachMutation.mutate()}>
-                        {addCoachMutation.isPending ? "등록 중..." : "코치 등록"}
-                      </button>
-                    </div>
-                  )}
-
-                  {coaches?.length > 0 ? (
-                    <div className={s.coachList}>
-                      {coaches.map((c: { id: number; name: string; imageUrl: string | null; experienceYears: number; bio?: string }) => (
-                        <div key={c.id} className={s.coachItemRow}>
-                          <div className={s.coachAvatar}>
-                            {c.imageUrl ? <img src={c.imageUrl} alt="" /> : c.name[0]}
+                      {showWodForm && (
+                        <div className={s.wodForm}>
+                          <div className={s.wodFormGrid}>
+                            <div className={s.field}>
+                              <label className={s.label}>날짜</label>
+                              <input
+                                type="date"
+                                className="input-field"
+                                value={wodForm.wodDate}
+                                onChange={(e) => setWodForm((f) => ({ ...f, wodDate: e.target.value }))}
+                              />
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>WOD 타입</label>
+                              <select
+                                className={s.select}
+                                value={wodForm.type}
+                                onChange={(e) => setWodForm((f) => ({ ...f, type: e.target.value }))}
+                              >
+                                {WOD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>WOD 제목</label>
+                              <input
+                                className="input-field"
+                                placeholder="오늘의 WOD 제목"
+                                value={wodForm.title}
+                                onChange={(e) => setWodForm((f) => ({ ...f, title: e.target.value }))}
+                              />
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>점수 유형</label>
+                              <select
+                                className={s.select}
+                                value={wodForm.scoreType}
+                                onChange={(e) => setWodForm((f) => ({ ...f, scoreType: e.target.value }))}
+                              >
+                                <option value="TIME">TIME</option>
+                                <option value="ROUNDS">ROUNDS</option>
+                                <option value="REPS">REPS</option>
+                                <option value="WEIGHT">WEIGHT</option>
+                              </select>
+                            </div>
                           </div>
-                          <div style={{ flex: 1 }}>
-                            <p className={s.coachName}>{c.name}</p>
-                            <p className={s.coachExp}>경력 {c.experienceYears}년{c.bio ? ` · ${c.bio}` : ""}</p>
+                          <div className={s.field}>
+                            <label className={s.label}>WOD 내용</label>
+                            <textarea
+                              className={s.textarea}
+                              placeholder="WOD 내용을 입력하세요"
+                              value={wodForm.content}
+                              onChange={(e) => setWodForm((f) => ({ ...f, content: e.target.value }))}
+                            />
                           </div>
-                          <button className={s.deleteRowBtn} onClick={() => { if (confirm(`'${c.name}' 코치를 삭제하시겠습니까?`)) deleteCoachMutation.mutate(c.id); }} disabled={deleteCoachMutation.isPending}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                          <button
+                            className="btn-primary"
+                            disabled={wodMutation.isPending || !wodForm.title || !wodForm.content}
+                            onClick={() => wodMutation.mutate()}
+                          >
+                            {wodMutation.isPending ? "등록 중..." : "WOD 등록"}
                           </button>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className={s.emptyText}>등록된 코치가 없습니다. 코치를 추가해보세요!</p>
-                  )}
-                </div>
+                      )}
 
-                {/* 리뷰 통계 */}
-                <div className={s.card}>
-                  <div className={s.cardHeader}>
-                    <h3 className={s.cardTitle}>리뷰 통계</h3>
-                    <div className={s.reviewAvg}>
-                      <span className={s.reviewAvgNum}>{selectedBox.rating?.toFixed(1) || "—"}</span>
-                      <span className={s.reviewAvgStar}>★</span>
-                      <span className={s.reviewAvgCount}>({selectedBox.reviewCount || 0})</span>
+                      {todayWod ? (
+                        <div className={s.wodCard}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                            <span className={s.wodTypeBadge} style={{ background: WOD_COLORS[todayWod.type] + "22", color: WOD_COLORS[todayWod.type], border: `1px solid ${WOD_COLORS[todayWod.type]}44` }}>
+                              {todayWod.type}
+                            </span>
+                            <span className={s.wodDate}>{dayjs(todayWod.wodDate).format("YYYY.MM.DD")}</span>
+                          </div>
+                          <p className={s.wodTitle}>{todayWod.title}</p>
+                          <p className={s.wodContent}>{todayWod.content}</p>
+                        </div>
+                      ) : (
+                        <p className={s.emptyText}>오늘 등록된 WOD가 없습니다.</p>
+                      )}
                     </div>
-                  </div>
-                  {(() => {
-                    const reviews: Review[] = reviewsData?.content || [];
-                    const dist = [5, 4, 3, 2, 1].map((star) => ({
-                      star,
-                      count: reviews.filter((r) => Math.round(r.rating) === star).length,
-                    }));
-                    const max = Math.max(...dist.map((d) => d.count), 1);
-                    return (
-                      <>
-                        <div className={s.ratingDist}>
-                          {dist.map(({ star, count }) => (
-                            <div key={star} className={s.ratingRow}>
-                              <span className={s.ratingStar}>{star}★</span>
-                              <div className={s.ratingBar}>
-                                <div className={s.ratingBarFill} style={{ width: `${(count / max) * 100}%` }} />
+
+                    {/* 코치 관리 */}
+                    <div className={s.card}>
+                      <div className={s.cardHeader}>
+                        <h3 className={s.cardTitle}>코치진 ({coaches?.length || 0})</h3>
+                        <button
+                          className="btn-primary"
+                          style={{ padding: "8px 16px", fontSize: 13 }}
+                          onClick={() => setShowCoachForm(!showCoachForm)}
+                        >
+                          {showCoachForm ? "취소" : "+ 코치 추가"}
+                        </button>
+                      </div>
+
+                      {showCoachForm && (
+                        <div className={s.manageForm}>
+                          <div className={s.manageFormGrid}>
+                            <div className={s.field}>
+                              <label className={s.label}>이름 *</label>
+                              <input className="input-field" placeholder="코치 이름" value={coachForm.name} onChange={(e) => setCoachForm(f => ({ ...f, name: e.target.value }))} />
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>경력 (년)</label>
+                              <input type="number" className="input-field" min={0} value={coachForm.experienceYears} onChange={(e) => setCoachForm(f => ({ ...f, experienceYears: Number(e.target.value) }))} />
+                            </div>
+                          </div>
+                          <div className={s.field}>
+                            <label className={s.label}>소개</label>
+                            <input className="input-field" placeholder="간단한 소개" value={coachForm.bio} onChange={(e) => setCoachForm(f => ({ ...f, bio: e.target.value }))} />
+                          </div>
+                          <div className={s.field}>
+                            <label className={s.label}>자격증 (쉼표로 구분)</label>
+                            <input className="input-field" placeholder="CrossFit L1, CrossFit L2" value={coachForm.certifications} onChange={(e) => setCoachForm(f => ({ ...f, certifications: e.target.value }))} />
+                          </div>
+                          <button className="btn-primary" style={{ padding: "10px 24px" }} disabled={!coachForm.name.trim() || addCoachMutation.isPending} onClick={() => addCoachMutation.mutate()}>
+                            {addCoachMutation.isPending ? "등록 중..." : "코치 등록"}
+                          </button>
+                        </div>
+                      )}
+
+                      {coaches?.length > 0 ? (
+                        <div className={s.coachList}>
+                          {coaches.map((c: { id: number; name: string; imageUrl: string | null; experienceYears: number; bio?: string }) => (
+                            <div key={c.id} className={s.coachItemRow}>
+                              <div className={s.coachAvatar} style={{ position: "relative" }}>
+                                {c.imageUrl ? <Image src={c.imageUrl} alt="" fill style={{ objectFit: "cover" }} /> : c.name[0]}
                               </div>
-                              <span className={s.ratingCount}>{count}</span>
+                              <div style={{ flex: 1 }}>
+                                <p className={s.coachName}>{c.name}</p>
+                                <p className={s.coachExp}>경력 {c.experienceYears}년{c.bio ? ` · ${c.bio}` : ""}</p>
+                              </div>
+                              <button className={s.deleteRowBtn} onClick={() => { if (confirm(`'${c.name}' 코치를 삭제하시겠습니까?`)) deleteCoachMutation.mutate(c.id); }} disabled={deleteCoachMutation.isPending}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                              </button>
                             </div>
                           ))}
                         </div>
-                        {reviews.length > 0 && (
-                          <div className={s.recentReviews}>
-                            <p className={s.recentReviewsTitle}>최근 리뷰</p>
-                            {reviews.slice(0, 3).map((r) => (
-                              <div key={r.id} className={s.reviewItem}>
-                                <div className={s.reviewTop}>
-                                  <span className={s.reviewUser}>{r.userName}</span>
-                                  <span className={s.reviewRating}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
-                                </div>
-                                <p className={s.reviewContent}>{r.content}</p>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {reviews.length === 0 && <p className={s.emptyText}>아직 리뷰가 없습니다.</p>}
-                      </>
-                    );
-                  })()}
-                </div>
-
-                {/* 멤버 목록 */}
-                <div className={s.card}>
-                  <div className={s.cardHeader}>
-                    <h3 className={s.cardTitle}>박스 멤버 ({members?.length || 0})</h3>
-                  </div>
-                  {members && members.length > 0 ? (
-                    <div className={s.coachList}>
-                      {members.slice(0, 10).map((m: { id: number; boxId: number; boxName: string; joinedAt: string; daysInBox: number }) => (
-                        <div key={m.id} className={s.coachItem}>
-                          <div className={s.coachAvatar} style={{ fontSize: 12, background: "var(--bg-card-2)" }}>
-                            👤
-                          </div>
-                          <div>
-                            <p className={s.coachName}>{dayjs(m.joinedAt).format("YYYY.MM.DD")} 가입</p>
-                            <p className={s.coachExp}>{m.daysInBox}일째 멤버</p>
-                          </div>
-                        </div>
-                      ))}
-                      {members.length > 10 && (
-                        <p className={s.moreText}>+{members.length - 10}명 더</p>
+                      ) : (
+                        <p className={s.emptyText}>등록된 코치가 없습니다. 코치를 추가해보세요!</p>
                       )}
                     </div>
-                  ) : (
-                    <p className={s.emptyText}>아직 가입한 멤버가 없습니다.</p>
-                  )}
-                </div>
 
-                {/* 수업 시간표 관리 */}
-                <div className={s.card}>
-                  <div className={s.cardHeader}>
-                    <h3 className={s.cardTitle}>수업 시간표 ({schedules?.length || 0})</h3>
-                    <button
-                      className="btn-primary"
-                      style={{ padding: "8px 16px", fontSize: 13 }}
-                      onClick={() => setShowScheduleForm(!showScheduleForm)}
-                    >
-                      {showScheduleForm ? "취소" : "+ 수업 추가"}
-                    </button>
-                  </div>
-
-                  {showScheduleForm && (
-                    <div className={s.manageForm}>
-                      <div className={s.manageFormGrid}>
-                        <div className={s.field}>
-                          <label className={s.label}>요일</label>
-                          <select className={s.select} value={scheduleForm.dayOfWeek} onChange={(e) => setScheduleForm(f => ({ ...f, dayOfWeek: e.target.value }))}>
-                            {DAYS.map(d => <option key={d} value={d}>{DAY_KOR[d]}요일</option>)}
-                          </select>
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>수업명</label>
-                          <input className="input-field" placeholder="크로스핏" value={scheduleForm.className} onChange={(e) => setScheduleForm(f => ({ ...f, className: e.target.value }))} />
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>시작 시간</label>
-                          <input type="time" className="input-field" value={scheduleForm.startTime} onChange={(e) => setScheduleForm(f => ({ ...f, startTime: e.target.value }))} />
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>종료 시간</label>
-                          <input type="time" className="input-field" value={scheduleForm.endTime} onChange={(e) => setScheduleForm(f => ({ ...f, endTime: e.target.value }))} />
-                        </div>
-                        <div className={s.field}>
-                          <label className={s.label}>최대 인원</label>
-                          <input type="number" className="input-field" min={1} value={scheduleForm.maxCapacity} onChange={(e) => setScheduleForm(f => ({ ...f, maxCapacity: Number(e.target.value) }))} />
+                    {/* 리뷰 통계 */}
+                    <div className={s.card}>
+                      <div className={s.cardHeader}>
+                        <h3 className={s.cardTitle}>리뷰 통계</h3>
+                        <div className={s.reviewAvg}>
+                          <span className={s.reviewAvgNum}>{selectedBox.rating?.toFixed(1) || "—"}</span>
+                          <span className={s.reviewAvgStar}>★</span>
+                          <span className={s.reviewAvgCount}>({selectedBox.reviewCount || 0})</span>
                         </div>
                       </div>
-                      <button className="btn-primary" style={{ padding: "10px 24px" }} disabled={!scheduleForm.className.trim() || addScheduleMutation.isPending} onClick={() => addScheduleMutation.mutate()}>
-                        {addScheduleMutation.isPending ? "등록 중..." : "수업 등록"}
-                      </button>
+                      {(() => {
+                        const reviews: Review[] = reviewsData?.content || [];
+                        const dist = [5, 4, 3, 2, 1].map((star) => ({
+                          star,
+                          count: reviews.filter((r) => Math.round(r.rating) === star).length,
+                        }));
+                        const max = Math.max(...dist.map((d) => d.count), 1);
+                        return (
+                          <>
+                            <div className={s.ratingDist}>
+                              {dist.map(({ star, count }) => (
+                                <div key={star} className={s.ratingRow}>
+                                  <span className={s.ratingStar}>{star}★</span>
+                                  <div className={s.ratingBar}>
+                                    <div className={s.ratingBarFill} style={{ width: `${(count / max) * 100}%` }} />
+                                  </div>
+                                  <span className={s.ratingCount}>{count}</span>
+                                </div>
+                              ))}
+                            </div>
+                            {reviews.length > 0 && (
+                              <div className={s.recentReviews}>
+                                <p className={s.recentReviewsTitle}>최근 리뷰</p>
+                                {reviews.slice(0, 3).map((r) => (
+                                  <div key={r.id} className={s.reviewItem}>
+                                    <div className={s.reviewTop}>
+                                      <span className={s.reviewUser}>{r.userName}</span>
+                                      <span className={s.reviewRating}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
+                                    </div>
+                                    <p className={s.reviewContent}>{r.content}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {reviews.length === 0 && <p className={s.emptyText}>아직 리뷰가 없습니다.</p>}
+                          </>
+                        );
+                      })()}
                     </div>
-                  )}
 
-                  {schedules?.length > 0 ? (
-                    <div className={s.scheduleList}>
-                      {schedules.map((sc: { id: number; dayOfWeek?: string; dayOfWeekKorean: string; startTime: string; endTime: string; className: string; maxCapacity: number }) => (
-                        <div key={sc.id} className={s.scheduleItemRow}>
-                          <span className={s.scheduleDay}>{sc.dayOfWeekKorean || DAY_KOR[sc.dayOfWeek || ""] || sc.dayOfWeek}</span>
-                          <span className={s.scheduleTime}>{sc.startTime} – {sc.endTime}</span>
-                          <span className={s.scheduleName}>{sc.className}</span>
-                          <span className={s.scheduleCap}>최대 {sc.maxCapacity}명</span>
-                          <button className={s.deleteRowBtn} onClick={() => { if (confirm("이 수업을 삭제하시겠습니까?")) deleteScheduleMutation.mutate(sc.id); }} disabled={deleteScheduleMutation.isPending}>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                    {/* 멤버 목록 */}
+                    <div className={s.card}>
+                      <div className={s.cardHeader}>
+                        <h3 className={s.cardTitle}>박스 멤버 ({members?.length || 0})</h3>
+                      </div>
+                      {members && members.length > 0 ? (
+                        <div className={s.coachList}>
+                          {members.slice(0, 10).map((m: { id: number; boxId: number; boxName: string; joinedAt: string; daysInBox: number }) => (
+                            <div key={m.id} className={s.coachItem}>
+                              <div className={s.coachAvatar} style={{ fontSize: 12, background: "var(--bg-card-2)" }}>
+                                👤
+                              </div>
+                              <div>
+                                <p className={s.coachName}>{dayjs(m.joinedAt).format("YYYY.MM.DD")} 가입</p>
+                                <p className={s.coachExp}>{m.daysInBox}일째 멤버</p>
+                              </div>
+                            </div>
+                          ))}
+                          {members.length > 10 && (
+                            <p className={s.moreText}>+{members.length - 10}명 더</p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className={s.emptyText}>아직 가입한 멤버가 없습니다.</p>
+                      )}
+                    </div>
+
+                    {/* 수업 시간표 관리 */}
+                    <div className={s.card}>
+                      <div className={s.cardHeader}>
+                        <h3 className={s.cardTitle}>수업 시간표 ({schedules?.length || 0})</h3>
+                        <button
+                          className="btn-primary"
+                          style={{ padding: "8px 16px", fontSize: 13 }}
+                          onClick={() => setShowScheduleForm(!showScheduleForm)}
+                        >
+                          {showScheduleForm ? "취소" : "+ 수업 추가"}
+                        </button>
+                      </div>
+
+                      {showScheduleForm && (
+                        <div className={s.manageForm}>
+                          <div className={s.manageFormGrid}>
+                            <div className={s.field}>
+                              <label className={s.label}>요일</label>
+                              <select className={s.select} value={scheduleForm.dayOfWeek} onChange={(e) => setScheduleForm(f => ({ ...f, dayOfWeek: e.target.value }))}>
+                                {DAYS.map(d => <option key={d} value={d}>{DAY_KOR[d]}요일</option>)}
+                              </select>
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>수업명</label>
+                              <input className="input-field" placeholder="크로스핏" value={scheduleForm.className} onChange={(e) => setScheduleForm(f => ({ ...f, className: e.target.value }))} />
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>시작 시간</label>
+                              <input type="time" className="input-field" value={scheduleForm.startTime} onChange={(e) => setScheduleForm(f => ({ ...f, startTime: e.target.value }))} />
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>종료 시간</label>
+                              <input type="time" className="input-field" value={scheduleForm.endTime} onChange={(e) => setScheduleForm(f => ({ ...f, endTime: e.target.value }))} />
+                            </div>
+                            <div className={s.field}>
+                              <label className={s.label}>최대 인원</label>
+                              <input type="number" className="input-field" min={1} value={scheduleForm.maxCapacity} onChange={(e) => setScheduleForm(f => ({ ...f, maxCapacity: Number(e.target.value) }))} />
+                            </div>
+                          </div>
+                          <button className="btn-primary" style={{ padding: "10px 24px" }} disabled={!scheduleForm.className.trim() || addScheduleMutation.isPending} onClick={() => addScheduleMutation.mutate()}>
+                            {addScheduleMutation.isPending ? "등록 중..." : "수업 등록"}
                           </button>
                         </div>
-                      ))}
+                      )}
+
+                      {schedules?.length > 0 ? (
+                        <div className={s.scheduleList}>
+                          {schedules.map((sc: { id: number; dayOfWeek?: string; dayOfWeekKorean: string; startTime: string; endTime: string; className: string; maxCapacity: number }) => (
+                            <div key={sc.id} className={s.scheduleItemRow}>
+                              <span className={s.scheduleDay}>{sc.dayOfWeekKorean || DAY_KOR[sc.dayOfWeek || ""] || sc.dayOfWeek}</span>
+                              <span className={s.scheduleTime}>{sc.startTime} – {sc.endTime}</span>
+                              <span className={s.scheduleName}>{sc.className}</span>
+                              <span className={s.scheduleCap}>최대 {sc.maxCapacity}명</span>
+                              <button className={s.deleteRowBtn} onClick={() => { if (confirm("이 수업을 삭제하시겠습니까?")) deleteScheduleMutation.mutate(sc.id); }} disabled={deleteScheduleMutation.isPending}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className={s.emptyText}>등록된 수업이 없습니다. 수업을 추가해보세요!</p>
+                      )}
                     </div>
-                  ) : (
-                    <p className={s.emptyText}>등록된 수업이 없습니다. 수업을 추가해보세요!</p>
-                  )}
-                </div>
+                  </>
+                )}
+
+                {/* WOD 프로그래밍 탭 */}
+                {activeBoxTab === "WOD 프로그래밍" && (
+                  <div className={s.card}>
+                    <div className={s.cardHeader}>
+                      <h3 className={s.cardTitle}>WOD 프로그래밍</h3>
+                      <div className={s.calendarMonthNav}>
+                        <button
+                          className={s.calendarNavBtn}
+                          onClick={() => {
+                            setCalendarMonth((m) => m.subtract(1, "month"));
+                            setSelectedDate(null);
+                          }}
+                        >
+                          ‹
+                        </button>
+                        <span className={s.calendarMonthLabel}>
+                          {calendarMonth.format("YYYY년 M월")}
+                        </span>
+                        <button
+                          className={s.calendarNavBtn}
+                          onClick={() => {
+                            setCalendarMonth((m) => m.add(1, "month"));
+                            setSelectedDate(null);
+                          }}
+                        >
+                          ›
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className={s.calendarLayout}>
+                      {/* 달력 */}
+                      <div className={s.calendar}>
+                        <div className={s.calendarWeekRow}>
+                          {["일", "월", "화", "수", "목", "금", "토"].map((d) => (
+                            <div key={d} className={s.calendarWeekDay}>{d}</div>
+                          ))}
+                        </div>
+                        <div className={s.calendarGrid}>
+                          {calendarDays.map((dateStr, idx) => {
+                            if (!dateStr) {
+                              return <div key={`empty-${idx}`} className={s.calendarEmpty} />;
+                            }
+                            const hasWod = !!wodByDate[dateStr];
+                            const isToday = dateStr === today;
+                            const isSelected = dateStr === selectedDate;
+                            return (
+                              <button
+                                key={dateStr}
+                                className={[
+                                  s.calendarDay,
+                                  isToday ? s.calendarDayToday : "",
+                                  isSelected ? s.calendarDaySelected : "",
+                                  hasWod ? s.calendarDayHasWod : "",
+                                ].join(" ")}
+                                onClick={() => {
+                                  setSelectedDate(dateStr);
+                                  setShowProgForm(false);
+                                  setEditingWodId(null);
+                                }}
+                              >
+                                <span className={s.calendarDayNum}>{dayjs(dateStr).date()}</span>
+                                {hasWod && (
+                                  <span
+                                    className={s.wodDot}
+                                    style={{ background: WOD_COLORS[wodByDate[dateStr].type] || "#e8220a" }}
+                                  />
+                                )}
+                                {hasWod && (
+                                  <span className={s.calendarDayWodTitle}>
+                                    {wodByDate[dateStr].title.length > 8
+                                      ? wodByDate[dateStr].title.slice(0, 8) + "…"
+                                      : wodByDate[dateStr].title}
+                                  </span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 사이드 패널 */}
+                      {selectedDate && (
+                        <div className={s.calendarPanel}>
+                          <div className={s.calendarPanelHeader}>
+                            <p className={s.calendarPanelDate}>
+                              {dayjs(selectedDate).format("M월 D일 (ddd)")}
+                            </p>
+                            <button
+                              className={s.calendarPanelClose}
+                              onClick={() => setSelectedDate(null)}
+                            >
+                              ✕
+                            </button>
+                          </div>
+
+                          {selectedDateWod && editingWodId !== selectedDateWod.id ? (
+                            <>
+                              <div className={s.panelWodCard}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                                  <span
+                                    className={s.wodTypeBadge}
+                                    style={{
+                                      background: WOD_COLORS[selectedDateWod.type] + "22",
+                                      color: WOD_COLORS[selectedDateWod.type],
+                                      border: `1px solid ${WOD_COLORS[selectedDateWod.type]}44`,
+                                    }}
+                                  >
+                                    {selectedDateWod.type}
+                                  </span>
+                                </div>
+                                <p className={s.wodTitle}>{selectedDateWod.title}</p>
+                                <p className={s.wodContent}>{selectedDateWod.content}</p>
+                              </div>
+                              <div className={s.panelActions}>
+                                <button
+                                  className="btn-secondary"
+                                  style={{ padding: "8px 16px", fontSize: 12 }}
+                                  onClick={() => {
+                                    setEditingWodId(selectedDateWod.id);
+                                    setProgWodForm({
+                                      title: selectedDateWod.title,
+                                      type: selectedDateWod.type,
+                                      content: selectedDateWod.content,
+                                      scoreType: selectedDateWod.scoreType,
+                                    });
+                                  }}
+                                >
+                                  수정
+                                </button>
+                                <button
+                                  className={s.panelDeleteBtn}
+                                  disabled={deleteWodMutation.isPending}
+                                  onClick={() => {
+                                    if (confirm("이 WOD를 삭제하시겠습니까?")) {
+                                      deleteWodMutation.mutate(selectedDateWod.id);
+                                    }
+                                  }}
+                                >
+                                  {deleteWodMutation.isPending ? "삭제 중..." : "삭제"}
+                                </button>
+                              </div>
+                            </>
+                          ) : editingWodId && selectedDateWod ? (
+                            <div className={s.progForm}>
+                              <div className={s.field}>
+                                <label className={s.label}>WOD 제목</label>
+                                <input
+                                  className="input-field"
+                                  value={progWodForm.title}
+                                  onChange={(e) => setProgWodForm((f) => ({ ...f, title: e.target.value }))}
+                                />
+                              </div>
+                              <div className={s.field}>
+                                <label className={s.label}>WOD 타입</label>
+                                <select
+                                  className={s.select}
+                                  value={progWodForm.type}
+                                  onChange={(e) => setProgWodForm((f) => ({ ...f, type: e.target.value }))}
+                                >
+                                  {WOD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                              </div>
+                              <div className={s.field}>
+                                <label className={s.label}>점수 유형</label>
+                                <select
+                                  className={s.select}
+                                  value={progWodForm.scoreType}
+                                  onChange={(e) => setProgWodForm((f) => ({ ...f, scoreType: e.target.value }))}
+                                >
+                                  <option value="TIME">TIME</option>
+                                  <option value="ROUNDS">ROUNDS</option>
+                                  <option value="REPS">REPS</option>
+                                  <option value="WEIGHT">WEIGHT</option>
+                                </select>
+                              </div>
+                              <div className={s.field}>
+                                <label className={s.label}>WOD 내용</label>
+                                <textarea
+                                  className={s.textarea}
+                                  value={progWodForm.content}
+                                  onChange={(e) => setProgWodForm((f) => ({ ...f, content: e.target.value }))}
+                                />
+                              </div>
+                              <div className={s.panelActions}>
+                                <button
+                                  className="btn-primary"
+                                  style={{ padding: "8px 16px", fontSize: 12 }}
+                                  disabled={updateWodMutation.isPending || !progWodForm.title || !progWodForm.content}
+                                  onClick={() => updateWodMutation.mutate({
+                                    id: editingWodId,
+                                    data: { ...progWodForm, wodDate: selectedDate },
+                                  })}
+                                >
+                                  {updateWodMutation.isPending ? "저장 중..." : "저장"}
+                                </button>
+                                <button
+                                  className="btn-secondary"
+                                  style={{ padding: "8px 16px", fontSize: 12 }}
+                                  onClick={() => setEditingWodId(null)}
+                                >
+                                  취소
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <p className={s.panelEmpty}>이 날짜에 등록된 WOD가 없습니다.</p>
+                              {!showProgForm ? (
+                                <button
+                                  className="btn-primary"
+                                  style={{ width: "100%", padding: "10px", fontSize: 13, marginTop: 8 }}
+                                  onClick={() => setShowProgForm(true)}
+                                >
+                                  + WOD 등록
+                                </button>
+                              ) : (
+                                <div className={s.progForm}>
+                                  <div className={s.field}>
+                                    <label className={s.label}>WOD 제목</label>
+                                    <input
+                                      className="input-field"
+                                      placeholder="오늘의 WOD 제목"
+                                      value={progWodForm.title}
+                                      onChange={(e) => setProgWodForm((f) => ({ ...f, title: e.target.value }))}
+                                    />
+                                  </div>
+                                  <div className={s.field}>
+                                    <label className={s.label}>WOD 타입</label>
+                                    <select
+                                      className={s.select}
+                                      value={progWodForm.type}
+                                      onChange={(e) => setProgWodForm((f) => ({ ...f, type: e.target.value }))}
+                                    >
+                                      {WOD_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                  </div>
+                                  <div className={s.field}>
+                                    <label className={s.label}>점수 유형</label>
+                                    <select
+                                      className={s.select}
+                                      value={progWodForm.scoreType}
+                                      onChange={(e) => setProgWodForm((f) => ({ ...f, scoreType: e.target.value }))}
+                                    >
+                                      <option value="TIME">TIME</option>
+                                      <option value="ROUNDS">ROUNDS</option>
+                                      <option value="REPS">REPS</option>
+                                      <option value="WEIGHT">WEIGHT</option>
+                                    </select>
+                                  </div>
+                                  <div className={s.field}>
+                                    <label className={s.label}>WOD 내용</label>
+                                    <textarea
+                                      className={s.textarea}
+                                      placeholder="WOD 내용을 입력하세요"
+                                      value={progWodForm.content}
+                                      onChange={(e) => setProgWodForm((f) => ({ ...f, content: e.target.value }))}
+                                    />
+                                  </div>
+                                  <div className={s.panelActions}>
+                                    <button
+                                      className="btn-primary"
+                                      style={{ padding: "8px 16px", fontSize: 12 }}
+                                      disabled={progWodMutation.isPending || !progWodForm.title || !progWodForm.content}
+                                      onClick={() => progWodMutation.mutate()}
+                                    >
+                                      {progWodMutation.isPending ? "등록 중..." : "등록"}
+                                    </button>
+                                    <button
+                                      className="btn-secondary"
+                                      style={{ padding: "8px 16px", fontSize: 12 }}
+                                      onClick={() => setShowProgForm(false)}
+                                    >
+                                      취소
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

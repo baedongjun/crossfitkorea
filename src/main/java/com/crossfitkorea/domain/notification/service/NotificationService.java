@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationSseService sseService;
 
     public List<NotificationDto> getMyNotifications(String email) {
         return notificationRepository.findByUserEmailOrderByCreatedAtDesc(email)
@@ -46,11 +48,18 @@ public class NotificationService {
 
     @Transactional
     public void createNotification(User user, NotificationType type, String message, String link) {
-        notificationRepository.save(Notification.builder()
+        Notification notification = notificationRepository.save(Notification.builder()
             .user(user)
             .type(type)
             .message(message)
             .link(link)
             .build());
+
+        sseService.sendNotification(user.getId(), Map.of(
+            "id", notification.getId(),
+            "message", notification.getMessage(),
+            "type", notification.getType().name(),
+            "link", notification.getLink() != null ? notification.getLink() : ""
+        ));
     }
 }

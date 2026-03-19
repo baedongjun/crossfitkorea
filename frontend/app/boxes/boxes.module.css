@@ -364,15 +364,19 @@
   100%{ opacity: 0.6; }
 }
 
-/* Pagination */
-.pagination {
+/* Infinite scroll sentinel */
+.infiniteSentinel {
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-top: 40px;
+  margin-top: 16px;
 }
-.pageInfo { font-size: 14px; color: var(--muted); }
+.loadingText {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
 
 @media (max-width: 768px) {
   .searchBar  { padding: 12px 24px; }

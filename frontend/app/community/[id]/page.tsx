@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
 import { communityApi, adminApi } from "@/lib/api";
 import { Post, Comment } from "@/types";
@@ -262,7 +263,9 @@ export default function PostDetailPage() {
           {post.imageUrls?.length > 0 && (
             <div className={s.postImages}>
               {post.imageUrls.map((url, i) => (
-                <img key={i} src={url} alt="" className={s.postImg} />
+                <div key={i} className={s.postImg} style={{ position: "relative" }}>
+                  <Image src={url} alt="" fill style={{ objectFit: "cover" }} />
+                </div>
               ))}
             </div>
           )}

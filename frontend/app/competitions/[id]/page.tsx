@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -133,7 +134,7 @@ export default function CompetitionDetailPage() {
       {/* Hero */}
       <div className={s.hero}>
         {comp.imageUrl && (
-          <img src={comp.imageUrl} alt={comp.name} className={s.heroImg} />
+          <Image src={comp.imageUrl} alt={comp.name} fill style={{ objectFit: "cover", opacity: 0.3 }} />
         )}
         <div className={s.heroOverlay} />
         <div className={s.heroContent}>

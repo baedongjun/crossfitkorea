@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { uploadApi } from "@/lib/api";
 import s from "./ImageUpload.module.css";
 
@@ -27,8 +28,8 @@ export default function ImageUpload({ value, onChange, placeholder = "이미지 
 
     setUploading(true);
     try {
-      const res = await uploadApi.getPresignedUrl(file.name);
-      const { presignedUrl, fileUrl } = res.data.data as { presignedUrl: string; fileUrl: string };
+      const res = await uploadApi.getPresignedUrl(file.name, "general", file.type);
+      const { presignedUrl, publicUrl } = res.data.data;
 
       await fetch(presignedUrl, {
         method: "PUT",
@@ -36,8 +37,8 @@ export default function ImageUpload({ value, onChange, placeholder = "이미지 
         headers: { "Content-Type": file.type },
       });
 
-      setPreview(fileUrl);
-      onChange(fileUrl);
+      setPreview(publicUrl);
+      onChange(publicUrl);
     } catch {
       alert("업로드에 실패했습니다. 다시 시도해주세요.");
     } finally {
@@ -57,7 +58,7 @@ export default function ImageUpload({ value, onChange, placeholder = "이미지 
 
       {preview ? (
         <div className={s.preview}>
-          <img src={preview} alt="미리보기" className={s.previewImg} />
+          <Image src={preview} alt="미리보기" fill style={{ objectFit: "cover" }} />
           <button
             type="button"
             className={s.removeBtn}

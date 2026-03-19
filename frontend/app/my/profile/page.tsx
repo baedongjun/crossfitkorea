@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { userApi, uploadApi } from "@/lib/api";
@@ -85,7 +86,7 @@ export default function ProfileEditPage() {
             <div className={s.avatarSection}>
               <div className={s.avatarWrap} onClick={() => fileRef.current?.click()}>
                 {form.profileImageUrl ? (
-                  <img src={form.profileImageUrl} alt="프로필" className={s.avatarImg} />
+                  <Image src={form.profileImageUrl} alt="프로필" fill style={{ objectFit: "cover" }} />
                 ) : (
                   <div className={s.avatarPlaceholder}>
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

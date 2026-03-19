@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, Suspense, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, Suspense, useEffect, useRef, useCallback } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { boxApi } from "@/lib/api";
@@ -20,11 +20,11 @@ function BoxesContent() {
   const [keyword, setKeyword] = useState(searchParams.get("q") || "");
   const [debouncedKeyword, setDebouncedKeyword] = useState(searchParams.get("q") || "");
   const [selectedCity, setSelectedCity] = useState(searchParams.get("city") || "전체");
-  const [page, setPage] = useState(Number(searchParams.get("page") || "0"));
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchWrapRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
   // 최근 검색어
   const RECENT_KEY = "box_recent_searches";
@@ -61,7 +61,6 @@ function BoxesContent() {
       maxFee: maxFee || undefined,
       minRating: minRating || undefined,
       sort: sortBy !== "createdAt,desc" ? sortBy : undefined,
-      page: page > 0 ? String(page) : undefined,
       ...overrides,
     };
     Object.entries(vals).forEach(([k, v]) => { if (v) params.set(k, v); });
@@ -73,8 +72,7 @@ function BoxesContent() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setDebouncedKeyword(keyword);
-      setPage(0);
-      syncUrl({ q: keyword || undefined, page: undefined });
+      syncUrl({ q: keyword || undefined });
     }, 400);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,13 +81,19 @@ function BoxesContent() {
   const currentUser = typeof window !== "undefined" ? (() => { try { const u = localStorage.getItem("user"); return u ? JSON.parse(u) : null; } catch { return null; } })() : null;
   const isOwner = currentUser?.role === "ROLE_BOX_OWNER" || currentUser?.role === "ROLE_ADMIN";
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["boxes", selectedCity, debouncedKeyword, page, verifiedOnly, premiumOnly, maxFee, minRating, sortBy],
-    queryFn: async () => {
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["boxes", "infinite", selectedCity, debouncedKeyword, verifiedOnly, premiumOnly, maxFee, minRating, sortBy],
+    queryFn: async ({ pageParam = 0 }) => {
       const res = await boxApi.search({
         city: selectedCity === "전체" ? undefined : selectedCity,
         keyword: debouncedKeyword || undefined,
-        page,
+        page: pageParam as number,
         size: 12,
         verified: verifiedOnly ? true : undefined,
         premium: premiumOnly ? true : undefined,
@@ -99,7 +103,34 @@ function BoxesContent() {
       });
       return res.data.data as Page<Box>;
     },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.last) return undefined;
+      return lastPage.number + 1;
+    },
   });
+
+  const allBoxes = data?.pages.flatMap((p) => p.content) ?? [];
+  const totalElements = data?.pages[0]?.totalElements ?? 0;
+
+  // IntersectionObserver for infinite scroll (list mode only)
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
+
+  useEffect(() => {
+    if (viewMode !== "list") return;
+    const el = observerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleObserver, viewMode]);
 
   // 자동완성: 키워드가 2자 이상일 때 suggestions
   const { data: suggestData } = useQuery({
@@ -128,8 +159,7 @@ function BoxesContent() {
 
   const handleCityChange = (city: string) => {
     setSelectedCity(city);
-    setPage(0);
-    syncUrl({ city: city !== "전체" ? city : undefined, page: undefined });
+    syncUrl({ city: city !== "전체" ? city : undefined });
   };
 
   return (
@@ -244,11 +274,11 @@ function BoxesContent() {
           <div className={s.filterPanel}>
             <div className={s.filterRow}>
               <label className={s.filterCheck}>
-                <input type="checkbox" checked={verifiedOnly} onChange={(e) => { setVerifiedOnly(e.target.checked); setPage(0); }} />
+                <input type="checkbox" checked={verifiedOnly} onChange={(e) => { setVerifiedOnly(e.target.checked); }} />
                 <span>인증 박스만</span>
               </label>
               <label className={s.filterCheck}>
-                <input type="checkbox" checked={premiumOnly} onChange={(e) => { setPremiumOnly(e.target.checked); setPage(0); }} />
+                <input type="checkbox" checked={premiumOnly} onChange={(e) => { setPremiumOnly(e.target.checked); }} />
                 <span>프리미엄만</span>
               </label>
             </div>
@@ -260,7 +290,7 @@ function BoxesContent() {
                   className={s.filterInput}
                   placeholder="예: 150000"
                   value={maxFee}
-                  onChange={(e) => { setMaxFee(e.target.value); setPage(0); }}
+                  onChange={(e) => { setMaxFee(e.target.value); }}
                 />
               </div>
               <div className={s.filterField}>
@@ -268,7 +298,7 @@ function BoxesContent() {
                 <select
                   className={s.filterSelect}
                   value={minRating}
-                  onChange={(e) => { setMinRating(e.target.value); setPage(0); }}
+                  onChange={(e) => setMinRating(e.target.value)}
                 >
                   <option value="">전체</option>
                   <option value="3">3.0+</option>
@@ -280,7 +310,7 @@ function BoxesContent() {
               {activeFilterCount > 0 && (
                 <button
                   className={s.filterReset}
-                  onClick={() => { setVerifiedOnly(false); setPremiumOnly(false); setMaxFee(""); setMinRating(""); setPage(0); }}
+                  onClick={() => { setVerifiedOnly(false); setPremiumOnly(false); setMaxFee(""); setMinRating(""); }}
                 >
                   초기화
                 </button>
@@ -313,17 +343,17 @@ function BoxesContent() {
       {/* Content */}
       <div className={s.content}>
         {viewMode === "map" ? (
-          <BoxMap boxes={data?.content || []} />
+          <BoxMap boxes={allBoxes} />
         ) : (
           <>
             <div className={s.contentHeader}>
               <p className={s.resultCount}>
-                총 <span>{data?.totalElements || 0}</span>개 박스
+                총 <span>{totalElements}</span>개 박스
               </p>
               <select
                 className={s.sortSelect}
                 value={sortBy}
-                onChange={(e) => { setSortBy(e.target.value); setPage(0); }}
+                onChange={(e) => setSortBy(e.target.value)}
               >
                 <option value="createdAt,desc">최신순</option>
                 <option value="rating,desc">별점 높은순</option>
@@ -339,7 +369,7 @@ function BoxesContent() {
                   <div key={i} className={s.skeleton} />
                 ))}
               </div>
-            ) : data?.content.length === 0 ? (
+            ) : allBoxes.length === 0 ? (
               <div className={s.emptyWrap}>
                 <div className={s.empty}>
                   <div className={s.emptyIcon}>🏋️</div>
@@ -354,31 +384,16 @@ function BoxesContent() {
               </div>
             ) : (
               <div className={s.grid}>
-                {data?.content.map((box) => (
+                {allBoxes.map((box) => (
                   <BoxCard key={box.id} box={box} />
                 ))}
               </div>
             )}
 
-            {data && data.totalPages > 1 && (
-              <div className={s.pagination}>
-                <button
-                  onClick={() => setPage(page - 1)}
-                  disabled={data.first}
-                  className="btn-secondary"
-                >
-                  이전
-                </button>
-                <span className={s.pageInfo}>{data.number + 1} / {data.totalPages}</span>
-                <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={data.last}
-                  className="btn-secondary"
-                >
-                  다음
-                </button>
-              </div>
-            )}
+            {/* Infinite scroll sentinel */}
+            <div ref={observerRef} className={s.infiniteSentinel}>
+              {isFetchingNextPage && <span className={s.loadingText}>로딩 중...</span>}
+            </div>
           </>
         )}
       </div>

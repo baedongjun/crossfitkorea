@@ -1,5 +1,6 @@
 package com.crossfitkorea.domain.wod.repository;
 
+import com.crossfitkorea.domain.user.entity.User;
 import com.crossfitkorea.domain.wod.entity.WodRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,4 +24,6 @@ public interface WodRecordRepository extends JpaRepository<WodRecord, Long> {
     List<WodRecord> findByWodDate(LocalDate wodDate);
 
     long countByUserEmail(String email);
+
+    List<WodRecord> findByUserInOrderByCreatedAtDesc(List<User> users);
 }

@@ -2,6 +2,7 @@ package com.crossfitkorea.admin;
 
 import com.crossfitkorea.common.ApiResponse;
 import com.crossfitkorea.domain.box.entity.Box;
+import com.crossfitkorea.domain.box.repository.BoxMembershipRepository;
 import com.crossfitkorea.domain.box.repository.BoxRepository;
 import com.crossfitkorea.domain.community.entity.Post;
 import com.crossfitkorea.domain.community.repository.PostRepository;
@@ -21,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +37,7 @@ public class AdminDashboardController {
 
     private final UserRepository userRepository;
     private final BoxRepository boxRepository;
+    private final BoxMembershipRepository boxMembershipRepository;
     private final PostRepository postRepository;
     private final CompetitionRepository competitionRepository;
 
@@ -91,6 +95,40 @@ public class AdminDashboardController {
             monthlySignups.add(Map.of("month", monthStart.getMonthValue() + "월", "count", count));
         }
         stats.put("monthlySignups", monthlySignups);
+
+        // 도시별 박스 수
+        List<Box> allActiveBoxes = boxRepository.findAll().stream()
+            .filter(Box::isActive)
+            .collect(Collectors.toList());
+        Map<String, Long> cityGrouped = allActiveBoxes.stream()
+            .filter(b -> b.getCity() != null && !b.getCity().isBlank())
+            .collect(Collectors.groupingBy(Box::getCity, Collectors.counting()));
+        List<Map<String, Object>> boxesByCity = cityGrouped.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+            .map(e -> {
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("city", e.getKey());
+                item.put("count", e.getValue());
+                return item;
+            })
+            .collect(Collectors.toList());
+        stats.put("boxesByCity", boxesByCity);
+
+        // 멤버 수 기준 상위 5개 박스
+        List<Map<String, Object>> topBoxesByMembers = allActiveBoxes.stream()
+            .map(b -> {
+                long memberCount = boxMembershipRepository.countByBoxIdAndActiveTrue(b.getId());
+                Map<String, Object> item = new LinkedHashMap<>();
+                item.put("id", b.getId());
+                item.put("name", b.getName());
+                item.put("memberCount", memberCount);
+                return item;
+            })
+            .sorted(Comparator.<Map<String, Object>, Long>comparing(
+                m -> (Long) m.get("memberCount")).reversed())
+            .limit(5)
+            .collect(Collectors.toList());
+        stats.put("topBoxesByMembers", topBoxesByMembers);
 
         return ResponseEntity.ok(ApiResponse.success(stats));
     }

@@ -29,6 +29,8 @@ export default function AdminDashboard() {
         recentUsers: { id: number; name: string; email: string; role: string; createdAt: string }[];
         recentPosts: { id: number; title: string; userName: string; createdAt: string }[];
         pendingBoxes: { id: number; name: string; city: string; createdAt: string }[];
+        boxesByCity: { city: string; count: number }[];
+        topBoxesByMembers: { id: number; name: string; memberCount: number }[];
       };
     },
   });
@@ -131,6 +133,60 @@ export default function AdminDashboard() {
               ));
             })()}
           </div>
+        </div>
+      )}
+
+      {/* 도시별 박스 분포 + 멤버 수 TOP 5 박스 */}
+      {(data?.boxesByCity || data?.topBoxesByMembers) && (
+        <div className={s.hBarChartsGrid}>
+          {/* 도시별 박스 분포 */}
+          {data?.boxesByCity && data.boxesByCity.length > 0 && (
+            <div className={s.hBarChartPanel}>
+              <p className={s.chartTitle}>도시별 박스 분포</p>
+              <div className={s.hBarList}>
+                {(() => {
+                  const maxCount = Math.max(...data.boxesByCity.map(d => d.count), 1);
+                  return data.boxesByCity.map((d) => (
+                    <div key={d.city} className={s.hBarRow}>
+                      <span className={s.hBarRowLabel}>{d.city}</span>
+                      <div className={s.hBarTrack}>
+                        <div
+                          className={s.hBar}
+                          style={{ width: `${Math.max((d.count / maxCount) * 100, 4)}%` }}
+                        />
+                      </div>
+                      <span className={s.hBarRowValue}>{d.count}</span>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* 멤버 수 TOP 5 박스 */}
+          {data?.topBoxesByMembers && data.topBoxesByMembers.length > 0 && (
+            <div className={s.hBarChartPanel}>
+              <p className={s.chartTitle}>멤버 수 TOP 5 박스</p>
+              <div className={s.hBarList}>
+                {(() => {
+                  const maxCount = Math.max(...data.topBoxesByMembers.map(d => d.memberCount), 1);
+                  return data.topBoxesByMembers.map((d, i) => (
+                    <div key={d.id} className={s.hBarRow}>
+                      <span className={s.hBarRank}>{i + 1}</span>
+                      <span className={s.hBarRowLabel}>{d.name}</span>
+                      <div className={s.hBarTrack}>
+                        <div
+                          className={s.hBar}
+                          style={{ width: `${Math.max((d.memberCount / maxCount) * 100, d.memberCount > 0 ? 4 : 0)}%` }}
+                        />
+                      </div>
+                      <span className={s.hBarRowValue}>{d.memberCount}</span>
+                    </div>
+                  ));
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

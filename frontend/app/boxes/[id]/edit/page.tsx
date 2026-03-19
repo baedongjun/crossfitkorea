@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { boxApi, uploadApi } from "@/lib/api";
@@ -28,6 +29,7 @@ export default function BoxEditPage() {
 
   useEffect(() => {
     if (!isLoggedIn()) router.replace("/login");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { data: box } = useQuery({
@@ -159,7 +161,7 @@ export default function BoxEditPage() {
             <div className={s.imageUploadArea}>
               {imageUrls.map((url, i) => (
                 <div key={i} className={s.imagePreview}>
-                  <img src={url} alt={`박스 이미지 ${i + 1}`} className={s.previewImg} />
+                  <Image src={url} alt={`박스 이미지 ${i + 1}`} fill style={{ objectFit: "cover" }} />
                   <button
                     type="button"
                     className={s.removeImgBtn}

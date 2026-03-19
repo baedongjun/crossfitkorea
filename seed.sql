@@ -957,6 +957,30 @@ INSERT INTO competitions (name, description, start_date, end_date, location, cit
 SELECT '대전 CrossFit Championships 2026', '충청권 대표 크로스핏 대회. 대전·세종·충남·충북 선수들이 참여하는 지역 챔피언십입니다. 우승자에게는 CrossFit Korea 전국 대회 시드권을 부여합니다.', '2026-05-03', '2026-05-03', '대전광역시 유성구 대학로 99 충남대학교 체육관', '대전', '2026-04-20', 'https://daejeon-cf-champs.kr', '충청 크로스핏 협회', 'RX', 'UPCOMING', 120, 45000, true, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM competitions WHERE name = '대전 CrossFit Championships 2026');
 
+-- ========================================
+-- Challenges (챌린지)
+-- ========================================
+
+INSERT INTO challenges (title, description, start_date, end_date, target_days, type, active, created_at, updated_at)
+SELECT '30일 버피 챌린지', '매일 버피 100개. 꾸준함이 실력이 됩니다. 30일 동안 하루도 빠지지 않고 버피를 완수하세요. 참가자들과 함께 매일 인증하며 동기부여를 받으세요.', '2026-03-01', '2026-03-30', 30, 'EXERCISE', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM challenges WHERE title = '30일 버피 챌린지');
+
+INSERT INTO challenges (title, description, start_date, end_date, target_days, type, active, created_at, updated_at)
+SELECT '100일 WOD 챌린지', '100일 연속 WOD 완료 챌린지. CrossFit의 진수는 꾸준함입니다. 오늘 WOD를 완료하고 인증 사진을 올려보세요. 100일 후 완전히 달라진 자신을 만나게 됩니다.', '2026-01-01', '2026-04-10', 100, 'WOD', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM challenges WHERE title = '100일 WOD 챌린지');
+
+INSERT INTO challenges (title, description, start_date, end_date, target_days, type, active, created_at, updated_at)
+SELECT '클린 이팅 21일 챌린지', '21일간 정제 탄수화물, 알코올, 설탕을 끊는 식단 챌린지. 매일 식단 사진을 인증하세요. 몸의 변화를 느끼며 건강한 식습관을 만들어가세요.', '2026-03-10', '2026-03-30', 21, 'DIET', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM challenges WHERE title = '클린 이팅 21일 챌린지');
+
+INSERT INTO challenges (title, description, start_date, end_date, target_days, type, active, created_at, updated_at)
+SELECT '스내치 50kg 도전', '스내치 1RM 50kg 달성을 위한 14일 집중 챌린지. 매일 스내치 기술 연습과 점진적 중량 증가. 테크닉과 근력을 동시에 키워보세요.', '2026-03-15', '2026-03-28', 14, 'EXERCISE', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM challenges WHERE title = '스내치 50kg 도전');
+
+INSERT INTO challenges (title, description, start_date, end_date, target_days, type, active, created_at, updated_at)
+SELECT '크로스핏 입문 30일', '크로스핏을 처음 시작하는 분들을 위한 30일 기초 챌린지. 기본 무브먼트(스쿼트, 데드리프트, 프레스) 완성을 목표로 합니다. 매일 10분 모빌리티 루틴 포함.', '2026-03-01', '2026-03-30', 30, 'FREE', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM challenges WHERE title = '크로스핏 입문 30일');
+
 SELECT '=== 결과 ===' AS result;
 SELECT 'users: ' || COUNT(*) FROM users;
 SELECT 'boxes: ' || COUNT(*) FROM boxes;
@@ -964,3 +988,4 @@ SELECT 'box_images: ' || COUNT(*) FROM box_images;
 SELECT 'posts: ' || COUNT(*) FROM posts;
 SELECT 'wods: ' || COUNT(*) FROM wods;
 SELECT 'competitions: ' || COUNT(*) FROM competitions;
+SELECT 'challenges: ' || COUNT(*) FROM challenges;

@@ -36,6 +36,14 @@
   color: var(--text);
   margin-bottom: 8px;
 }
+.profileRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  margin-left: auto;
+}
+
 .badgeSummary {
   display: flex;
   gap: 16px;
@@ -49,6 +57,196 @@
   font-size: 20px;
   letter-spacing: 1px;
 }
+
+/* Follow counts */
+.followCounts {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 12px;
+}
+.followCount {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 16px;
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.followCount:hover { color: var(--text); }
+.followCountActive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 16px;
+  color: var(--red);
+}
+.followNum {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  line-height: 1;
+}
+.followLabel {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+.followDivider {
+  width: 1px;
+  height: 28px;
+  background: var(--border);
+}
+
+/* Follow / Unfollow buttons */
+.followBtn {
+  background: var(--red);
+  color: var(--text);
+  border: none;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.followBtn:hover { opacity: 0.85; }
+.followBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.unfollowBtn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.unfollowBtn:hover { color: var(--red); border-color: var(--red); }
+.unfollowBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+.tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--text); }
+.tabActive {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--red);
+  color: var(--text);
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-bottom: -1px;
+}
+
+/* Follow List */
+.followList {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--border);
+}
+.followItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  padding: 14px 16px;
+  transition: background 0.15s;
+}
+.followItem:hover { background: var(--bg-card-2); }
+.followItemLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  flex: 1;
+  min-width: 0;
+}
+.followAvatar {
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: var(--muted);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.followItemInfo { flex: 1; min-width: 0; }
+.followItemName {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.followItemRole { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.followBtnSm {
+  background: var(--red);
+  color: var(--text);
+  border: none;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.followBtnSm:hover { opacity: 0.85; }
+.followBtnSm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.unfollowBtnSm {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.2);
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.2s, border-color 0.2s;
+}
+.unfollowBtnSm:hover { color: var(--red); border-color: var(--red); }
+.unfollowBtnSm:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Section */
 .section { margin-bottom: 32px; }

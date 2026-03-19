@@ -61,22 +61,26 @@ crossfitkorea/                        ← Spring Boot 루트
 │   │   ├── wod/                      ← Wod, WodRecord, WodService, WodController, WodRecordController
 │   │   ├── competition/              ← Competition, CompetitionRegistration, CompetitionService
 │   │   ├── community/                ← Post, Comment, PostController
-│   │   ├── notification/             ← Notification, NotificationService, NotificationController
+│   │   ├── notification/             ← Notification, NotificationService, NotificationController, NotificationSseService
 │   │   ├── badge/                    ← BadgeType, Badge, BadgeService
 │   │   ├── advertisement/            ← Advertisement, AdPosition, AdvertisementService, AdvertisementController
+│   │   ├── follow/                   ← Follow, FollowRepository, FollowService, FollowController
 │   │   └── payment/                  ← Payment, PaymentService, PaymentController
+│   ├── common/service/EmailService.java  ← 이메일 발송 (비밀번호 재설정, 환영, 대회 신청)
 │   └── admin/                        ← AdminDashboardController, AdminBoxController, AdminUserController, AdminPostController
 │
 └── frontend/                         ← Next.js 앱
     ├── app/                          ← App Router 페이지
     ├── components/
-    │   ├── layout/Header.tsx, Footer.tsx
+    │   ├── layout/Header.tsx, Footer.tsx (SSE 알림 연결)
     │   ├── box/BoxCard.tsx, BoxMap.tsx (마커 클러스터링), BoxDetailMap.tsx
-    │   ├── common/FadeInObserver.tsx, AdBanner.tsx
+    │   ├── common/FadeInObserver.tsx, AdBanner.tsx, ImageUpload.tsx
     │   └── providers/QueryProvider.tsx
     ├── lib/
     │   ├── api.ts                    ← 모든 API 함수 (axios 인스턴스 포함)
-    │   └── auth.ts                   ← saveAuth, clearAuth, getUser, setUser, isLoggedIn, isAdmin, isBoxOwner
+    │   ├── auth.ts                   ← saveAuth, clearAuth, getUser, setUser, isLoggedIn, isAdmin, isBoxOwner
+    │   ├── upload.ts                 ← uploadViaPresignedUrl() S3 직접 업로드 유틸
+    │   └── useNotificationSse.ts     ← SSE 실시간 알림 훅
     └── types/index.ts                ← 모든 TypeScript 타입 정의
 ```
 
@@ -118,6 +122,15 @@ GET    /api/v1/users/me/comments?page=     ← 내가 쓴 댓글
 GET    /api/v1/users/me/box                ← 내 소속 박스 (BoxMembership | null)
 GET    /api/v1/users/me/badges             ← 내 배지 목록 (List<Badge>)
 GET    /api/v1/users/{id}/profile          ← 공개 프로필 [PUBLIC] (id,name,profileImageUrl,role)
+```
+
+### Follow
+```
+POST /api/v1/users/{id}/follow            ← 팔로우/언팔로우 토글 [AUTH] → { following, followerCount }
+GET  /api/v1/users/{id}/follow            ← 팔로우 여부 [AUTH] → { following: boolean }
+GET  /api/v1/users/{id}/followers         ← 팔로워 목록 [PUBLIC] → List<FollowDto>
+GET  /api/v1/users/{id}/following         ← 팔로잉 목록 [PUBLIC] → List<FollowDto>
+GET  /api/v1/users/{id}/follow/counts     ← 팔로워/팔로잉 수 [PUBLIC] → { followerCount, followingCount }
 ```
 
 ### Box
@@ -238,6 +251,37 @@ DELETE /api/v1/admin/advertisements/{id}         ← 광고 삭제 [ADMIN]
 ```
 AdPosition: `BANNER | SIDEBAR | COMMUNITY | BOXES`
 
+### Challenge (챌린지)
+```
+GET    /api/v1/challenges                    ← 활성 챌린지 목록 [PUBLIC+AUTH]
+GET    /api/v1/challenges/{id}               ← 챌린지 상세 (참여현황, 리더보드) [PUBLIC+AUTH]
+GET    /api/v1/challenges/my                 ← 내 참여 챌린지 [AUTH]
+POST   /api/v1/challenges/{id}/join          ← 참가 [AUTH]
+DELETE /api/v1/challenges/{id}/join          ← 참가 취소 [AUTH]
+POST   /api/v1/challenges/{id}/verify        ← 오늘 인증 [AUTH] (content?, imageUrl?)
+GET    /api/v1/challenges/{id}/leaderboard   ← 챌린지 랭킹 [PUBLIC]
+POST   /api/v1/admin/challenges              ← 챌린지 등록 [ADMIN]
+PUT    /api/v1/admin/challenges/{id}         ← 챌린지 수정 [ADMIN]
+PATCH  /api/v1/admin/challenges/{id}/active?active= ← 활성화/비활성화 [ADMIN]
+```
+
+### Feed (활동 피드)
+```
+GET /api/v1/feed?page=&size=   ← 팔로우한 사람들의 활동 피드 [AUTH] (Page<FeedItemDto>)
+```
+FeedItemType: `WOD_RECORD | BADGE | COMPETITION | POST`
+
+### Performance (개인 기록 트래킹)
+```
+GET    /api/v1/performance              ← 내 전체 기록 [AUTH]
+GET    /api/v1/performance/prs          ← 종목별 최고 기록 맵 [AUTH]
+GET    /api/v1/performance/{type}       ← 종목별 기록 [AUTH]
+POST   /api/v1/performance              ← 기록 저장 [AUTH] (exerciseType, value, unit?, notes?, recordedAt?)
+PUT    /api/v1/performance/{id}         ← 기록 수정 [AUTH] (value, notes?)
+DELETE /api/v1/performance/{id}         ← 기록 삭제 [AUTH]
+```
+ExerciseType: `BACK_SQUAT | FRONT_SQUAT | DEADLIFT | CLEAN | SNATCH | CLEAN_AND_JERK | OVERHEAD_SQUAT | PRESS | PUSH_PRESS | PUSH_JERK | BENCH_PRESS | PULL_UP | MUSCLE_UP | BODYWEIGHT | BODY_FAT | HEIGHT | CUSTOM`
+
 ### Admin (ROLE_ADMIN 전용)
 ```
 GET   /api/v1/admin/dashboard?months=            ← 통계 + 월별 신규 회원 (months 기본값 6, 3/6/12 선택)
@@ -255,6 +299,9 @@ GET   /api/v1/admin/posts?page=                  ← 게시글 목록
 DELETE /api/v1/admin/posts/{id}                  ← 게시글 삭제
 DELETE /api/v1/admin/comments/{id}               ← 댓글 삭제
 POST   /api/v1/admin/advertisements              ← (광고 섹션 참조)
+POST   /api/v1/admin/challenges                  ← (챌린지 섹션 참조)
+PUT    /api/v1/admin/challenges/{id}             ← (챌린지 섹션 참조)
+PATCH  /api/v1/admin/challenges/{id}/active?active= ← (챌린지 섹션 참조)
 ```
 
 ---
@@ -288,8 +335,12 @@ POST   /api/v1/admin/advertisements              ← (광고 섹션 참조)
 /my/comments               ← 내가 쓴 댓글 (수정/삭제)
 /my/favorites              ← 즐겨찾기 박스
 /my/competitions           ← 신청한 대회 (취소 가능)
+/my/performance            ← 개인 기록 트래킹 (종목별 PR, 꺾은선 그래프, CRUD)
 /notifications             ← 알림 목록 (읽음처리, 전체읽음)
-/users/[id]                ← 사용자 공개 프로필 (배지 표시)
+/users/[id]                ← 사용자 공개 프로필 (배지 표시, 팔로우/언팔로우, 팔로워/팔로잉 목록 탭)
+/challenges                ← 챌린지 목록 (내 참여 챌린지, 전체 챌린지)
+/challenges/[id]           ← 챌린지 상세 (참가/취소, 오늘 인증, 랭킹, 내 인증 기록)
+/feed                      ← 활동 피드 (팔로우한 사람들의 WOD/배지/대회/게시글 활동, 무한스크롤)
 /payment/success
 /payment/fail
 /advertise
@@ -301,6 +352,7 @@ POST   /api/v1/admin/advertisements              ← (광고 섹션 참조)
 /admin/posts               ← 게시글 관리 (삭제)
 /admin/wod                 ← 공통 WOD 등록
 /admin/competitions        ← 대회 등록/수정/상태변경
+/admin/challenges          ← 챌린지 관리 (등록/수정/활성화토글)
 /admin/advertisements      ← 광고 관리 (등록/수정/활성화토글/삭제)
 ```
 
@@ -314,7 +366,7 @@ POST   /api/v1/admin/advertisements              ← (광고 섹션 참조)
 import { boxApi, wodApi, communityApi, competitionApi, membershipApi,
          badgeApi, wodRecordApi, leaderboardApi, notificationApi,
          userApi, authApi, uploadApi, statsApi, paymentApi, adminApi,
-         advertisementApi } from "@/lib/api";
+         advertisementApi, followApi, challengeApi, feedApi, performanceApi } from "@/lib/api";
 
 // 자동 토큰 갱신: 401 시 refreshToken으로 재발급 → 원본 요청 재시도
 // 갱신 실패 시 → /login 리다이렉트
@@ -437,6 +489,10 @@ Box (1) ──── (N) BoxMembership
 | 박스 탈퇴 | `BoxMembershipService.leave()` |
 | 댓글 달림 | `PostService.createComment()` |
 | 대댓글 달림 | `PostService.createComment()` |
+| 팔로우 | `FollowService.toggle()` |
+
+알림 발행 시 `NotificationSseService.sendNotification()`으로 SSE 실시간 전송.
+프론트엔드 `Header.tsx`에서 `useNotificationSse` 훅으로 수신 → `toast.info()` 표시.
 
 ---
 
@@ -444,21 +500,13 @@ Box (1) ──── (N) BoxMembership
 
 ### 백엔드
 - [ ] Elasticsearch 실제 연동 (현재 DB LIKE 쿼리로 대체)
-- [ ] 실시간 알림 (현재 폴링, SSE 또는 WebSocket으로 개선)
-- [ ] 이메일 발송 실제 구현 (현재 forgot-password는 임시 비밀번호 반환)
-- [ ] S3 Presigned URL 기반 직접 업로드 (현재 서버 경유)
 
 ### 프론트엔드
-- [ ] 무한 스크롤 — 박스 목록, WOD 히스토리 등 (커뮤니티는 완료)
 - [ ] SNS 로그인 (OAuth2 — 카카오/구글)
 - [ ] 앱 푸시 알림 (PWA)
-- [ ] 어드민 통계 — 박스별/지역별 상세 차트 (기간 필터는 완료)
-- [ ] 사용자 간 팔로우/팔로잉
-- [ ] WOD 기록 SNS 공유
 
 ### 인프라
 - [ ] 토스페이먼츠 실제 결제 테스트 (현재 sandbox 미검증)
-- [ ] Docker Compose 프로덕션 설정 분리
 
 ---
 

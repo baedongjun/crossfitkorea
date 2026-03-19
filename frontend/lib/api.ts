@@ -127,8 +127,10 @@ export const uploadApi = {
     });
   },
 
-  getPresignedUrl: (filename: string) =>
-    api.get("/api/v1/upload/presigned", { params: { filename } }),
+  getPresignedUrl: (filename: string, folder = "general", contentType = "image/jpeg") =>
+    api.get<ApiResponse<{ presignedUrl: string; key: string; publicUrl: string }>>("/api/v1/upload/presigned", {
+      params: { filename, folder, contentType },
+    }),
 };
 
 // Box API
@@ -195,6 +197,18 @@ export const boxApi = {
 
   checkFavorite: (boxId: number) =>
     api.get(`/api/v1/boxes/${boxId}/favorite`),
+
+  getNotices: (boxId: number, page = 0) =>
+    api.get(`/api/v1/boxes/${boxId}/notices`, { params: { page } }),
+
+  createNotice: (boxId: number, data: { title: string; content: string; pinned?: boolean }) =>
+    api.post(`/api/v1/boxes/${boxId}/notices`, data),
+
+  updateNotice: (boxId: number, noticeId: number, data: { title: string; content: string; pinned?: boolean }) =>
+    api.put(`/api/v1/boxes/${boxId}/notices/${noticeId}`, data),
+
+  deleteNotice: (boxId: number, noticeId: number) =>
+    api.delete(`/api/v1/boxes/${boxId}/notices/${noticeId}`),
 };
 
 // WOD API
@@ -207,6 +221,9 @@ export const wodApi = {
 
   createBoxWod: (boxId: number, data: object) =>
     api.post(`/api/v1/wod`, data, { params: { boxId } }),
+
+  getRange: (boxId: number, start: string, end: string) =>
+    api.get("/api/v1/wod/range", { params: { boxId, start, end } }),
 };
 
 // Competition API
@@ -444,6 +461,59 @@ export const adminApi = {
 
   updateCompetition: (id: number, data: object) =>
     api.put(`/api/v1/admin/competitions/${id}`, data),
+};
+
+// Challenge API
+export const challengeApi = {
+  getAll: () => api.get("/api/v1/challenges"),
+  getOne: (id: number) => api.get(`/api/v1/challenges/${id}`),
+  getMy: () => api.get("/api/v1/challenges/my"),
+  join: (id: number) => api.post(`/api/v1/challenges/${id}/join`),
+  leave: (id: number) => api.delete(`/api/v1/challenges/${id}/join`),
+  verify: (id: number, data: { content?: string; imageUrl?: string }) =>
+    api.post(`/api/v1/challenges/${id}/verify`, data),
+  getLeaderboard: (id: number) => api.get(`/api/v1/challenges/${id}/leaderboard`),
+  // Admin
+  create: (data: object) => api.post("/api/v1/admin/challenges", data),
+  update: (id: number, data: object) => api.put(`/api/v1/admin/challenges/${id}`, data),
+  toggleActive: (id: number, active: boolean) =>
+    api.patch(`/api/v1/admin/challenges/${id}/active`, null, { params: { active } }),
+};
+
+// Follow API
+export const followApi = {
+  toggle: (userId: number) =>
+    api.post(`/api/v1/users/${userId}/follow`),
+
+  isFollowing: (userId: number) =>
+    api.get(`/api/v1/users/${userId}/follow`),
+
+  getFollowers: (userId: number) =>
+    api.get(`/api/v1/users/${userId}/followers`),
+
+  getFollowing: (userId: number) =>
+    api.get(`/api/v1/users/${userId}/following`),
+
+  getCounts: (userId: number) =>
+    api.get(`/api/v1/users/${userId}/follow/counts`),
+};
+
+// Feed API
+export const feedApi = {
+  getFeed: (page = 0) =>
+    api.get("/api/v1/feed", { params: { page, size: 20 } }),
+};
+
+// Performance API
+export const performanceApi = {
+  getAll: () => api.get("/api/v1/performance"),
+  getByType: (type: string) => api.get(`/api/v1/performance/${type}`),
+  getPRs: () => api.get("/api/v1/performance/prs"),
+  save: (data: { exerciseType: string; value: number; unit?: string; notes?: string; recordedAt?: string }) =>
+    api.post("/api/v1/performance", data),
+  update: (id: number, data: { value: number; notes?: string }) =>
+    api.put(`/api/v1/performance/${id}`, data),
+  delete: (id: number) => api.delete(`/api/v1/performance/${id}`),
 };
 
 // Advertisement API

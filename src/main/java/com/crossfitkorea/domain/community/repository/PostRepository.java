@@ -2,6 +2,7 @@ package com.crossfitkorea.domain.community.repository;
 
 import com.crossfitkorea.domain.community.entity.Post;
 import com.crossfitkorea.domain.community.entity.PostCategory;
+import com.crossfitkorea.domain.user.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,4 +34,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     long countByUserEmailAndActiveTrue(String email);
 
     Page<Post> findByActiveTrueOrderByPinnedDescCreatedAtDesc(Pageable pageable);
+
+    List<Post> findByUserInAndActiveTrueOrderByCreatedAtDesc(List<User> users);
 }

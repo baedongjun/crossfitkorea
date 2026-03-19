@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userApi, boxApi } from "@/lib/api";
@@ -73,7 +74,7 @@ export default function FavoritesPage() {
                   <Link href={`/boxes/${box.id}`} className={s.cardLink}>
                     <div className={s.cardImg}>
                       {box.imageUrls?.[0]
-                        ? <img src={box.imageUrls[0]} alt={box.name} />
+                        ? <Image src={box.imageUrls[0]} alt={box.name} fill style={{ objectFit: "cover" }} />
                         : <div className={s.imgPlaceholder}>CF</div>
                       }
                       {box.premium && <span className="badge badge-premium" style={{ position: "absolute", top: 8, left: 8 }}>PREMIUM</span>}

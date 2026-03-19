@@ -17,6 +17,7 @@ export default function PasswordPage() {
 
   useEffect(() => {
     if (!isLoggedIn()) router.replace("/login");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const mutation = useMutation({

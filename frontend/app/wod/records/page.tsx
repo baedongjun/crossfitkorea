@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,6 +12,111 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
 import s from "./records.module.css";
+
+const SHARE_URL = "https://crossfitkorea.com/wod/records";
+
+function buildShareText(rec: WodRecord): string {
+  const datePart = dayjs(rec.wodDate).format("YYYY-MM-DD");
+  const scorePart = rec.score ? `기록: ${rec.score}` : "";
+  const notesPart = rec.notes ? ` - ${rec.notes}` : "";
+  return `[CrossFit Korea] ${datePart} WOD ${scorePart}${notesPart} #크로스핏 #CrossFitKorea`;
+}
+
+function ShareDropdown({ rec, onClose }: { rec: WodRecord; onClose: () => void }) {
+  const text = buildShareText(rec);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${text}\n${SHARE_URL}`);
+      toast.success("링크가 복사되었습니다.");
+    } catch {
+      toast.error("복사에 실패했습니다.");
+    }
+    onClose();
+  };
+
+  const handleTwitter = () => {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(SHARE_URL)}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+    onClose();
+  };
+
+  const handleWebShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "CrossFit Korea WOD 기록", text, url: SHARE_URL });
+      } catch {
+        // user cancelled — do nothing
+      }
+    }
+    onClose();
+  };
+
+  return (
+    <div className={s.shareDropdown}>
+      <button className={s.shareOption} onClick={handleCopy}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        링크 복사
+      </button>
+      <button className={s.shareOption} onClick={handleTwitter}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        트위터 공유
+      </button>
+      {typeof navigator !== "undefined" && "share" in navigator && (
+        <button className={s.shareOption} onClick={handleWebShare}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          더 보내기
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ShareButton({ rec }: { rec: WodRecord }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div className={s.shareWrap} ref={wrapRef}>
+      <button
+        className={s.shareBtn}
+        onClick={() => setOpen((v) => !v)}
+        title="공유"
+        aria-label="공유"
+      >
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+        </svg>
+      </button>
+      {open && <ShareDropdown rec={rec} onClose={() => setOpen(false)} />}
+    </div>
+  );
+}
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -339,6 +444,7 @@ export default function WodRecordsPage() {
                     </div>
                   )}
                   <div className={s.itemActions}>
+                    <ShareButton rec={rec} />
                     <button
                       className={s.editBtn}
                       onClick={() => { setEditingId(rec.id); setEditForm({ score: rec.score || "", notes: rec.notes || "", rx: rec.rx || false }); }}

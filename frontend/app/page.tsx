@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { boxApi, wodApi, competitionApi, communityApi, membershipApi, leaderboardApi, statsApi } from "@/lib/api";
+import { boxApi, wodApi, competitionApi, communityApi, membershipApi, leaderboardApi, statsApi, challengeApi } from "@/lib/api";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { Box, Wod, Competition, Post, BoxMembership, BoxRanking } from "@/types";
 import BoxCard from "@/components/box/BoxCard";
@@ -209,6 +209,11 @@ export default function HomePage() {
     staleTime: 1000 * 60 * 10,
   });
 
+  const { data: challenges } = useQuery({
+    queryKey: ["challenges", "home"],
+    queryFn: async () => (await challengeApi.getAll()).data.data as { id: number; title: string; type: string; targetDays: number; participantCount: number; active: boolean }[],
+  });
+
   const activeComps: Competition[] = (competitions?.content ?? []).filter(
     (c: Competition) => c.status === "OPEN" || c.status === "UPCOMING"
   ).slice(0, 3);
@@ -409,6 +414,35 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Challenge Preview */}
+      {challenges && challenges.length > 0 && (
+        <section className={s.challengeSection}>
+          <div className={s.challengeInner}>
+            <div className={s.challengeHeader}>
+              <div>
+                <p className="section-tag">CHALLENGE</p>
+                <h2 className="section-title">진행 중인<br /><span>챌린지</span></h2>
+              </div>
+              <Link href="/challenges" className={s.viewAll}>전체 보기</Link>
+            </div>
+            <div className={s.challengeList}>
+              {challenges.slice(0, 3).map((c) => (
+                <Link key={c.id} href={`/challenges/${c.id}`} className={s.challengeItem}>
+                  <div className={s.challengeItemLeft}>
+                    <span className={`badge badge-open`} style={{ fontSize: 10, letterSpacing: 1 }}>
+                      {c.type === "WOD" ? "WOD" : c.type === "EXERCISE" ? "운동" : c.type === "DIET" ? "식단" : "자유"}
+                    </span>
+                    <p className={s.challengeName}>{c.title}</p>
+                    <p className={s.challengeMeta}>목표 {c.targetDays}일 · 참가 {c.participantCount.toLocaleString()}명</p>
+                  </div>
+                  <span className={s.challengeArrow}>→</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Features */}
       <section className={s.features}>

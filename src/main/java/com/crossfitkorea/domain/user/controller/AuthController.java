@@ -40,8 +40,8 @@ public class AuthController {
             throw new com.crossfitkorea.common.exception.BusinessException(
                     com.crossfitkorea.common.exception.ErrorCode.INVALID_INPUT_VALUE);
         }
-        String tempPassword = userService.resetPassword(email);
-        return ResponseEntity.ok(ApiResponse.success(tempPassword));
+        userService.resetPassword(email);
+        return ResponseEntity.ok(ApiResponse.success("임시 비밀번호가 이메일로 발송되었습니다. 이메일을 확인해주세요."));
     }
 
     @Operation(summary = "토큰 갱신 (Refresh Token)")

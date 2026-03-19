@@ -23,4 +23,6 @@ public interface WodRepository extends JpaRepository<Wod, Long> {
     List<Wod> findByBoxIdAndActiveTrueAndWodDateBetweenOrderByWodDateDesc(
         Long boxId, LocalDate from, LocalDate to
     );
+
+    List<Wod> findByBoxIdAndWodDateBetweenOrderByWodDateAsc(Long boxId, LocalDate start, LocalDate end);
 }

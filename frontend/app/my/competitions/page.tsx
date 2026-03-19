@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { competitionApi } from "@/lib/api";
@@ -84,8 +85,8 @@ export default function MyCompetitionsPage() {
               return (
                 <div key={comp.id} className={s.item}>
                   {comp.imageUrl && (
-                    <div className={s.itemImg}>
-                      <img src={comp.imageUrl} alt={comp.name} />
+                    <div className={s.itemImg} style={{ position: "relative" }}>
+                      <Image src={comp.imageUrl} alt={comp.name} fill style={{ objectFit: "cover" }} />
                     </div>
                   )}
                   <div className={s.itemBody}>

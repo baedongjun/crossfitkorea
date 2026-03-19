@@ -43,6 +43,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 인증 불필요
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                // 박스 공지 - 인증 필요 (멤버/오너만 조회 가능)
+                .requestMatchers(HttpMethod.GET, "/api/v1/boxes/*/notices").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/boxes/*/notices/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/boxes/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/wod/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/competitions/**").permitAll()
@@ -51,9 +54,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/v1/schedules/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/badges/users/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*/profile").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/followers").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/following").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/users/*/follow/counts").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/wod/records/box-ranking").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/stats").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/advertisements").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/challenges").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/challenges/**").permitAll()
                 // Swagger
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // Actuator

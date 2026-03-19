@@ -1,0 +1,247 @@
+.page { padding-top: 64px; min-height: 100vh; }
+
+.header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 40px 80px;
+}
+.headerInner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--text);
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+}
+.subtitle { font-size: 14px; color: var(--muted); }
+
+.content {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* PR 카드 그리드 */
+.prSection {}
+.sectionTitle {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.prGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.prCard {
+  background: var(--bg-card);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.prCardEmpty {
+  background: var(--bg-card);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 0.4;
+}
+.prLabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.prValue {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--red);
+  line-height: 1;
+}
+.prValueEmpty {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--muted);
+  line-height: 1;
+}
+.prDate { font-size: 11px; color: var(--muted); }
+
+/* 종목 선택 + 기록 추가 */
+.inputSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px;
+}
+.inputRow {
+  display: grid;
+  grid-template-columns: 200px 120px 1fr 180px auto;
+  gap: 12px;
+  align-items: end;
+}
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* 종목 선택 드롭다운 */
+.select {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  padding: 10px 12px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+.select:focus { border-color: var(--red); }
+
+/* 기록 차트 + 목록 */
+.recordSection {}
+
+.chartWrap {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  padding: 20px 24px;
+}
+.chartTitle {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.chartArea {
+  width: 100%;
+  height: 120px;
+  overflow: visible;
+}
+.chartAxisLabel {
+  font-size: 10px;
+  fill: var(--muted, #888);
+}
+
+.recordList {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.recordItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.recordItem:last-child { border-bottom: none; }
+.recordItem:hover { background: var(--bg-card-2); }
+.recordDate {
+  font-size: 12px;
+  color: var(--muted);
+  width: 90px;
+  flex-shrink: 0;
+}
+.recordValue {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--text);
+  letter-spacing: 1px;
+  flex-shrink: 0;
+  min-width: 80px;
+}
+.recordNotes {
+  flex: 1;
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recordActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.editForm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.editInput {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  padding: 6px 10px;
+  width: 80px;
+  outline: none;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.editInput:focus { border-color: var(--red); }
+.editNotesInput {
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+  padding: 6px 10px;
+  width: 160px;
+  outline: none;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.editNotesInput:focus { border-color: var(--red); }
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 6px;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+}
+.iconBtn:hover { color: var(--text); }
+.iconBtn.danger:hover { color: var(--red); }
+.iconBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.empty {
+  padding: 48px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.noData {
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .header { padding: 32px 24px; }
+  .content { padding: 24px; }
+  .prGrid { grid-template-columns: repeat(2, 1fr); }
+  .inputRow { grid-template-columns: 1fr 1fr; }
+  .inputRow > *:last-child { grid-column: 1 / -1; }
+}

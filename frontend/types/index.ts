@@ -185,6 +185,14 @@ export interface Badge {
   awardedAt: string;
 }
 
+export interface FollowUser {
+  id: number;
+  name: string;
+  profileImageUrl: string | null;
+  role: string;
+  following: boolean;
+}
+
 export interface BoxRanking {
   boxId: number;
   boxName: string;

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +39,13 @@ public class WodService {
                 .map(WodDto::from)
                 .orElse(null);
         }
+    }
+
+    public List<WodDto> getWodRange(Long boxId, LocalDate start, LocalDate end) {
+        return wodRepository.findByBoxIdAndWodDateBetweenOrderByWodDateAsc(boxId, start, end)
+            .stream()
+            .map(WodDto::from)
+            .collect(Collectors.toList());
     }
 
     public Page<WodDto> getWodHistory(Pageable pageable) {
@@ -67,10 +76,15 @@ public class WodService {
 
     @Transactional
     public WodDto createWod(Long boxId, WodCreateRequest request, String ownerEmail) {
+        return createWod(boxId, request, ownerEmail, false);
+    }
+
+    @Transactional
+    public WodDto createWod(Long boxId, WodCreateRequest request, String ownerEmail, boolean isAdmin) {
         Box box = null;
         if (boxId != null) {
             box = boxService.findActiveBox(boxId);
-            if (box.getOwner() == null || !box.getOwner().getEmail().equals(ownerEmail)) {
+            if (!isAdmin && (box.getOwner() == null || !box.getOwner().getEmail().equals(ownerEmail))) {
                 throw new BusinessException(ErrorCode.BOX_NOT_AUTHORIZED);
             }
         }

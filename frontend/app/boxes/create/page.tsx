@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { boxApi, uploadApi } from "@/lib/api";
@@ -42,6 +43,7 @@ export default function BoxCreatePage() {
       toast.error("박스 오너 권한이 필요합니다.");
       router.replace("/my");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,7 +152,7 @@ export default function BoxCreatePage() {
             <div className={s.imageUploadArea}>
               {imageUrls.map((url, i) => (
                 <div key={i} className={s.imagePreview}>
-                  <img src={url} alt={`박스 이미지 ${i + 1}`} className={s.previewImg} />
+                  <Image src={url} alt={`박스 이미지 ${i + 1}`} fill style={{ objectFit: "cover" }} />
                   <button
                     type="button"
                     className={s.removeImgBtn}

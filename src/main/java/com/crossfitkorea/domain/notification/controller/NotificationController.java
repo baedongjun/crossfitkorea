@@ -3,13 +3,18 @@ package com.crossfitkorea.domain.notification.controller;
 import com.crossfitkorea.common.ApiResponse;
 import com.crossfitkorea.domain.notification.dto.NotificationDto;
 import com.crossfitkorea.domain.notification.service.NotificationService;
+import com.crossfitkorea.domain.notification.service.NotificationSseService;
+import com.crossfitkorea.domain.user.entity.User;
+import com.crossfitkorea.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 import java.util.Map;
@@ -21,6 +26,15 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationSseService sseService;
+    private final UserService userService;
+
+    @Operation(summary = "SSE 알림 구독")
+    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter subscribe(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = userService.getUserByEmail(userDetails.getUsername());
+        return sseService.subscribe(user.getId());
+    }
 
     @Operation(summary = "내 알림 목록")
     @GetMapping

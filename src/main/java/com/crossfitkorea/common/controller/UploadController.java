@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/upload")
@@ -53,6 +54,17 @@ public class UploadController {
             urls.add(s3UploadService.upload(file, folder));
         }
         return ResponseEntity.ok(ApiResponse.success(urls));
+    }
+
+    @Operation(summary = "Presigned URL 발급 (S3 직접 업로드용)", description = "10분간 유효한 Presigned PUT URL을 반환합니다.")
+    @GetMapping("/presigned")
+    public ResponseEntity<ApiResponse<Map<String, String>>> getPresignedUrl(
+        @RequestParam String filename,
+        @RequestParam(defaultValue = "general") String folder,
+        @RequestParam(defaultValue = "image/jpeg") String contentType
+    ) {
+        Map<String, String> result = s3UploadService.generatePresignedUrl(folder, filename, contentType);
+        return ResponseEntity.ok(ApiResponse.success(result));
     }
 
     private void validateFile(MultipartFile file) {

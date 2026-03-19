@@ -2,6 +2,7 @@ package com.crossfitkorea.domain.user.service;
 
 import com.crossfitkorea.common.exception.BusinessException;
 import com.crossfitkorea.common.exception.ErrorCode;
+import com.crossfitkorea.common.service.EmailService;
 import com.crossfitkorea.domain.user.dto.AuthResponse;
 import com.crossfitkorea.domain.user.dto.LoginRequest;
 import com.crossfitkorea.domain.user.dto.SignupRequest;
@@ -22,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final EmailService emailService;
 
     @Transactional
     public AuthResponse signup(SignupRequest request) {
@@ -42,6 +44,8 @@ public class UserService {
             .build();
 
         userRepository.save(user);
+
+        emailService.sendWelcomeEmail(user.getEmail(), user.getName());
 
         return buildAuthResponse(user);
     }
@@ -107,12 +111,12 @@ public class UserService {
     }
 
     @Transactional
-    public String resetPassword(String email) {
+    public void resetPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
         String tempPassword = generateTempPassword();
         user.setPassword(passwordEncoder.encode(tempPassword));
-        return tempPassword;
+        emailService.sendPasswordResetEmail(email, tempPassword);
     }
 
     private String generateTempPassword() {

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { communityApi, uploadApi } from "@/lib/api";
@@ -117,7 +118,7 @@ export default function CommunityWritePage() {
                 <div className={s.imageList}>
                   {imageUrls.map((url, i) => (
                     <div key={i} className={s.imageItem}>
-                      <img src={url} alt="" />
+                      <Image src={url} alt="" fill style={{ objectFit: "cover" }} />
                       <button
                         type="button"
                         className={s.removeImgBtn}

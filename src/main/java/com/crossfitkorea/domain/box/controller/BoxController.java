@@ -4,9 +4,12 @@ import com.crossfitkorea.common.ApiResponse;
 import com.crossfitkorea.domain.box.dto.BoxCreateRequest;
 import com.crossfitkorea.domain.box.dto.BoxDto;
 import com.crossfitkorea.domain.box.dto.BoxMembershipDto;
+import com.crossfitkorea.domain.box.dto.BoxNoticeDto;
+import com.crossfitkorea.domain.box.dto.BoxNoticeRequest;
 import com.crossfitkorea.domain.box.dto.BoxSearchRequest;
 import com.crossfitkorea.domain.box.service.BoxFavoriteService;
 import com.crossfitkorea.domain.box.service.BoxMembershipService;
+import com.crossfitkorea.domain.box.service.BoxNoticeService;
 import com.crossfitkorea.domain.box.service.BoxService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +36,7 @@ public class BoxController {
     private final BoxService boxService;
     private final BoxFavoriteService boxFavoriteService;
     private final BoxMembershipService boxMembershipService;
+    private final BoxNoticeService boxNoticeService;
 
     @Operation(summary = "박스 검색 (지역/키워드 필터)")
     @GetMapping
@@ -167,5 +171,57 @@ public class BoxController {
         boolean member = userDetails != null &&
             boxMembershipService.isMember(id, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(Map.of("member", member)));
+    }
+
+    // ── 박스 공지사항 ─────────────────────────────────────────────
+
+    @Operation(summary = "공지 목록 (멤버/오너/ADMIN)")
+    @GetMapping("/{id}/notices")
+    public ResponseEntity<ApiResponse<Page<BoxNoticeDto>>> getNotices(
+        @PathVariable Long id,
+        @PageableDefault(size = 10) Pageable pageable,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+            boxNoticeService.getNotices(id, userDetails.getUsername(), pageable)));
+    }
+
+    @Operation(summary = "공지 등록 (오너/ADMIN)")
+    @PostMapping("/{id}/notices")
+    @PreAuthorize("hasAnyRole('BOX_OWNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<BoxNoticeDto>> createNotice(
+        @PathVariable Long id,
+        @RequestBody BoxNoticeRequest request,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+            boxNoticeService.createNotice(id, request.getTitle(), request.getContent(),
+                request.isPinned(), userDetails.getUsername())));
+    }
+
+    @Operation(summary = "공지 수정 (오너/ADMIN)")
+    @PutMapping("/{id}/notices/{nid}")
+    @PreAuthorize("hasAnyRole('BOX_OWNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<BoxNoticeDto>> updateNotice(
+        @PathVariable Long id,
+        @PathVariable Long nid,
+        @RequestBody BoxNoticeRequest request,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+            boxNoticeService.updateNotice(id, nid, request.getTitle(), request.getContent(),
+                request.isPinned(), userDetails.getUsername())));
+    }
+
+    @Operation(summary = "공지 삭제 (오너/ADMIN)")
+    @DeleteMapping("/{id}/notices/{nid}")
+    @PreAuthorize("hasAnyRole('BOX_OWNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteNotice(
+        @PathVariable Long id,
+        @PathVariable Long nid,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        boxNoticeService.deleteNotice(id, nid, userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(null));
     }
 }

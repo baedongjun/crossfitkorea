@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { wodApi } from "@/lib/api";
 import { Wod } from "@/types";
 import dayjs from "dayjs";
@@ -24,14 +24,44 @@ const WOD_LABELS: Record<string, string> = {
 };
 
 export default function WodHistoryPage() {
-  const [page, setPage] = useState(0);
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["wod", "history", page],
-    queryFn: async () => (await wodApi.getHistory(page)).data.data,
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["wod", "history", "infinite"],
+    queryFn: async ({ pageParam = 0 }) =>
+      (await wodApi.getHistory(pageParam as number)).data.data,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.last) return undefined;
+      return lastPage.number + 1;
+    },
   });
 
-  const wods: Wod[] = data?.content || [];
+  const allWods: Wod[] = data?.pages.flatMap((p) => p.content as Wod[]) ?? [];
+  const totalElements = data?.pages[0]?.totalElements ?? 0;
+
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
+
+  useEffect(() => {
+    const el = observerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(handleObserver, { threshold: 0.1 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [handleObserver]);
 
   return (
     <div className={s.page}>
@@ -47,7 +77,7 @@ export default function WodHistoryPage() {
           <div>
             <p className={s.tag}>WOD ARCHIVE</p>
             <h1 className={s.title}>WOD 히스토리</h1>
-            <p className={s.sub}>총 {data?.totalElements?.toLocaleString() || 0}개의 WOD 기록</p>
+            <p className={s.sub}>총 {totalElements.toLocaleString()}개의 WOD 기록</p>
           </div>
           <Link href="/wod/records" className="btn-secondary" style={{ padding: "10px 20px", fontSize: 13 }}>
             내 기록 보기
@@ -58,7 +88,7 @@ export default function WodHistoryPage() {
           <div className={s.list}>
             {[...Array(6)].map((_, i) => <div key={i} className={s.skeleton} />)}
           </div>
-        ) : wods.length === 0 ? (
+        ) : allWods.length === 0 ? (
           <div className={s.empty}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "var(--muted)" }}>
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -67,7 +97,7 @@ export default function WodHistoryPage() {
           </div>
         ) : (
           <div className={s.list}>
-            {wods.map((wod) => (
+            {allWods.map((wod) => (
               <div key={wod.id} className={s.item}>
                 <div className={s.itemDate}>
                   <p className={s.itemMonth}>{dayjs(wod.wodDate).format("MMM")}</p>
@@ -103,27 +133,10 @@ export default function WodHistoryPage() {
           </div>
         )}
 
-        {data && data.totalPages > 1 && (
-          <div className={s.pagination}>
-            <button
-              className="btn-secondary"
-              style={{ padding: "10px 20px", fontSize: 13 }}
-              disabled={data.first}
-              onClick={() => setPage(p => p - 1)}
-            >
-              이전
-            </button>
-            <span className={s.pageInfo}>{data.number + 1} / {data.totalPages}</span>
-            <button
-              className="btn-secondary"
-              style={{ padding: "10px 20px", fontSize: 13 }}
-              disabled={data.last}
-              onClick={() => setPage(p => p + 1)}
-            >
-              다음
-            </button>
-          </div>
-        )}
+        {/* Infinite scroll sentinel */}
+        <div ref={observerRef} className={s.infiniteSentinel}>
+          {isFetchingNextPage && <span className={s.loadingText}>로딩 중...</span>}
+        </div>
       </div>
     </div>
   );

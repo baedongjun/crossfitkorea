@@ -73,7 +73,8 @@
       "Bash(grep -E \"app/[^/]+$\")",
       "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\workflows\\\\deploy.yml\":*)",
       "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\workflows\\\\pr-check.yml\":*)",
-      "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\SECRETS_GUIDE.md\":*)"
+      "Bash(\"D:\\\\gitWorkspace\\\\workspace\\\\crossfitkorea\\\\.github\\\\SECRETS_GUIDE.md\":*)",
+      "Bash(ls:*)"
     ]
   }
 }

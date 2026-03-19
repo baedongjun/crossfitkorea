@@ -17,6 +17,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/wod")
 @RequiredArgsConstructor
@@ -41,6 +44,18 @@ public class WodController {
         return ResponseEntity.ok(ApiResponse.success(wodService.getWodHistory(pageable)));
     }
 
+    @Operation(summary = "날짜 범위 WOD 목록 (박스 프로그래밍용)")
+    @GetMapping("/range")
+    public ResponseEntity<ApiResponse<List<WodDto>>> getWodRange(
+        @RequestParam Long boxId,
+        @RequestParam String start,
+        @RequestParam String end
+    ) {
+        LocalDate startDate = LocalDate.parse(start);
+        LocalDate endDate = LocalDate.parse(end);
+        return ResponseEntity.ok(ApiResponse.success(wodService.getWodRange(boxId, startDate, endDate)));
+    }
+
     @Operation(summary = "WOD 등록 (박스 오너 or 관리자)")
     @PostMapping
     @PreAuthorize("hasAnyRole('BOX_OWNER', 'ADMIN')")
@@ -49,6 +64,8 @@ public class WodController {
         @Valid @RequestBody WodCreateRequest request,
         @AuthenticationPrincipal UserDetails userDetails
     ) {
-        return ResponseEntity.ok(ApiResponse.success(wodService.createWod(boxId, request, userDetails.getUsername())));
+        boolean isAdmin = userDetails.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        return ResponseEntity.ok(ApiResponse.success(wodService.createWod(boxId, request, userDetails.getUsername(), isAdmin)));
     }
 }

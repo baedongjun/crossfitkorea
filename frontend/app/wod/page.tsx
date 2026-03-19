@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
 import { wodApi, wodRecordApi, leaderboardApi } from "@/lib/api";
 import { Wod, WodRecord, BoxRanking } from "@/types";
@@ -192,7 +193,9 @@ export default function WodPage() {
             <div className={s.wodBody}>
               <div className={s.wodContent}>{todayWod.content}</div>
               {todayWod.imageUrl && (
-                <img src={todayWod.imageUrl} alt="WOD" className={s.wodImage} />
+                <div style={{ position: "relative", width: "100%", height: 280, marginTop: 16 }}>
+                  <Image src={todayWod.imageUrl} alt="WOD" fill style={{ objectFit: "cover" }} />
+                </div>
               )}
             </div>
           </div>

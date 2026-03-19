@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { communityApi, uploadApi } from "@/lib/api";
@@ -32,6 +33,7 @@ export default function PostEditPage() {
 
   useEffect(() => {
     if (!isLoggedIn()) router.replace("/login");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { data: post } = useQuery({
@@ -129,7 +131,7 @@ export default function PostEditPage() {
                 <div className={s.imageList}>
                   {imageUrls.map((url, i) => (
                     <div key={i} className={s.imageItem}>
-                      <img src={url} alt="" />
+                      <Image src={url} alt="" fill style={{ objectFit: "cover" }} />
                       <button type="button" className={s.removeImgBtn} onClick={() => setImageUrls((p) => p.filter((_, idx) => idx !== i))}>✕</button>
                     </div>
                   ))}

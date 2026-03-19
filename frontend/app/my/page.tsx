@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, communityApi, uploadApi, boxApi, membershipApi, badgeApi } from "@/lib/api";
+import { userApi, communityApi, uploadApi, boxApi, membershipApi, badgeApi, followApi } from "@/lib/api";
 import { clearAuth } from "@/lib/auth";
 import { Review, Box, BoxMembership, Badge } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
@@ -84,6 +85,13 @@ export default function MyPage() {
     enabled: isLoggedIn(),
   });
 
+  const { data: followCounts } = useQuery({
+    queryKey: ["follow", "counts", me?.id],
+    queryFn: async () =>
+      (await followApi.getCounts(me.id as number)).data.data as { followerCount: number; followingCount: number },
+    enabled: isLoggedIn() && !!me?.id,
+  });
+
   useEffect(() => {
     if (me) {
       setName(me.name || "");
@@ -153,7 +161,7 @@ export default function MyPage() {
             title="클릭하여 프로필 사진 변경"
           >
             {me?.profileImageUrl
-              ? <img src={me.profileImageUrl} alt="" className={s.avatarImg} />
+              ? <Image src={me.profileImageUrl} alt="" fill style={{ objectFit: "cover" }} />
               : (user?.name?.[0] || "U")
             }
             {avatarUploading && (
@@ -245,6 +253,15 @@ export default function MyPage() {
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </Link>
+            <Link href="/my/performance" className={s.linkItem}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              퍼포먼스 기록
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: "auto" }}>
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </Link>
             {(user?.role === "ROLE_BOX_OWNER" || user?.role === "ROLE_ADMIN") && (
               <Link href="/my/box" className={s.linkItem}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -293,6 +310,14 @@ export default function MyPage() {
               <div className={s.statItem}>
                 <p className={s.statNum}>{myComments?.totalElements || 0}</p>
                 <p className={s.statLabel}>작성 댓글</p>
+              </div>
+              <div className={s.statItem}>
+                <p className={s.statNum}>{followCounts?.followerCount ?? 0}</p>
+                <p className={s.statLabel}>팔로워</p>
+              </div>
+              <div className={s.statItem}>
+                <p className={s.statNum}>{followCounts?.followingCount ?? 0}</p>
+                <p className={s.statLabel}>팔로잉</p>
               </div>
             </div>
           </div>
@@ -444,9 +469,9 @@ export default function MyPage() {
             <div className={s.favoriteGrid}>
               {myFavorites.content.slice(0, 6).map((box: Box) => (
                 <Link key={box.id} href={`/boxes/${box.id}`} className={s.favoriteItem}>
-                  <div className={s.favoriteImg}>
+                  <div className={s.favoriteImg} style={{ position: "relative" }}>
                     {box.imageUrls?.[0]
-                      ? <img src={box.imageUrls[0]} alt={box.name} />
+                      ? <Image src={box.imageUrls[0]} alt={box.name} fill style={{ objectFit: "cover" }} />
                       : <div className={s.favoritePlaceholder}>CF</div>
                     }
                   </div>

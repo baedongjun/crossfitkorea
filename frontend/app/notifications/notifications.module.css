@@ -23,6 +23,8 @@
 }
 .sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
 
+.headerActions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
 .readAllBtn {
   background: transparent;
   border: 1px solid rgba(255,255,255,0.15);
@@ -33,27 +35,94 @@
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 .readAllBtn:hover { border-color: rgba(255,255,255,0.4); color: var(--text); }
 .readAllBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.deleteReadBtn {
+  background: transparent;
+  border: 1px solid rgba(232,34,10,0.2);
+  color: var(--muted);
+  padding: 10px 18px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.deleteReadBtn:hover { border-color: rgba(232,34,10,0.5); color: var(--red); }
+.deleteReadBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Filter row */
+.filterRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filterBtnActive {
+  background: rgba(232,34,10,0.1);
+  border-color: rgba(232,34,10,0.4);
+  color: var(--red);
+}
+.filterBtn:hover:not(.filterBtnActive) { border-color: rgba(255,255,255,0.2); color: var(--text); }
+.filterCount {
+  background: var(--bg-card-2);
+  color: var(--muted);
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+}
 
 /* List */
 .list { display: flex; flex-direction: column; gap: 2px; }
 
 .item {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
+  align-items: stretch;
   background: var(--bg-card);
   border: 1px solid var(--border);
   transition: border-color 0.2s, background 0.2s;
   position: relative;
 }
 .itemUnread { background: rgba(232, 34, 10, 0.04); border-color: rgba(232, 34, 10, 0.15); }
-.itemClickable { cursor: pointer; }
-.itemClickable:hover { border-color: rgba(255,255,255,0.15); background: var(--bg-card-2); }
+
+.itemInner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  flex: 1;
+  cursor: pointer;
+}
+.itemInner:hover { background: var(--bg-card-2); }
+
+.deleteBtn {
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0 14px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.deleteBtn:hover { color: var(--red); background: rgba(232,34,10,0.08); }
 
 .itemIcon {
   font-size: 22px;

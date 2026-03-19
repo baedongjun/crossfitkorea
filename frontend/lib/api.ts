@@ -260,6 +260,12 @@ export const notificationApi = {
 
   markAllAsRead: () =>
     api.patch("/api/v1/notifications/read-all"),
+
+  deleteOne: (id: number) =>
+    api.delete(`/api/v1/notifications/${id}`),
+
+  deleteRead: () =>
+    api.delete("/api/v1/notifications/read"),
 };
 
 // Community API

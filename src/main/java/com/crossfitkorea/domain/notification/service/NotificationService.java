@@ -47,6 +47,21 @@ public class NotificationService {
     }
 
     @Transactional
+    public void deleteNotification(Long id, String email) {
+        Notification n = notificationRepository.findById(id)
+            .orElseThrow(() -> new BusinessException(ErrorCode.COMMON_NOT_FOUND));
+        if (!n.getUser().getEmail().equals(email)) {
+            throw new BusinessException(ErrorCode.COMMON_FORBIDDEN);
+        }
+        notificationRepository.delete(n);
+    }
+
+    @Transactional
+    public void deleteReadNotifications(String email) {
+        notificationRepository.deleteReadByEmail(email);
+    }
+
+    @Transactional
     public void createNotification(User user, NotificationType type, String message, String link) {
         Notification notification = notificationRepository.save(Notification.builder()
             .user(user)

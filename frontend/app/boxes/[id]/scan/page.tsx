@@ -7,7 +7,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { boxApi } from "@/lib/api";
 import { isLoggedIn } from "@/lib/auth";
 import api from "@/lib/api";
-import { BoxDetail } from "@/types";
+import { Box } from "@/types";
 import s from "./scan.module.css";
 
 export default function BoxScanPage() {
@@ -20,7 +20,7 @@ export default function BoxScanPage() {
 
   const { data: box } = useQuery({
     queryKey: ["box", boxId],
-    queryFn: async () => (await boxApi.getBox(boxId)).data.data as BoxDetail,
+    queryFn: async () => (await boxApi.getOne(boxId)).data.data as Box,
     enabled: !!boxId,
   });
 

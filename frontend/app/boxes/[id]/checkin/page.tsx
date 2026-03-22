@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import QRCode from "qrcode";
 import { boxApi } from "@/lib/api";
-import { BoxDetail } from "@/types";
+import { Box } from "@/types";
 import s from "./checkin.module.css";
 
 export default function BoxCheckinPage() {
@@ -17,7 +17,7 @@ export default function BoxCheckinPage() {
 
   const { data: box } = useQuery({
     queryKey: ["box", boxId],
-    queryFn: async () => (await boxApi.getBox(boxId)).data.data as BoxDetail,
+    queryFn: async () => (await boxApi.getBox(boxId)).data.data as Box,
   });
 
   const checkinUrl = typeof window !== "undefined"

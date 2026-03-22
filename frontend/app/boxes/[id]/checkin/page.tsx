@@ -17,7 +17,7 @@ export default function BoxCheckinPage() {
 
   const { data: box } = useQuery({
     queryKey: ["box", boxId],
-    queryFn: async () => (await boxApi.getBox(boxId)).data.data as Box,
+    queryFn: async () => (await boxApi.getOne(boxId)).data.data as Box,
   });
 
   const checkinUrl = typeof window !== "undefined"

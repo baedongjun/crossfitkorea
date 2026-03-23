@@ -44,6 +44,7 @@ public class AdminBoxController {
 
     @Operation(summary = "[어드민] 박스 인증 처리")
     @PatchMapping("/boxes/{id}/verify")
+    @Transactional
     public ResponseEntity<ApiResponse<BoxDto>> verifyBox(
         @PathVariable Long id,
         @RequestParam boolean verified
@@ -57,6 +58,7 @@ public class AdminBoxController {
 
     @Operation(summary = "[어드민] 박스 프리미엄 설정")
     @PatchMapping("/boxes/{id}/premium")
+    @Transactional
     public ResponseEntity<ApiResponse<BoxDto>> setPremium(
         @PathVariable Long id,
         @RequestParam boolean premium

@@ -68,14 +68,15 @@ public class AuthController {
 
     @Operation(summary = "OAuth2 신규 회원가입")
     @PostMapping("/oauth2/register")
-    public ResponseEntity<ApiResponse<AuthResponse>> registerOAuth2User(@RequestBody Map<String, String> body) {
-        String token = body.get("token");
-        String name = body.get("name");
+    public ResponseEntity<ApiResponse<AuthResponse>> registerOAuth2User(@RequestBody Map<String, Object> body) {
+        String token = (String) body.get("token");
+        String name = (String) body.get("name");
         if (token == null || token.isBlank()) {
             throw new com.crossfitkorea.common.exception.BusinessException(
                 com.crossfitkorea.common.exception.ErrorCode.INVALID_INPUT_VALUE);
         }
-        return ResponseEntity.ok(ApiResponse.success(userService.registerOAuth2User(token, name)));
+        Boolean boxOwner = Boolean.TRUE.equals(body.get("boxOwner"));
+        return ResponseEntity.ok(ApiResponse.success(userService.registerOAuth2User(token, name, boxOwner)));
     }
 
     @Operation(summary = "토큰 갱신 (Refresh Token)")

@@ -111,8 +111,8 @@ export const authApi = {
       `/api/v1/auth/oauth2/register-info?token=${encodeURIComponent(token)}`
     ),
 
-  registerOAuth2User: (token: string, name: string) =>
-    api.post<ApiResponse<AuthResponse>>("/api/v1/auth/oauth2/register", { token, name }),
+  registerOAuth2User: (token: string, name: string, boxOwner: boolean) =>
+    api.post<ApiResponse<AuthResponse>>("/api/v1/auth/oauth2/register", { token, name, boxOwner }),
 };
 
 // Upload API

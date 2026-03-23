@@ -159,7 +159,7 @@ public class UserService {
     }
 
     @Transactional
-    public AuthResponse registerOAuth2User(String tempToken, String requestedName) {
+    public AuthResponse registerOAuth2User(String tempToken, String requestedName, Boolean boxOwner) {
         Claims claims;
         try {
             claims = jwtTokenProvider.parseOAuth2TempToken(tempToken);
@@ -203,6 +203,8 @@ public class UserService {
 
         if (name == null || name.isBlank()) name = "회원";
 
+        UserRole role = Boolean.TRUE.equals(boxOwner) ? UserRole.ROLE_BOX_OWNER : UserRole.ROLE_USER;
+
         User user = User.builder()
             .email(finalEmail)
             .password(null)
@@ -210,7 +212,7 @@ public class UserService {
             .profileImageUrl(imageUrl != null && !imageUrl.isBlank() ? imageUrl : null)
             .provider(authProvider)
             .providerId(providerId)
-            .role(UserRole.ROLE_USER)
+            .role(role)
             .active(true)
             .build();
 

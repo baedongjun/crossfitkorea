@@ -35,6 +35,7 @@ function OAuth2RegisterInner() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [provider, setProvider] = useState("");
+  const [boxOwner, setBoxOwner] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -65,7 +66,7 @@ function OAuth2RegisterInner() {
     }
     setSubmitting(true);
     try {
-      const res = await authApi.registerOAuth2User(token, name.trim());
+      const res = await authApi.registerOAuth2User(token, name.trim(), boxOwner);
       const auth = res.data.data;
       saveAuth({
         accessToken: auth.accessToken,
@@ -127,6 +128,25 @@ function OAuth2RegisterInner() {
                 </span>
               </div>
             )}
+
+            <div
+              className={styles.checkRow}
+              onClick={() => setBoxOwner((v) => !v)}
+            >
+              <input
+                type="checkbox"
+                className={styles.checkbox}
+                checked={boxOwner}
+                onChange={(e) => setBoxOwner(e.target.checked)}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div>
+                <span className={styles.checkLabel}>크로스핏 박스를 운영하고 있어요</span>
+                <span className={styles.checkDesc}>
+                  박스 오너로 가입하면 박스 등록, WOD 등록, 코치/시간표 관리 기능을 사용할 수 있습니다
+                </span>
+              </div>
+            </div>
 
             <button
               type="submit"

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { boxApi, wodApi, competitionApi, communityApi, membershipApi, leaderboardApi, challengeApi } from "@/lib/api";
+import { wodApi, competitionApi, communityApi, membershipApi, leaderboardApi, challengeApi } from "@/lib/api";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import { Wod, Competition, Post, BoxMembership, BoxRanking } from "@/types";
 import dayjs from "dayjs";

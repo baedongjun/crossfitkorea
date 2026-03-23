@@ -12,7 +12,9 @@ import com.crossfitkorea.domain.user.entity.UserRole;
 import com.crossfitkorea.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.crossfitkorea.domain.user.entity.AuthProvider;
 import com.crossfitkorea.security.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -154,6 +156,67 @@ public class UserService {
         String newAccessToken = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
         return new AuthResponse(newAccessToken, newRefreshToken, user.getEmail(), user.getName(), user.getRole().name());
+    }
+
+    @Transactional
+    public AuthResponse registerOAuth2User(String tempToken, String requestedName) {
+        Claims claims;
+        try {
+            claims = jwtTokenProvider.parseOAuth2TempToken(tempToken);
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE);
+        }
+
+        String provider = claims.get("provider", String.class);
+        String providerId = claims.get("providerId", String.class);
+        String name = (requestedName != null && !requestedName.isBlank())
+            ? requestedName.trim()
+            : claims.get("name", String.class);
+        String email = claims.get("email", String.class);
+        String imageUrl = claims.get("imageUrl", String.class);
+
+        // 이미 가입된 경우 바로 로그인
+        AuthProvider authProvider = AuthProvider.valueOf(provider);
+        var existing = userRepository.findByProviderAndProviderId(authProvider, providerId);
+        if (existing.isPresent()) {
+            return buildAuthResponse(existing.get());
+        }
+
+        if (email != null && !email.isBlank()) {
+            var byEmail = userRepository.findByEmail(email);
+            if (byEmail.isPresent()) {
+                User user = byEmail.get();
+                user.setProvider(authProvider);
+                user.setProviderId(providerId);
+                userRepository.save(user);
+                return buildAuthResponse(user);
+            }
+        }
+
+        String finalEmail = (email != null && !email.isBlank())
+            ? email
+            : provider.toLowerCase() + "_" + providerId + "@oauth.crossfitkorea.com";
+
+        if (userRepository.existsByEmail(finalEmail)) {
+            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
+        }
+
+        if (name == null || name.isBlank()) name = "회원";
+
+        User user = User.builder()
+            .email(finalEmail)
+            .password(null)
+            .name(name)
+            .profileImageUrl(imageUrl != null && !imageUrl.isBlank() ? imageUrl : null)
+            .provider(authProvider)
+            .providerId(providerId)
+            .role(UserRole.ROLE_USER)
+            .active(true)
+            .build();
+
+        userRepository.save(user);
+        emailService.sendWelcomeEmail(user.getEmail(), user.getName());
+        return buildAuthResponse(user);
     }
 
     private AuthResponse buildAuthResponse(User user) {

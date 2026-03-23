@@ -105,6 +105,14 @@ export const authApi = {
 
   forgotPassword: (email: string) =>
     api.post<ApiResponse<string>>("/api/v1/auth/forgot-password", { email }),
+
+  getOAuth2RegisterInfo: (token: string) =>
+    api.get<ApiResponse<{ provider: string; name: string; email: string; imageUrl: string }>>(
+      `/api/v1/auth/oauth2/register-info?token=${encodeURIComponent(token)}`
+    ),
+
+  registerOAuth2User: (token: string, name: string) =>
+    api.post<ApiResponse<AuthResponse>>("/api/v1/auth/oauth2/register", { token, name }),
 };
 
 // Upload API

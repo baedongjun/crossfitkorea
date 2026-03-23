@@ -16,6 +16,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -33,21 +34,46 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String registrationId = resolveRegistrationId(request);
 
-        User user = resolveUser(oAuth2User, registrationId);
-        if (user == null || !user.isActive()) {
+        OAuth2UserInfo userInfo = resolveUserInfo(oAuth2User, registrationId);
+        if (userInfo == null) {
             getRedirectStrategy().sendRedirect(request, response, frontendUrl + "/login?error=oauth2");
             return;
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
-        String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+        AuthProvider provider = AuthProvider.valueOf(registrationId.toUpperCase());
+        Optional<User> userOpt = userRepository.findByProviderAndProviderId(provider, userInfo.getId());
+        if (userOpt.isEmpty() && userInfo.getEmail() != null) {
+            userOpt = userRepository.findByEmail(userInfo.getEmail());
+        }
 
-        String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/callback")
-            .queryParam("accessToken", accessToken)
-            .queryParam("refreshToken", refreshToken)
-            .build().toUriString();
-
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        if (userOpt.isPresent()) {
+            // 기존 회원 → JWT 발급 후 로그인
+            User user = userOpt.get();
+            if (!user.isActive()) {
+                getRedirectStrategy().sendRedirect(request, response, frontendUrl + "/login?error=inactive");
+                return;
+            }
+            String accessToken = jwtTokenProvider.createAccessToken(user.getEmail(), user.getRole().name());
+            String refreshToken = jwtTokenProvider.createRefreshToken(user.getEmail());
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/callback")
+                .queryParam("accessToken", accessToken)
+                .queryParam("refreshToken", refreshToken)
+                .build().toUriString();
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        } else {
+            // 신규 회원 → 임시 토큰 발급 후 회원가입 페이지로
+            String tempToken = jwtTokenProvider.createOAuth2TempToken(
+                registrationId.toUpperCase(),
+                userInfo.getId(),
+                userInfo.getName(),
+                userInfo.getEmail(),
+                userInfo.getImageUrl()
+            );
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth2/register")
+                .queryParam("token", tempToken)
+                .build().toUriString();
+            getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        }
     }
 
     private String resolveRegistrationId(HttpServletRequest request) {
@@ -57,27 +83,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         return "";
     }
 
-    @SuppressWarnings("unchecked")
-    private User resolveUser(OAuth2User oAuth2User, String registrationId) {
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-
-        String providerId;
-        String email = null;
-
-        if ("kakao".equals(registrationId)) {
-            providerId = String.valueOf(attributes.get("id"));
-            Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
-            if (kakaoAccount != null) email = (String) kakaoAccount.get("email");
-        } else {
-            providerId = (String) attributes.get("sub");
-            email = (String) attributes.get("email");
-        }
-
-        AuthProvider provider = AuthProvider.valueOf(registrationId.toUpperCase());
-
-        User user = userRepository.findByProviderAndProviderId(provider, providerId).orElse(null);
-        if (user != null) return user;
-        if (email != null) return userRepository.findByEmail(email).orElse(null);
-        return null;
+    private OAuth2UserInfo resolveUserInfo(OAuth2User oAuth2User, String registrationId) {
+        return switch (registrationId.toLowerCase()) {
+            case "kakao" -> new KakaoOAuth2UserInfo(oAuth2User.getAttributes());
+            case "google" -> new GoogleOAuth2UserInfo(oAuth2User.getAttributes());
+            default -> null;
+        };
     }
 }

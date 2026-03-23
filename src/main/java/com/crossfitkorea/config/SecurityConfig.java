@@ -49,6 +49,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 인증 불필요
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/auth/oauth2/**").permitAll()
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 // 박스 공지 - 인증 필요 (멤버/오너만 조회 가능)
                 .requestMatchers(HttpMethod.GET, "/api/v1/boxes/*/notices").authenticated()

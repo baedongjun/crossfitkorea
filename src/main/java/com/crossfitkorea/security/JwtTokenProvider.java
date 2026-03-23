@@ -42,6 +42,29 @@ public class JwtTokenProvider {
             .compact();
     }
 
+    // OAuth2 신규 회원가입용 임시 토큰 (5분)
+    public String createOAuth2TempToken(String provider, String providerId, String name, String email, String imageUrl) {
+        return Jwts.builder()
+            .subject("oauth2_register")
+            .claim("provider", provider)
+            .claim("providerId", providerId)
+            .claim("name", name != null ? name : "")
+            .claim("email", email != null ? email : "")
+            .claim("imageUrl", imageUrl != null ? imageUrl : "")
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + 5 * 60 * 1000)) // 5분
+            .signWith(secretKey)
+            .compact();
+    }
+
+    public Claims parseOAuth2TempToken(String token) {
+        Claims claims = parseClaims(token);
+        if (!"oauth2_register".equals(claims.getSubject())) {
+            throw new JwtException("Invalid OAuth2 temp token");
+        }
+        return claims;
+    }
+
     public String createRefreshToken(String email) {
         return Jwts.builder()
             .subject(email)

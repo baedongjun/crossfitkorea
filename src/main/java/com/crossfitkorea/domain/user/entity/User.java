@@ -23,7 +23,7 @@ public class User extends BaseEntity {
     private String password; // OAuth2 사용자는 null
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'LOCAL'")
     @Builder.Default
     private AuthProvider provider = AuthProvider.LOCAL;
 

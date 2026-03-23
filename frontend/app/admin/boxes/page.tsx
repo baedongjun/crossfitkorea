@@ -41,14 +41,16 @@ export default function AdminBoxesPage() {
     mutationFn: ({ id, verified }: { id: number; verified: boolean }) =>
       adminApi.verifyBox(id, verified),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin", "boxes"] }); toast.success("변경되었습니다."); },
-    onError: () => toast.error("오류가 발생했습니다."),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => { console.error("[verifyBox]", err?.response?.status, err?.response?.data ?? err); toast.error("오류가 발생했습니다."); },
   });
 
   const premiumMutation = useMutation({
     mutationFn: ({ id, premium }: { id: number; premium: boolean }) =>
       adminApi.setPremium(id, premium),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin", "boxes"] }); toast.success("변경되었습니다."); },
-    onError: () => toast.error("오류가 발생했습니다."),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => { console.error("[setPremium]", err?.response?.status, err?.response?.data ?? err); toast.error("오류가 발생했습니다."); },
   });
 
   const editMutation = useMutation({
@@ -59,7 +61,8 @@ export default function AdminBoxesPage() {
       toast.success("박스 정보가 수정되었습니다.");
       setEditTarget(null);
     },
-    onError: () => toast.error("수정 중 오류가 발생했습니다."),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => { console.error("[updateBox]", err?.response?.status, err?.response?.data ?? err); toast.error("수정 중 오류가 발생했습니다."); },
   });
 
   const deleteMutation = useMutation({
@@ -69,7 +72,8 @@ export default function AdminBoxesPage() {
       toast.success("박스가 삭제되었습니다.");
       setDeleteTarget(null);
     },
-    onError: () => toast.error("삭제 중 오류가 발생했습니다."),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onError: (err: any) => { console.error("[deleteBox]", err?.response?.status, err?.response?.data ?? err); toast.error("삭제 중 오류가 발생했습니다."); },
   });
 
   const openEdit = (box: Box) => {

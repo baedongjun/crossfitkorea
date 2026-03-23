@@ -95,7 +95,14 @@ export default function BoxMap({ boxes }: BoxMapProps) {
 
   // 카카오 SDK 로드 및 지도 초기화 (마운트 시 1회)
   useEffect(() => {
-    const load = () => window.kakao.maps.load(initMap);
+    const load = () => {
+      // maps.Map이 이미 존재하면 완전히 로드된 상태 → 직접 초기화
+      if (window.kakao.maps.Map) {
+        initMap();
+      } else {
+        window.kakao.maps.load(initMap);
+      }
+    };
 
     if (window.kakao && window.kakao.maps) {
       load();

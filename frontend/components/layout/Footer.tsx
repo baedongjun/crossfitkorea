@@ -37,7 +37,6 @@ export default function Footer() {
           <div>
             <p className={s.colTitle}>정보</p>
             <div className={s.links}>
-              <Link href="/advertise" className={s.link}>광고 문의</Link>
               <Link href="/terms"     className={s.link}>이용약관</Link>
               <Link href="/privacy"   className={s.link}>개인정보처리방침</Link>
             </div>

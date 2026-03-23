@@ -10,7 +10,6 @@ import "dayjs/locale/ko";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Link from "next/link";
 import { isLoggedIn } from "@/lib/auth";
-import AdBanner from "@/components/common/AdBanner";
 import s from "./community.module.css";
 
 dayjs.extend(relativeTime);
@@ -290,7 +289,6 @@ export default function CommunityPage() {
           )}
         </div>
 
-        <AdBanner position="SIDEBAR" />
       </aside>
       </div>
     </div>

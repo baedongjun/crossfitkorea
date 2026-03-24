@@ -51,6 +51,7 @@ function OAuth2CallbackInner() {
       .then((res) => {
         const user = res.data.data;
         saveAuth({
+          id: user.id,
           accessToken,
           refreshToken,
           email: user.email,

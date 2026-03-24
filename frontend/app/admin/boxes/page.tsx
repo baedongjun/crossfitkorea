@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminApi } from "@/lib/api";
 import { Box } from "@/types";
+import AddressSearch from "@/components/common/AddressSearch";
 import { toast } from "react-toastify";
 import s from "./adminBoxes.module.css";
 
@@ -26,6 +27,64 @@ const EMPTY_FORM: BoxForm = {
   phone: "", website: "", instagram: "", description: "",
   monthlyFee: "", openTime: "", closeTime: "",
 };
+
+// 컴포넌트 외부에 선언 → 매 렌더마다 재생성되지 않아 포커스 유지
+function BoxFormFields({ f, setF }: { f: BoxForm; setF: (v: BoxForm) => void }) {
+  return (
+    <div className={s.formGrid}>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>박스명 *</label>
+        <input className={s.fieldInput} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>전화번호</label>
+        <input className={s.fieldInput} value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
+      </div>
+      <div className={`${s.formField} ${s.fullWidth}`}>
+        <label className={s.fieldLabel}>주소 *</label>
+        <div style={{ display: "flex", gap: 6 }}>
+          <input className={s.fieldInput} style={{ flex: 1 }} value={f.address} readOnly placeholder="주소 검색 버튼 클릭" required />
+          <AddressSearch
+            buttonStyle={{ background: "var(--bg-card-2)", border: "1px solid var(--border)", color: "var(--text)", padding: "0 12px", fontSize: 12, cursor: "pointer", whiteSpace: "nowrap" }}
+            onSelect={({ address, city, district }) => setF({ ...f, address, city, district })}
+          />
+        </div>
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>도시</label>
+        <input className={s.fieldInput} value={f.city} readOnly placeholder="자동 입력" />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>구/군</label>
+        <input className={s.fieldInput} value={f.district} readOnly placeholder="자동 입력" />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>웹사이트</label>
+        <input className={s.fieldInput} value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>인스타그램</label>
+        <input className={s.fieldInput} value={f.instagram} onChange={(e) => setF({ ...f, instagram: e.target.value })} />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>월 이용료 (원)</label>
+        <input className={s.fieldInput} type="number" value={f.monthlyFee} onChange={(e) => setF({ ...f, monthlyFee: e.target.value })} />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>오픈 시간</label>
+        <input className={s.fieldInput} placeholder="예: 06:00" value={f.openTime} onChange={(e) => setF({ ...f, openTime: e.target.value })} />
+      </div>
+      <div className={s.formField}>
+        <label className={s.fieldLabel}>마감 시간</label>
+        <input className={s.fieldInput} placeholder="예: 22:00" value={f.closeTime} onChange={(e) => setF({ ...f, closeTime: e.target.value })} />
+      </div>
+      <div className={`${s.formField} ${s.fullWidth}`}>
+        <label className={s.fieldLabel}>설명</label>
+        <textarea className={s.fieldTextarea} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} rows={4} />
+      </div>
+    </div>
+  );
+}
 
 type PageTab = "boxes" | "claims";
 
@@ -181,55 +240,6 @@ export default function AdminBoxesPage() {
 
   const STATUS_LABEL: Record<string, string> = { PENDING: "대기중", APPROVED: "승인", REJECTED: "거절" };
   const STATUS_COLOR: Record<string, string> = { PENDING: "var(--muted)", APPROVED: "#22c55e", REJECTED: "var(--red)" };
-
-  const BoxFormFields = ({ f, setF }: { f: BoxForm; setF: (v: BoxForm) => void }) => (
-    <div className={s.formGrid}>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>박스명 *</label>
-        <input className={s.fieldInput} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} required />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>전화번호</label>
-        <input className={s.fieldInput} value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
-      </div>
-      <div className={`${s.formField} ${s.fullWidth}`}>
-        <label className={s.fieldLabel}>주소 *</label>
-        <input className={s.fieldInput} value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} required />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>도시 *</label>
-        <input className={s.fieldInput} value={f.city} onChange={(e) => setF({ ...f, city: e.target.value })} required />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>구/군</label>
-        <input className={s.fieldInput} value={f.district} onChange={(e) => setF({ ...f, district: e.target.value })} />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>웹사이트</label>
-        <input className={s.fieldInput} value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>인스타그램</label>
-        <input className={s.fieldInput} value={f.instagram} onChange={(e) => setF({ ...f, instagram: e.target.value })} />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>월 이용료 (원)</label>
-        <input className={s.fieldInput} type="number" value={f.monthlyFee} onChange={(e) => setF({ ...f, monthlyFee: e.target.value })} />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>오픈 시간</label>
-        <input className={s.fieldInput} placeholder="예: 06:00" value={f.openTime} onChange={(e) => setF({ ...f, openTime: e.target.value })} />
-      </div>
-      <div className={s.formField}>
-        <label className={s.fieldLabel}>마감 시간</label>
-        <input className={s.fieldInput} placeholder="예: 22:00" value={f.closeTime} onChange={(e) => setF({ ...f, closeTime: e.target.value })} />
-      </div>
-      <div className={`${s.formField} ${s.fullWidth}`}>
-        <label className={s.fieldLabel}>설명</label>
-        <textarea className={s.fieldTextarea} value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} rows={4} />
-      </div>
-    </div>
-  );
 
   return (
     <div>

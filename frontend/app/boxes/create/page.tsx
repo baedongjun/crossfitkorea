@@ -7,10 +7,10 @@ import Link from "next/link";
 import { useMutation } from "@tanstack/react-query";
 import { boxApi, uploadApi } from "@/lib/api";
 import { isLoggedIn, getUser } from "@/lib/auth";
+import AddressSearch from "@/components/common/AddressSearch";
 import { toast } from "react-toastify";
 import s from "./create.module.css";
 
-const CITIES = ["서울", "경기", "부산", "인천", "대구", "대전", "광주", "울산", "세종", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"];
 
 export default function BoxCreatePage() {
   const router = useRouter();
@@ -129,19 +129,33 @@ export default function BoxCreatePage() {
 
             <div className={s.field}>
               <label className={s.label}>주소 <span className={s.required}>*</span></label>
-              <input className="input-field" placeholder="서울시 강남구 테헤란로 000" value={form.address} onChange={set("address")} />
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  className="input-field"
+                  style={{ flex: 1 }}
+                  placeholder="주소 검색 버튼을 클릭하세요"
+                  value={form.address}
+                  onChange={set("address")}
+                  readOnly
+                />
+                <AddressSearch
+                  buttonClassName="btn-secondary"
+                  buttonStyle={{ padding: "0 16px", fontSize: 13, whiteSpace: "nowrap" }}
+                  onSelect={({ address, city, district }) =>
+                    setForm((f) => ({ ...f, address, city, district }))
+                  }
+                />
+              </div>
             </div>
 
             <div className={s.grid2}>
               <div className={s.field}>
                 <label className={s.label}>지역 <span className={s.required}>*</span></label>
-                <select className={s.select} value={form.city} onChange={set("city")}>
-                  {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
+                <input className="input-field" value={form.city} readOnly placeholder="주소 검색 시 자동 입력" />
               </div>
               <div className={s.field}>
                 <label className={s.label}>구/군</label>
-                <input className="input-field" placeholder="강남구" value={form.district} onChange={set("district")} />
+                <input className="input-field" value={form.district} readOnly placeholder="주소 검색 시 자동 입력" />
               </div>
             </div>
           </div>

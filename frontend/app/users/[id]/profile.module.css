@@ -1,107 +1,154 @@
 .page { padding-top: 80px; min-height: 100vh; background: var(--bg); }
-.inner { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+.inner { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
 
-.profileCard {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+/* ── Profile Hero ───────────────────────────────────────── */
+.profileHero {
+  position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 32px;
-  margin-bottom: 32px;
+  margin-bottom: 0;
+  overflow: hidden;
 }
-.avatarWrap { flex-shrink: 0; }
+.profileHeroBanner {
+  height: 6px;
+  background: var(--red);
+}
+.profileHeroBody {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  padding: 32px;
+}
+
+/* Avatar */
+.avatarWrap { flex-shrink: 0; position: relative; }
 .avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 110px;
+  height: 110px;
   object-fit: cover;
-  border: 2px solid var(--border);
+  border: 2px solid var(--red);
+  display: block;
 }
 .avatarFallback {
-  width: 80px;
-  height: 80px;
-  background: var(--red);
+  width: 110px;
+  height: 110px;
+  background: var(--bg-card-2);
+  border: 2px solid var(--red);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
-  color: #fff;
+  font-size: 48px;
+  color: var(--red);
 }
-.profileInfo { flex: 1; }
+
+/* Name & role */
+.profileMeta { flex: 1; min-width: 0; }
+.nameRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
 .name {
-  font-family: 'Black Han Sans', sans-serif;
-  font-size: 28px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
   color: var(--text);
-  margin-bottom: 8px;
+  line-height: 1;
+  letter-spacing: 2px;
+  margin: 0;
 }
+.roleTag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+/* Stats bar */
+.statsRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+}
+.statBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 20px;
+  color: var(--muted);
+  transition: color 0.2s;
+  text-decoration: none;
+}
+.statBtn:first-child { padding-left: 0; }
+.statBtn:hover { color: var(--text); }
+.statBtnActive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 20px;
+  color: var(--red);
+  text-decoration: none;
+}
+.statBtnActive:first-child { padding-left: 0; }
+.statNum {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+.statLabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 3px;
+  color: inherit;
+}
+.statDivider {
+  width: 1px;
+  height: 32px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+/* Right side: badge summary + follow btn */
 .profileRight {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 12px;
-  margin-left: auto;
+  gap: 14px;
+  flex-shrink: 0;
 }
-
 .badgeSummary {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   align-items: center;
 }
-.tierCount {
+.tierPill {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px;
+  font-size: 17px;
   letter-spacing: 1px;
-}
-
-/* Follow counts */
-.followCounts {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  margin-top: 12px;
-}
-.followCount {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 6px 16px;
-  color: var(--muted);
-  transition: color 0.2s;
-}
-.followCount:hover { color: var(--text); }
-.followCountActive {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 6px 16px;
-  color: var(--red);
-}
-.followNum {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  line-height: 1;
-}
-.followLabel {
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
-.followDivider {
-  width: 1px;
-  height: 28px;
-  background: var(--border);
+  background: var(--bg-card-2);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
 }
 
 /* Follow / Unfollow buttons */
@@ -109,45 +156,50 @@
   background: var(--red);
   color: var(--text);
   border: none;
-  padding: 8px 20px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  padding: 10px 28px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
   cursor: pointer;
   transition: opacity 0.2s;
+  white-space: nowrap;
 }
 .followBtn:hover { opacity: 0.85; }
-.followBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.followBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .unfollowBtn {
   background: transparent;
   color: var(--muted);
   border: 1px solid rgba(255,255,255,0.2);
-  padding: 8px 20px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  padding: 10px 28px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 2px;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
 }
 .unfollowBtn:hover { color: var(--red); border-color: var(--red); }
-.unfollowBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.unfollowBtn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Tabs */
+/* ── Tabs ───────────────────────────────────────────────── */
 .tabs {
   display: flex;
   border-bottom: 1px solid var(--border);
   margin-bottom: 28px;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
 }
 .tab {
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
   color: var(--muted);
-  padding: 12px 20px;
-  font-size: 13px;
+  padding: 14px 22px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
   transition: color 0.2s, border-color 0.2s;
@@ -157,18 +209,18 @@
 .tabActive {
   background: transparent;
   border: none;
-  border-bottom: 2px solid var(--red);
+  border-bottom: 3px solid var(--red);
   color: var(--text);
-  padding: 12px 20px;
-  font-size: 13px;
+  padding: 14px 22px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
   margin-bottom: -1px;
 }
 
-/* Follow List */
+/* ── Follow List ────────────────────────────────────────── */
 .followList {
   display: flex;
   flex-direction: column;
@@ -225,13 +277,13 @@
   padding: 6px 14px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   cursor: pointer;
   flex-shrink: 0;
   transition: opacity 0.2s;
 }
 .followBtnSm:hover { opacity: 0.85; }
-.followBtnSm:disabled { opacity: 0.5; cursor: not-allowed; }
+.followBtnSm:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .unfollowBtnSm {
   background: transparent;
@@ -240,18 +292,18 @@
   padding: 6px 14px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.2s, border-color 0.2s;
 }
 .unfollowBtnSm:hover { color: var(--red); border-color: var(--red); }
-.unfollowBtnSm:disabled { opacity: 0.5; cursor: not-allowed; }
+.unfollowBtnSm:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* Section */
+/* ── Section ────────────────────────────────────────────── */
 .section { margin-bottom: 32px; }
 .sectionTitle {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 3px;
   color: var(--red);
@@ -266,48 +318,66 @@
   margin-left: 8px;
 }
 
-/* Badge Grid */
+/* ── Badge Grid ─────────────────────────────────────────── */
 .badgeGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
 }
 .badgeItem {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 20px 16px;
+  padding: 22px 16px 18px;
   text-align: center;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: default;
 }
-.badgeItem:hover { transform: translateY(-2px); }
-.badgeIcon { font-size: 30px; margin-bottom: 10px; }
-.badgeName { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-.badgeDesc { font-size: 11px; color: var(--muted); margin-bottom: 6px; line-height: 1.4; }
-.badgeTier { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 4px; }
-.badgeDate { font-size: 10px; color: var(--muted); opacity: 0.6; }
+.badgeItem:hover { background: var(--bg-card-2); }
+.badgeIcon { font-size: 28px; margin-bottom: 10px; }
+.badgeName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.badgeDesc { font-size: 11px; color: var(--muted); margin-bottom: 8px; line-height: 1.4; }
+.badgeTier {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.badgeDate { font-size: 10px; color: var(--muted); opacity: 0.5; }
 
-/* Empty */
-.empty { text-align: center; padding: 60px 0; }
-.emptyIcon { font-size: 40px; opacity: 0.4; margin-bottom: 12px; }
+/* ── Empty ──────────────────────────────────────────────── */
+.empty { text-align: center; padding: 64px 0; }
+.emptyIcon { font-size: 36px; opacity: 0.3; margin-bottom: 12px; }
 .empty p { font-size: 14px; color: var(--muted); }
 
-/* Skeleton */
+/* ── Skeleton ───────────────────────────────────────────── */
 .skeleton {
   background: var(--bg-card);
   border: 1px solid var(--border);
   animation: pulse 1.5s ease-in-out infinite;
 }
-@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
 
-/* Post item */
+/* ── Misc ───────────────────────────────────────────────── */
 .postItem:hover { border-color: rgba(232,34,10,0.3) !important; }
-
-/* Back */
-.backRow { margin-top: 32px; }
+.backRow { margin-top: 40px; }
 .backLink { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
 .backLink:hover { color: var(--text); }
 
+/* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .profileCard { flex-direction: column; align-items: flex-start; }
+  .profileHeroBody { flex-direction: column; gap: 20px; }
+  .profileRight { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+  .name { font-size: 32px; }
   .badgeGrid { grid-template-columns: repeat(2, 1fr); }
+  .tabs { overflow-x: auto; }
+  .tab, .tabActive { padding: 12px 14px; font-size: 10px; }
+  .statsRow { flex-wrap: wrap; gap: 12px; }
+  .statBtn, .statBtnActive { padding: 0 12px; }
 }

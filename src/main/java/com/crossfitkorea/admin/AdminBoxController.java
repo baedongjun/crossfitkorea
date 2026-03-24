@@ -1,9 +1,13 @@
 package com.crossfitkorea.admin;
 
 import com.crossfitkorea.common.ApiResponse;
+import com.crossfitkorea.domain.box.dto.BoxClaimDto;
+import com.crossfitkorea.domain.box.dto.BoxCreateRequest;
 import com.crossfitkorea.domain.box.dto.BoxDto;
 import com.crossfitkorea.domain.box.entity.Box;
 import com.crossfitkorea.domain.box.repository.BoxRepository;
+import com.crossfitkorea.domain.box.service.BoxClaimService;
+import com.crossfitkorea.domain.box.service.BoxService;
 import com.crossfitkorea.domain.competition.dto.CompetitionCreateRequest;
 import com.crossfitkorea.domain.competition.dto.CompetitionDto;
 import com.crossfitkorea.domain.competition.entity.CompetitionStatus;
@@ -29,6 +33,8 @@ import org.springframework.web.bind.annotation.*;
 public class AdminBoxController {
 
     private final BoxRepository boxRepository;
+    private final BoxService boxService;
+    private final BoxClaimService boxClaimService;
     private final CompetitionService competitionService;
     private final WodService wodService;
 
@@ -40,6 +46,23 @@ public class AdminBoxController {
     ) {
         Page<BoxDto> boxes = boxRepository.findAll(pageable).map(BoxDto::from);
         return ResponseEntity.ok(ApiResponse.success(boxes));
+    }
+
+    @Operation(summary = "[어드민] 박스 등록 (오너 없이)")
+    @PostMapping("/boxes")
+    public ResponseEntity<ApiResponse<BoxDto>> createBox(
+        @Valid @RequestBody BoxCreateRequest request
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(boxService.createBoxAdmin(request)));
+    }
+
+    @Operation(summary = "[어드민] 박스 오너 지정")
+    @PatchMapping("/boxes/{id}/owner")
+    public ResponseEntity<ApiResponse<BoxDto>> assignOwner(
+        @PathVariable Long id,
+        @RequestParam Long userId
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(boxClaimService.assignOwner(id, userId)));
     }
 
     @Operation(summary = "[어드민] 박스 인증 처리")
@@ -68,6 +91,32 @@ public class AdminBoxController {
                 com.crossfitkorea.common.exception.ErrorCode.BOX_NOT_FOUND));
         box.setPremium(premium);
         return ResponseEntity.ok(ApiResponse.success(BoxDto.from(boxRepository.save(box))));
+    }
+
+    @Operation(summary = "[어드민] 소유권 신청 목록")
+    @GetMapping("/boxes/claims")
+    public ResponseEntity<ApiResponse<Page<BoxClaimDto>>> getClaims(
+        @PageableDefault(size = 20) Pageable pageable
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(boxClaimService.getAllClaims(pageable)));
+    }
+
+    @Operation(summary = "[어드민] 소유권 신청 승인")
+    @PatchMapping("/boxes/claims/{id}/approve")
+    public ResponseEntity<ApiResponse<BoxClaimDto>> approveClaim(
+        @PathVariable Long id,
+        @RequestParam(required = false) String adminNote
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(boxClaimService.approveClaim(id, adminNote)));
+    }
+
+    @Operation(summary = "[어드민] 소유권 신청 거절")
+    @PatchMapping("/boxes/claims/{id}/reject")
+    public ResponseEntity<ApiResponse<BoxClaimDto>> rejectClaim(
+        @PathVariable Long id,
+        @RequestParam(required = false) String adminNote
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(boxClaimService.rejectClaim(id, adminNote)));
     }
 
     @Operation(summary = "[어드민] 대회 등록")

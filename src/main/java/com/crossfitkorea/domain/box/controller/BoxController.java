@@ -7,6 +7,8 @@ import com.crossfitkorea.domain.box.dto.BoxMembershipDto;
 import com.crossfitkorea.domain.box.dto.BoxNoticeDto;
 import com.crossfitkorea.domain.box.dto.BoxNoticeRequest;
 import com.crossfitkorea.domain.box.dto.BoxSearchRequest;
+import com.crossfitkorea.domain.box.dto.BoxClaimDto;
+import com.crossfitkorea.domain.box.service.BoxClaimService;
 import com.crossfitkorea.domain.box.service.BoxFavoriteService;
 import com.crossfitkorea.domain.box.service.BoxMembershipService;
 import com.crossfitkorea.domain.box.service.BoxNoticeService;
@@ -34,6 +36,7 @@ import java.util.Map;
 public class BoxController {
 
     private final BoxService boxService;
+    private final BoxClaimService boxClaimService;
     private final BoxFavoriteService boxFavoriteService;
     private final BoxMembershipService boxMembershipService;
     private final BoxNoticeService boxNoticeService;
@@ -235,5 +238,35 @@ public class BoxController {
     ) {
         boxNoticeService.deleteNotice(id, nid, userDetails.getUsername());
         return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    @Operation(summary = "오너 없는 박스 목록 (소유권 신청용)")
+    @GetMapping("/unclaimed")
+    public ResponseEntity<ApiResponse<Page<BoxDto>>> getUnclaimedBoxes(
+        @PageableDefault(size = 12) Pageable pageable
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(boxService.getUnclaimedBoxes(pageable)));
+    }
+
+    @Operation(summary = "박스 소유권 신청")
+    @PostMapping("/{id}/claim")
+    @PreAuthorize("hasAnyRole('BOX_OWNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<BoxClaimDto>> submitClaim(
+        @PathVariable Long id,
+        @RequestParam(required = false) String message,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+            boxClaimService.submitClaim(id, userDetails.getUsername(), message)));
+    }
+
+    @Operation(summary = "내 소유권 신청 목록")
+    @GetMapping("/my/claims")
+    @PreAuthorize("hasAnyRole('BOX_OWNER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<List<BoxClaimDto>>> getMyClaims(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+            boxClaimService.getMyClaims(userDetails.getUsername())));
     }
 }

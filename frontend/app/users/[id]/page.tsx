@@ -167,91 +167,98 @@ export default function UserProfilePage() {
   return (
     <div className={s.page}>
       <div className={s.inner}>
-        {/* Profile Header */}
-        <div className={s.profileCard}>
-          <div className={s.avatarWrap}>
-            {profile.profileImageUrl ? (
-              <Image src={profile.profileImageUrl} alt={profile.name} width={80} height={80} className={s.avatar} style={{ objectFit: "cover" }} />
-            ) : (
-              <div className={s.avatarFallback}>{profile.name?.[0] || "?"}</div>
-            )}
-          </div>
-          <div className={s.profileInfo}>
-            <h1 className={s.name}>{profile.name}</h1>
-            <span className={`badge badge-default`}>
-              {ROLE_LABEL[profile.role] || profile.role}
-            </span>
-            {/* 통계 */}
-            <div className={s.followCounts}>
-              <button
-                className={activeTab === "followers" ? s.followCountActive : s.followCount}
-                onClick={() => setActiveTab("followers")}
-              >
-                <span className={s.followNum}>{(profile as { followerCount?: number }).followerCount ?? followCounts?.followerCount ?? 0}</span>
-                <span className={s.followLabel}>팔로워</span>
-              </button>
-              <div className={s.followDivider} />
-              <button
-                className={activeTab === "following" ? s.followCountActive : s.followCount}
-                onClick={() => setActiveTab("following")}
-              >
-                <span className={s.followNum}>{(profile as { followingCount?: number }).followingCount ?? followCounts?.followingCount ?? 0}</span>
-                <span className={s.followLabel}>팔로잉</span>
-              </button>
-              <div className={s.followDivider} />
-              <div className={s.followCount}>
-                <span className={s.followNum}>{(profile as { wodCount?: number }).wodCount ?? 0}</span>
-                <span className={s.followLabel}>WOD</span>
-              </div>
-              <div className={s.followDivider} />
-              <button
-                className={activeTab === "posts" ? s.followCountActive : s.followCount}
-                onClick={() => setActiveTab("posts")}
-              >
-                <span className={s.followNum}>{(profile as { postCount?: number }).postCount ?? 0}</span>
-                <span className={s.followLabel}>게시글</span>
-              </button>
+        {/* Profile Hero */}
+        <div className={s.profileHero}>
+          <div className={s.profileHeroBanner} />
+          <div className={s.profileHeroBody}>
+            {/* Avatar */}
+            <div className={s.avatarWrap}>
+              {profile.profileImageUrl ? (
+                <Image src={profile.profileImageUrl} alt={profile.name} width={110} height={110} className={s.avatar} />
+              ) : (
+                <div className={s.avatarFallback}>{profile.name?.[0]?.toUpperCase() || "?"}</div>
+              )}
             </div>
-          </div>
-          <div className={s.profileRight}>
-            {badges && badges.length > 0 && (
-              <div className={s.badgeSummary}>
-                {platinumBadges.length > 0 && (
-                  <div className={s.tierCount} style={{ color: TIER_COLOR.PLATINUM }}>
-                    <span>💠</span> {platinumBadges.length}
-                  </div>
-                )}
-                {goldBadges.length > 0 && (
-                  <div className={s.tierCount} style={{ color: TIER_COLOR.GOLD }}>
-                    <span>🥇</span> {goldBadges.length}
-                  </div>
-                )}
-                {silverBadges.length > 0 && (
-                  <div className={s.tierCount} style={{ color: TIER_COLOR.SILVER }}>
-                    <span>🥈</span> {silverBadges.length}
-                  </div>
-                )}
-                {bronzeBadges.length > 0 && (
-                  <div className={s.tierCount} style={{ color: TIER_COLOR.BRONZE }}>
-                    <span>🥉</span> {bronzeBadges.length}
-                  </div>
-                )}
+
+            {/* Name + stats */}
+            <div className={s.profileMeta}>
+              <div className={s.nameRow}>
+                <h1 className={s.name}>{profile.name}</h1>
+                <span className={s.roleTag}>{ROLE_LABEL[profile.role] || profile.role}</span>
               </div>
-            )}
-            {/* 팔로우 버튼 */}
-            {loggedIn && myIdResolved && !isMe && (
-              <button
-                className={isFollowing ? s.unfollowBtn : s.followBtn}
-                onClick={() => toggleFollowMutation.mutate()}
-                disabled={toggleFollowMutation.isPending}
-              >
-                {toggleFollowMutation.isPending
-                  ? "..."
-                  : isFollowing
-                  ? "언팔로우"
-                  : "팔로우"}
-              </button>
-            )}
+              {/* Badge summary under name */}
+              {badges && badges.length > 0 && (
+                <div className={s.badgeSummary}>
+                  {platinumBadges.length > 0 && (
+                    <div className={s.tierPill} style={{ color: TIER_COLOR.PLATINUM }}>
+                      💠 {platinumBadges.length}
+                    </div>
+                  )}
+                  {goldBadges.length > 0 && (
+                    <div className={s.tierPill} style={{ color: TIER_COLOR.GOLD }}>
+                      🥇 {goldBadges.length}
+                    </div>
+                  )}
+                  {silverBadges.length > 0 && (
+                    <div className={s.tierPill} style={{ color: TIER_COLOR.SILVER }}>
+                      🥈 {silverBadges.length}
+                    </div>
+                  )}
+                  {bronzeBadges.length > 0 && (
+                    <div className={s.tierPill} style={{ color: TIER_COLOR.BRONZE }}>
+                      🥉 {bronzeBadges.length}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Stats row */}
+              <div className={s.statsRow}>
+                <button
+                  className={activeTab === "followers" ? s.statBtnActive : s.statBtn}
+                  onClick={() => setActiveTab("followers")}
+                >
+                  <span className={s.statNum}>{(profile as { followerCount?: number }).followerCount ?? followCounts?.followerCount ?? 0}</span>
+                  <span className={s.statLabel}>팔로워</span>
+                </button>
+                <div className={s.statDivider} />
+                <button
+                  className={activeTab === "following" ? s.statBtnActive : s.statBtn}
+                  onClick={() => setActiveTab("following")}
+                >
+                  <span className={s.statNum}>{(profile as { followingCount?: number }).followingCount ?? followCounts?.followingCount ?? 0}</span>
+                  <span className={s.statLabel}>팔로잉</span>
+                </button>
+                <div className={s.statDivider} />
+                <button
+                  className={activeTab === "wod" ? s.statBtnActive : s.statBtn}
+                  onClick={() => setActiveTab("wod")}
+                >
+                  <span className={s.statNum}>{(profile as { wodCount?: number }).wodCount ?? 0}</span>
+                  <span className={s.statLabel}>WOD</span>
+                </button>
+                <div className={s.statDivider} />
+                <button
+                  className={activeTab === "posts" ? s.statBtnActive : s.statBtn}
+                  onClick={() => setActiveTab("posts")}
+                >
+                  <span className={s.statNum}>{(profile as { postCount?: number }).postCount ?? 0}</span>
+                  <span className={s.statLabel}>게시글</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Follow button */}
+            <div className={s.profileRight}>
+              {loggedIn && myIdResolved && !isMe && (
+                <button
+                  className={isFollowing ? s.unfollowBtn : s.followBtn}
+                  onClick={() => toggleFollowMutation.mutate()}
+                  disabled={toggleFollowMutation.isPending}
+                >
+                  {toggleFollowMutation.isPending ? "..." : isFollowing ? "언팔로우" : "팔로우"}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -484,7 +491,7 @@ export default function UserProfilePage() {
         )}
 
         <div className={s.backRow}>
-          <Link href="/boxes" className={s.backLink}>← 박스 찾기로 돌아가기</Link>
+          <Link href="/feed" className={s.backLink}>← 피드로 돌아가기</Link>
         </div>
       </div>
     </div>

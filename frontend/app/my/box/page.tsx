@@ -371,10 +371,15 @@ export default function MyBoxPage() {
         ) : boxes.length === 0 ? (
           <div className={s.emptyState}>
             <p className={s.emptyTitle}>등록된 박스가 없습니다</p>
-            <p className={s.emptyDesc}>새 박스를 등록하고 관리를 시작하세요.</p>
-            <Link href="/boxes/create" className="btn-primary" style={{ display: "inline-block", marginTop: 20 }}>
-              박스 등록하기
-            </Link>
+            <p className={s.emptyDesc}>새로 박스를 등록하거나, 기존 박스의 소유권을 신청하세요.</p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 20 }}>
+              <Link href="/boxes/create" className="btn-primary" style={{ display: "inline-block" }}>
+                새 박스 등록하기
+              </Link>
+              <Link href="/my/claim-box" className="btn-secondary" style={{ display: "inline-block" }}>
+                기존 박스 소유권 신청
+              </Link>
+            </div>
           </div>
         ) : (
           <div className={s.layout}>

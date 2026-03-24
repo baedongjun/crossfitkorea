@@ -217,6 +217,15 @@ export const boxApi = {
 
   deleteNotice: (boxId: number, noticeId: number) =>
     api.delete(`/api/v1/boxes/${boxId}/notices/${noticeId}`),
+
+  getUnclaimed: (page = 0) =>
+    api.get("/api/v1/boxes/unclaimed", { params: { page } }),
+
+  submitClaim: (boxId: number, message?: string) =>
+    api.post(`/api/v1/boxes/${boxId}/claim`, null, { params: message ? { message } : {} }),
+
+  getMyClaims: () =>
+    api.get("/api/v1/boxes/my/claims"),
 };
 
 // WOD API
@@ -535,6 +544,21 @@ export const adminApi = {
 
   clearReports: (id: number) =>
     api.patch(`/api/v1/admin/posts/${id}/clear-reports`),
+
+  createBox: (data: object) =>
+    api.post("/api/v1/admin/boxes", data),
+
+  assignOwner: (boxId: number, userId: number) =>
+    api.patch(`/api/v1/admin/boxes/${boxId}/owner`, null, { params: { userId } }),
+
+  getClaims: (page = 0) =>
+    api.get("/api/v1/admin/boxes/claims", { params: { page } }),
+
+  approveClaim: (claimId: number, adminNote?: string) =>
+    api.patch(`/api/v1/admin/boxes/claims/${claimId}/approve`, null, { params: adminNote ? { adminNote } : {} }),
+
+  rejectClaim: (claimId: number, adminNote?: string) =>
+    api.patch(`/api/v1/admin/boxes/claims/${claimId}/reject`, null, { params: adminNote ? { adminNote } : {} }),
 };
 
 // Challenge API

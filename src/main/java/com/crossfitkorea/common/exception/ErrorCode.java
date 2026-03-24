@@ -76,7 +76,12 @@ public enum ErrorCode {
     GOAL_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "목표 수정/삭제 권한이 없습니다."),
 
     // Follow
-    CANNOT_FOLLOW_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다.");
+    CANNOT_FOLLOW_SELF(HttpStatus.BAD_REQUEST, "자기 자신을 팔로우할 수 없습니다."),
+
+    // Box Claim
+    BOX_ALREADY_HAS_OWNER(HttpStatus.CONFLICT, "이미 오너가 있는 박스입니다."),
+    BOX_CLAIM_ALREADY_PENDING(HttpStatus.CONFLICT, "이미 대기 중인 소유권 신청이 있습니다."),
+    BOX_CLAIM_NOT_FOUND(HttpStatus.NOT_FOUND, "소유권 신청을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

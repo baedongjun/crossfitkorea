@@ -178,6 +178,7 @@ export default function FeedPage() {
   const router = useRouter();
   const observerRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState<FilterType>("전체");
+  const currentUser = typeof window !== "undefined" ? getUser() : null;
 
   useEffect(() => {
     if (!isLoggedIn()) {
@@ -200,6 +201,16 @@ export default function FeedPage() {
     getNextPageParam: (lastPage: PageData) =>
       lastPage.last ? undefined : lastPage.number + 1,
     initialPageParam: 0,
+  });
+
+  const { data: myCounts } = useQuery({
+    queryKey: ["follow", "counts", "me"],
+    queryFn: async () => {
+      if (!currentUser?.id) return null;
+      const res = await followApi.getCounts(currentUser.id);
+      return res.data.data as { followerCount: number; followingCount: number };
+    },
+    enabled: !!currentUser?.id,
   });
 
   // IntersectionObserver for infinite scroll
@@ -260,11 +271,23 @@ export default function FeedPage() {
       {isEmpty && (
         <div className={s.empty}>
           <div className={s.emptyIcon}>🏋️</div>
-          <h2 className={s.emptyTitle}>아직 팔로우한 사람이 없습니다</h2>
-          <p className={s.emptyDesc}>
-            다른 선수들을 팔로우하면<br />
-            그들의 WOD 기록, 배지, 대회 신청 활동을 여기서 볼 수 있습니다.
-          </p>
+          {myCounts && myCounts.followingCount > 0 ? (
+            <>
+              <h2 className={s.emptyTitle}>아직 활동이 없습니다</h2>
+              <p className={s.emptyDesc}>
+                팔로우한 선수들의 WOD 기록, 배지, 대회 신청,<br />
+                게시글 활동이 생기면 여기에 표시됩니다.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className={s.emptyTitle}>아직 팔로우한 사람이 없습니다</h2>
+              <p className={s.emptyDesc}>
+                다른 선수들을 팔로우하면<br />
+                그들의 WOD 기록, 배지, 대회 신청 활동을 여기서 볼 수 있습니다.
+              </p>
+            </>
+          )}
           <SuggestedUsers />
           <Link href="/search" className={s.emptyLink}>
             선수 검색하기

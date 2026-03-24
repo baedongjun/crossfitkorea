@@ -144,6 +144,32 @@ public class BoxService {
         box.setActive(false);
     }
 
+    @Transactional
+    public BoxDto createBoxAdmin(BoxCreateRequest request) {
+        Box box = Box.builder()
+            .name(request.getName())
+            .address(request.getAddress())
+            .city(request.getCity())
+            .district(request.getDistrict())
+            .latitude(request.getLatitude())
+            .longitude(request.getLongitude())
+            .phone(request.getPhone())
+            .website(request.getWebsite())
+            .instagram(request.getInstagram())
+            .youtube(request.getYoutube())
+            .description(request.getDescription())
+            .monthlyFee(request.getMonthlyFee())
+            .openTime(request.getOpenTime())
+            .closeTime(request.getCloseTime())
+            .imageUrls(request.getImageUrls() != null ? request.getImageUrls() : new java.util.ArrayList<>())
+            .build();
+        return BoxDto.from(boxRepository.save(box));
+    }
+
+    public Page<BoxDto> getUnclaimedBoxes(Pageable pageable) {
+        return boxRepository.findByOwnerIsNullAndActiveTrue(pageable).map(BoxDto::from);
+    }
+
     public Box findActiveBox(Long id) {
         Box box = boxRepository.findById(id)
             .orElseThrow(() -> new BusinessException(ErrorCode.BOX_NOT_FOUND));

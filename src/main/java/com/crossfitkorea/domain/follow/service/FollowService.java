@@ -10,12 +10,14 @@ import com.crossfitkorea.domain.notification.service.NotificationService;
 import com.crossfitkorea.domain.user.entity.User;
 import com.crossfitkorea.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -42,8 +44,12 @@ public class FollowService {
             })
             .orElseGet(() -> {
                 followRepository.save(Follow.builder().follower(me).following(target).build());
-                notificationService.createNotification(target, NotificationType.FOLLOW,
-                    me.getName() + "님이 팔로우했습니다.", "/users/" + me.getId());
+                try {
+                    notificationService.createNotification(target, NotificationType.FOLLOW,
+                        me.getName() + "님이 팔로우했습니다.", "/users/" + me.getId());
+                } catch (Exception e) {
+                    log.warn("Failed to send follow notification: {}", e.getMessage());
+                }
                 return Map.<String, Object>of("following", true,
                     "followerCount", followRepository.countByFollowing(target));
             });

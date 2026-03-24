@@ -36,6 +36,7 @@ export default function UserProfilePage() {
   const loggedIn = isLoggedIn();
   const [activeTab, setActiveTab] = useState<TabType>("badges");
   const [myId, setMyId] = useState<number | undefined>(currentUser?.id);
+  const [myIdResolved, setMyIdResolved] = useState<boolean>(currentUser?.id !== undefined);
 
   // currentUser.id가 없으면 서버에서 조회해 localStorage 보완
   useEffect(() => {
@@ -47,12 +48,13 @@ export default function UserProfilePage() {
           if (stored) setUser({ ...stored, id: me.id });
           setMyId(me.id);
         }
-      }).catch(() => {});
+      }).catch(() => {}).finally(() => setMyIdResolved(true));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const isMe = loggedIn && myId !== undefined && String(myId) === id;
+  const isMe = loggedIn && myIdResolved && myId !== undefined && String(myId) === id;
+  // myIdResolved가 false이면 팔로우 버튼을 아직 렌더하지 않음 (자기 자신 팔로우 방지)
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["user", userId, "profile"],
@@ -120,7 +122,7 @@ export default function UserProfilePage() {
       queryClient.invalidateQueries({ queryKey: ["follow", "counts", userId] });
       queryClient.invalidateQueries({ queryKey: ["follow", "followers", userId] });
     },
-    onError: (_err, _vars, context) => {
+    onError: (err, _vars, context) => {
       // 실패 시 되돌리기
       if (context) {
         queryClient.setQueryData(["follow", "status", userId], { following: context.wasFollowing });
@@ -130,7 +132,8 @@ export default function UserProfilePage() {
           followingCount: old?.followingCount ?? 0,
         }));
       }
-      toast.error("팔로우 처리에 실패했습니다.");
+      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+      toast.error(msg || "팔로우 처리에 실패했습니다.");
     },
   });
 
@@ -236,7 +239,7 @@ export default function UserProfilePage() {
               </div>
             )}
             {/* 팔로우 버튼 */}
-            {loggedIn && !isMe && (
+            {loggedIn && myIdResolved && !isMe && (
               <button
                 className={isFollowing ? s.unfollowBtn : s.followBtn}
                 onClick={() => toggleFollowMutation.mutate()}

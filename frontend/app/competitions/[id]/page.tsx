@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import Script from "next/script";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { competitionApi, paymentApi, competitionResultApi } from "@/lib/api";
 import { Competition } from "@/types";
@@ -69,15 +70,24 @@ function ResultsSection({ competitionId }: { competitionId: number }) {
   );
 }
 
+interface Participant { userId: number; userName: string; profileImageUrl?: string; registeredAt: string; }
+
 export default function CompetitionDetailPage() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
   const loggedIn = isLoggedIn();
   const currentUser = getUser();
+  const [showParticipants, setShowParticipants] = useState(false);
 
   const { data: comp, isLoading } = useQuery({
     queryKey: ["competition", id],
     queryFn: async () => (await competitionApi.getOne(Number(id))).data.data as Competition,
+  });
+
+  const { data: participants } = useQuery({
+    queryKey: ["competition", id, "participants-public"],
+    queryFn: async () => (await competitionApi.getPublicParticipants(Number(id))).data.data as Participant[],
+    enabled: showParticipants,
   });
 
   const { data: regStatus } = useQuery({
@@ -280,6 +290,41 @@ export default function CompetitionDetailPage() {
           {/* Results */}
           {comp.status === "COMPLETED" && (
             <ResultsSection competitionId={Number(id)} />
+          )}
+
+          {/* Participants */}
+          {regStatus && regStatus.count > 0 && (
+            <div className={s.resultsCard}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+                <p className={s.cardLabel} style={{ margin: 0 }}>참가자 {regStatus.count}명</p>
+                <button
+                  onClick={() => setShowParticipants(!showParticipants)}
+                  style={{ fontSize: 12, color: "var(--red)", background: "none", border: "none", cursor: "pointer" }}
+                >
+                  {showParticipants ? "접기" : "목록 보기"}
+                </button>
+              </div>
+              {showParticipants && participants && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  {participants.map((p) => (
+                    <div key={p.userId} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid var(--border)" }}>
+                      <div style={{ width: 32, height: 32, background: "var(--bg-card-2)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "var(--muted)", flexShrink: 0, overflow: "hidden" }}>
+                        {p.profileImageUrl ? (
+                          <img src={p.profileImageUrl} alt={p.userName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : p.userName.charAt(0).toUpperCase()}
+                      </div>
+                      {currentUser?.name !== p.userName ? (
+                        <Link href={`/users/${p.userId}`} style={{ fontSize: 14, color: "var(--text)", textDecoration: "none", fontWeight: 500, flex: 1 }}>
+                          {p.userName}
+                        </Link>
+                      ) : (
+                        <span style={{ fontSize: 14, color: "var(--text)", fontWeight: 500, flex: 1 }}>{p.userName}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
 

@@ -156,6 +156,7 @@ export interface AuthResponse {
 
 export interface WodRecord {
   id: number;
+  userId?: number;
   wodDate: string;
   score: string | null;
   notes: string | null;

@@ -13,6 +13,7 @@ import java.time.LocalDate;
 public class WodRecordDto {
 
     private Long id;
+    private Long userId;
     private LocalDate wodDate;
     private String score;
     private String notes;
@@ -26,6 +27,7 @@ public class WodRecordDto {
     public static WodRecordDto from(WodRecord record) {
         return WodRecordDto.builder()
             .id(record.getId())
+            .userId(record.getUser().getId())
             .wodDate(record.getWodDate())
             .score(record.getScore())
             .notes(record.getNotes())

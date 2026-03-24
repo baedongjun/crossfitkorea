@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { isLoggedIn } from "@/lib/auth";
-import { feedApi } from "@/lib/api";
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { isLoggedIn, getUser } from "@/lib/auth";
+import { feedApi, userApi, followApi } from "@/lib/api";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
@@ -105,6 +105,61 @@ function FeedCard({ item, onClick }: { item: FeedItem; onClick: () => void }) {
   );
 }
 
+interface SuggestedUser { id: number; name: string; profileImageUrl?: string; role: string; }
+
+function SuggestedUsers() {
+  const qc = useQueryClient();
+  const currentUser = typeof window !== "undefined" ? getUser() : null;
+  const [followingMap, setFollowingMap] = useState<Record<number, boolean>>({});
+
+  const { data } = useQuery({
+    queryKey: ["suggestedUsers"],
+    queryFn: async () => (await userApi.searchUsers("")).data.data,
+  });
+
+  const followMutation = useMutation({
+    mutationFn: (userId: number) => followApi.toggle(userId),
+    onSuccess: (res, userId) => {
+      const isFollowing = res.data.data?.following ?? false;
+      setFollowingMap(prev => ({ ...prev, [userId]: isFollowing }));
+      qc.invalidateQueries({ queryKey: ["feed"] });
+    },
+  });
+
+  const users: SuggestedUser[] = (data?.content ?? [])
+    .filter((u: SuggestedUser) => u.name !== currentUser?.name)
+    .slice(0, 6);
+
+  if (users.length === 0) return null;
+
+  return (
+    <div className={s.suggestedWrap}>
+      <p className={s.suggestedTitle}>추천 선수</p>
+      <div className={s.suggestedList}>
+        {users.map((u) => (
+          <div key={u.id} className={s.suggestedItem}>
+            <Link href={`/users/${u.id}`} className={s.suggestedLink}>
+              <div className={s.suggestedAvatar}>
+                {u.profileImageUrl ? (
+                  <img src={u.profileImageUrl} alt={u.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : u.name.charAt(0).toUpperCase()}
+              </div>
+              <span className={s.suggestedName}>{u.name}</span>
+            </Link>
+            <button
+              className={followingMap[u.id] ? s.unfollowBtn : s.followBtn}
+              onClick={() => followMutation.mutate(u.id)}
+              disabled={followMutation.isPending}
+            >
+              {followingMap[u.id] ? "팔로잉" : "팔로우"}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function FeedPage() {
   const router = useRouter();
   const observerRef = useRef<HTMLDivElement>(null);
@@ -181,8 +236,9 @@ export default function FeedPage() {
             다른 선수들을 팔로우하면<br />
             그들의 WOD 기록, 배지, 대회 신청 활동을 여기서 볼 수 있습니다.
           </p>
-          <Link href="/boxes" className={s.emptyLink}>
-            박스 찾기
+          <SuggestedUsers />
+          <Link href="/search" className={s.emptyLink}>
+            선수 검색하기
           </Link>
         </div>
       )}

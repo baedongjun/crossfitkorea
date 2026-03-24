@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { challengeApi, uploadApi } from "@/lib/api";
-import { isLoggedIn } from "@/lib/auth";
+import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import s from "./challenge-detail.module.css";
@@ -55,8 +56,9 @@ export default function ChallengeDetailPage() {
   const qc = useQueryClient();
   const id = Number(params.id);
   const loggedIn = typeof window !== "undefined" ? isLoggedIn() : false;
+  const currentUser = typeof window !== "undefined" ? getUser() : null;
 
-  const [tab, setTab] = useState<"leaderboard" | "verifications">("leaderboard");
+  const [tab, setTab] = useState<"leaderboard" | "verifications" | "allVerifications">("leaderboard");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageName, setImageName] = useState("");
@@ -65,6 +67,17 @@ export default function ChallengeDetailPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["challenge", id],
     queryFn: async () => (await challengeApi.getOne(id)).data.data as ChallengeDetailDto,
+  });
+
+  interface PublicVerificationItem {
+    id: number; userId: number; userName: string; profileImageUrl?: string;
+    content?: string; imageUrl?: string; verifiedDate: string;
+  }
+
+  const { data: allVerifs } = useQuery({
+    queryKey: ["challenge", id, "verifications"],
+    queryFn: async () => (await challengeApi.getVerifications(id)).data.data as PublicVerificationItem[],
+    enabled: tab === "allVerifications",
   });
 
   const joinMutation = useMutation({
@@ -291,6 +304,12 @@ export default function ChallengeDetailPage() {
             내 인증 기록
           </button>
         )}
+        <button
+          className={`${s.tab} ${tab === "allVerifications" ? s.tabActive : ""}`}
+          onClick={() => setTab("allVerifications")}
+        >
+          전체 인증
+        </button>
       </div>
 
       {/* Tab content */}
@@ -312,10 +331,45 @@ export default function ChallengeDetailPage() {
                   </div>
                 )}
                 <div className={s.lbBody}>
-                  <p className={s.lbName}>{entry.userName}</p>
+                  {currentUser?.name === entry.userName ? (
+                    <p className={s.lbName}>{entry.userName}</p>
+                  ) : (
+                    <Link href={`/users/${entry.userId}`} className={s.lbNameLink}>
+                      {entry.userName}
+                    </Link>
+                  )}
                   <p className={s.lbDays}>완료 일수</p>
                 </div>
                 <span className={s.lbDaysVal}>{entry.completedDays}일</span>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {tab === "allVerifications" && (
+        <div className={s.verifications}>
+          {!allVerifs ? (
+            <div className={s.emptyList}>불러오는 중...</div>
+          ) : allVerifs.length === 0 ? (
+            <div className={s.emptyList}>아직 인증 기록이 없습니다.</div>
+          ) : (
+            allVerifs.map((v) => (
+              <div key={v.id} className={s.verifItem}>
+                <span className={s.verifiDate}>{v.verifiedDate.substring(5)}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {currentUser?.name !== v.userName ? (
+                    <Link href={`/users/${v.userId}`} className={s.lbNameLink} style={{ fontSize: 13, marginBottom: 4, display: "block" }}>
+                      {v.userName}
+                    </Link>
+                  ) : (
+                    <p style={{ fontSize: 13, color: "var(--text)", marginBottom: 4 }}>{v.userName}</p>
+                  )}
+                  <p className={s.verifiContent}>{v.content || "(내용 없음)"}</p>
+                </div>
+                {v.imageUrl && (
+                  <img src={v.imageUrl} alt="인증 사진" className={s.verifiImage} />
+                )}
               </div>
             ))
           )}

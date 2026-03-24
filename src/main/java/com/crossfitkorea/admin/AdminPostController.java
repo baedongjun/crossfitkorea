@@ -28,6 +28,7 @@ public class AdminPostController {
 
     @Operation(summary = "[어드민] 전체 게시글 목록")
     @GetMapping("/posts")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<Page<PostDto>>> getAllPosts(
         @PageableDefault(size = 20) Pageable pageable
     ) {
@@ -62,6 +63,7 @@ public class AdminPostController {
 
     @Operation(summary = "[어드민] 신고된 게시글 목록 (신고 1건 이상)")
     @GetMapping("/posts/reported")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<Page<PostDto>>> getReportedPosts(
         @PageableDefault(size = 20) Pageable pageable
     ) {

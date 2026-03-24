@@ -81,4 +81,22 @@ public class CompetitionRegistrationController {
             .toList();
         return ResponseEntity.ok(ApiResponse.success(result));
     }
+
+    @Operation(summary = "대회 참가자 수 및 목록 [PUBLIC]")
+    @GetMapping("/{id}/participants/public")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getPublicParticipants(@PathVariable Long id) {
+        List<CompetitionRegistration> registrations = registrationRepository.findActiveRegistrationsByCompetitionId(id);
+        List<Map<String, Object>> result = registrations.stream()
+            .map(r -> {
+                java.util.Map<String, Object> item = new java.util.LinkedHashMap<>();
+                item.put("userId", r.getUser().getId());
+                item.put("userName", r.getUser().getName());
+                item.put("profileImageUrl", r.getUser().getProfileImageUrl());
+                item.put("registeredAt", r.getCreatedAt() != null ? r.getCreatedAt().toString() : "");
+                return item;
+            })
+            .toList();
+        return ResponseEntity.ok(ApiResponse.success(result));
+    }
 }

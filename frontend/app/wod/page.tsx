@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { wodApi, wodRecordApi, leaderboardApi } from "@/lib/api";
 import { Wod, WodRecord, BoxRanking } from "@/types";
-import { isLoggedIn } from "@/lib/auth";
+import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
@@ -51,6 +51,7 @@ const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 export default function WodPage() {
   const today = dayjs().format("YYYY년 MM월 DD일 dddd");
+  const currentUser = typeof window !== "undefined" ? getUser() : null;
   const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   const [calMonth, setCalMonth] = useState(dayjs().startOf("month"));
   const [selectedWod, setSelectedWod] = useState<Wod | null>(null);
@@ -270,7 +271,7 @@ export default function WodPage() {
                   <button
                     className="btn-secondary"
                     style={{ padding: "6px 14px", fontSize: 12, color: "var(--red)", borderColor: "rgba(232,34,10,0.3)" }}
-                    onClick={() => { if (confirm("기록을 삭제할까요?")) deleteRecordMutation.mutate(todayRecord.id); }}
+                    onClick={() => { if (confirm(`오늘 WOD 기록${todayRecord.score ? ` (${todayRecord.score})` : ""}을 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`)) deleteRecordMutation.mutate(todayRecord.id); }}
                   >
                     삭제
                   </button>
@@ -339,7 +340,11 @@ export default function WodPage() {
               {leaderboard.slice(0, 10).map((rec, idx) => (
                 <div key={rec.id} className={`${s.leaderboardItem} ${idx === 0 ? s.leaderboardFirst : ""}`}>
                   <span className={s.leaderboardRank}>{idx + 1}</span>
-                  <span className={s.leaderboardName}>{rec.userName}</span>
+                  {rec.userId && currentUser?.name !== rec.userName ? (
+                    <Link href={`/users/${rec.userId}`} className={s.leaderboardNameLink}>{rec.userName}</Link>
+                  ) : (
+                    <span className={s.leaderboardName}>{rec.userName}</span>
+                  )}
                   {rec.rx && <span className={s.leaderboardRx}>RX</span>}
                   <span className={s.leaderboardScore}>{rec.score || "—"}</span>
                 </div>
@@ -364,7 +369,7 @@ export default function WodPage() {
                 <div key={box.boxId} className={`${s.leaderboardItem} ${idx === 0 ? s.leaderboardFirst : ""}`}>
                   <span className={s.leaderboardRank}>{idx + 1}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <span className={s.leaderboardName}>{box.boxName}</span>
+                    <Link href={`/boxes/${box.boxId}`} className={s.leaderboardNameLink}>{box.boxName}</Link>
                     <span className={s.boxCity}>{box.boxCity}</span>
                   </div>
                   <div className={s.boxRankStats}>

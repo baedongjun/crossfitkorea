@@ -176,6 +176,98 @@
 .itemRating { font-size: 12px; color: var(--orange); white-space: nowrap; flex-shrink: 0; }
 .itemStats { font-size: 12px; color: var(--muted); white-space: nowrap; flex-shrink: 0; }
 
+/* Recent searches */
+.recentWrap { width: 100%; margin-bottom: 8px; }
+.recentHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.recentTitle { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); text-transform: uppercase; }
+.recentClearAll { font-size: 12px; color: var(--muted); background: none; border: none; cursor: pointer; padding: 0; transition: color 0.2s; }
+.recentClearAll:hover { color: var(--text); }
+.recentList { display: flex; flex-direction: column; gap: 1px; }
+.recentItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+}
+.recentKeyword {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  flex: 1;
+  text-align: left;
+  padding: 0;
+  transition: color 0.2s;
+}
+.recentKeyword:hover { color: var(--red); }
+.recentRemove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.2s;
+}
+.recentRemove:hover { color: var(--text); }
+
+/* User item with follow button */
+.userItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.userItem:hover { background: var(--bg-card-2); }
+.userItemLink {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+  padding: 14px 0 14px 16px;
+  text-decoration: none;
+}
+.followBtn {
+  margin-right: 16px;
+  padding: 6px 14px;
+  background: var(--red);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.followBtn:hover { opacity: 0.8; }
+.unfollowBtn {
+  margin-right: 16px;
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.2s, border-color 0.2s;
+}
+.unfollowBtn:hover { color: var(--text); border-color: rgba(255,255,255,0.4); }
+
 @media (max-width: 768px) {
   .tab { padding: 10px 14px; font-size: 12px; }
   .item { padding: 12px; }

@@ -144,6 +144,18 @@
   gap: 8px;
 }
 
+.nameLink {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.nameLink:hover {
+  color: var(--red);
+  text-decoration: underline;
+}
+
 .meTag {
   font-size: 10px;
   font-weight: 700;

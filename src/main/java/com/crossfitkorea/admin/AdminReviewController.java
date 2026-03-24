@@ -26,6 +26,7 @@ public class AdminReviewController {
 
     @Operation(summary = "[어드민] 전체 리뷰 목록")
     @GetMapping("/reviews")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<Page<ReviewDto>>> getAllReviews(
         @RequestParam(required = false) Integer minRating,
         @PageableDefault(size = 20) Pageable pageable

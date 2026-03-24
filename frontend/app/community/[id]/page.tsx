@@ -187,6 +187,7 @@ export default function PostDetailPage() {
     onSuccess: () => {
       setCommentText("");
       refetchComments();
+      refetchPost();
     },
     onError: () => toast.error("댓글 작성에 실패했습니다."),
   });
@@ -308,6 +309,17 @@ export default function PostDetailPage() {
                 {bookmarked ? "저장됨" : "저장"}
               </button>
             )}
+            <button
+              className={s.reportBtn}
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href).then(() => toast.success("링크가 복사됐습니다.")).catch(() => toast.error("복사에 실패했습니다."));
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+              </svg>
+              링크 복사
+            </button>
             {isLoggedIn() && currentUser?.name !== post.userName && (
               <button
                 className={s.reportBtn}

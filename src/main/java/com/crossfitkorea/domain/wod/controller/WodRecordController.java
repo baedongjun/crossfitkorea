@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/wod/records")
@@ -82,6 +83,15 @@ public class WodRecordController {
     ) {
         LocalDate d = date != null ? LocalDate.parse(date) : LocalDate.now();
         return ResponseEntity.ok(ApiResponse.success(wodRecordService.getBoxRanking(d)));
+    }
+
+    @Operation(summary = "내 WOD 스트릭 정보 (연속 기록 + 총 횟수)")
+    @GetMapping("/streak")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getStreak(
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(
+            wodRecordService.getStreakInfo(userDetails.getUsername())));
     }
 
     @Operation(summary = "WOD 기록 삭제")

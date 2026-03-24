@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { boxApi, competitionApi, communityApi, userApi } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { boxApi, competitionApi, communityApi, userApi, followApi } from "@/lib/api";
 import { Box, Competition, Post } from "@/types";
+import { isLoggedIn, getUser } from "@/lib/auth";
 import dayjs from "dayjs";
 import s from "./search.module.css";
 
@@ -15,15 +16,35 @@ const STATUS_LABELS: Record<string, string> = {
   UPCOMING: "예정", OPEN: "접수 중", CLOSED: "접수 마감", COMPLETED: "종료",
 };
 
+const RECENT_KEY = "recentSearches";
+const MAX_RECENT = 5;
+
 interface UserResult { id: number; name: string; profileImageUrl?: string; role: string; }
 type TabType = "all" | "boxes" | "competitions" | "community" | "users";
+
+function loadRecent(): string[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
+}
+
+function saveRecent(searches: string[]) {
+  localStorage.setItem(RECENT_KEY, JSON.stringify(searches));
+}
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<TabType>("all");
-
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [followingMap, setFollowingMap] = useState<Record<number, boolean>>({});
+  const qc = useQueryClient();
+  const currentUser = typeof window !== "undefined" ? getUser() : null;
+  const loggedIn = isLoggedIn();
+
+  useEffect(() => {
+    setRecentSearches(loadRecent());
+  }, []);
 
   const handleInput = (val: string) => {
     setQuery(val);
@@ -32,7 +53,38 @@ export default function SearchPage() {
     setTimer(t);
   };
 
+  const handleSearch = (val: string) => {
+    setQuery(val);
+    setDebouncedQuery(val);
+    if (val.trim().length >= 2) {
+      const updated = [val, ...recentSearches.filter(r => r !== val)].slice(0, MAX_RECENT);
+      setRecentSearches(updated);
+      saveRecent(updated);
+    }
+  };
+
+  const removeRecent = (val: string) => {
+    const updated = recentSearches.filter(r => r !== val);
+    setRecentSearches(updated);
+    saveRecent(updated);
+  };
+
+  const clearAllRecent = () => {
+    setRecentSearches([]);
+    saveRecent([]);
+  };
+
   const enabled = debouncedQuery.trim().length >= 2;
+
+  // Save to recent when debounce fires and query is long enough
+  useEffect(() => {
+    if (debouncedQuery.trim().length >= 2) {
+      const updated = [debouncedQuery, ...recentSearches.filter(r => r !== debouncedQuery)].slice(0, MAX_RECENT);
+      setRecentSearches(updated);
+      saveRecent(updated);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
 
   const { data: boxData, isLoading: boxLoading } = useQuery({
     queryKey: ["search", "boxes", debouncedQuery],
@@ -56,6 +108,15 @@ export default function SearchPage() {
     queryKey: ["search", "users", debouncedQuery],
     queryFn: async () => (await userApi.searchUsers(debouncedQuery)).data.data,
     enabled,
+  });
+
+  const followMutation = useMutation({
+    mutationFn: (userId: number) => followApi.toggle(userId),
+    onSuccess: (res, userId) => {
+      const isFollowing = res.data.data?.following ?? false;
+      setFollowingMap(prev => ({ ...prev, [userId]: isFollowing }));
+      qc.invalidateQueries({ queryKey: ["search", "users"] });
+    },
   });
 
   const boxes: Box[] = boxData?.content ?? [];
@@ -92,6 +153,7 @@ export default function SearchPage() {
             placeholder="박스, 대회, 게시글 검색..."
             value={query}
             onChange={(e) => handleInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && query.trim().length >= 2 && handleSearch(query)}
             autoFocus
           />
           {query && (
@@ -101,15 +163,36 @@ export default function SearchPage() {
 
         {!enabled ? (
           <div className={s.hint}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ color: "var(--muted)", marginBottom: 16 }}>
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <p>두 글자 이상 입력하여 검색하세요</p>
+            {recentSearches.length > 0 ? (
+              <div className={s.recentWrap}>
+                <div className={s.recentHeader}>
+                  <span className={s.recentTitle}>최근 검색어</span>
+                  <button className={s.recentClearAll} onClick={clearAllRecent}>전체 삭제</button>
+                </div>
+                <div className={s.recentList}>
+                  {recentSearches.map((r) => (
+                    <div key={r} className={s.recentItem}>
+                      <button className={s.recentKeyword} onClick={() => handleSearch(r)}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        {r}
+                      </button>
+                      <button className={s.recentRemove} onClick={() => removeRecent(r)}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ color: "var(--muted)", marginBottom: 16 }}>
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            )}
+            <p style={{ color: "var(--muted)", fontSize: 14, marginTop: recentSearches.length > 0 ? 24 : 0 }}>두 글자 이상 입력하여 검색하세요</p>
             <div className={s.hintLinks}>
               <Link href="/boxes" className={s.hintLink}>박스 찾기</Link>
               <Link href="/competitions" className={s.hintLink}>대회 일정</Link>
               <Link href="/community" className={s.hintLink}>커뮤니티</Link>
-              <Link href="/users" className={s.hintLink}>회원 검색</Link>
             </div>
           </div>
         ) : (
@@ -212,19 +295,30 @@ export default function SearchPage() {
                     </div>
                     <div className={s.list}>
                       {users.map((u) => (
-                        <Link key={u.id} href={`/users/${u.id}`} className={s.item}>
-                          <div className={s.itemIcon} style={{ fontSize: 20 }}>
-                            {u.profileImageUrl ? (
-                              <img src={u.profileImageUrl} alt={u.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            ) : "👤"}
-                          </div>
-                          <div className={s.itemBody}>
-                            <p className={s.itemTitle}>{u.name}</p>
-                            {u.role !== "ROLE_USER" && (
-                              <p className={s.itemMeta}>{u.role === "ROLE_BOX_OWNER" ? "박스 오너" : "관리자"}</p>
-                            )}
-                          </div>
-                        </Link>
+                        <div key={u.id} className={s.userItem}>
+                          <Link href={`/users/${u.id}`} className={s.userItemLink}>
+                            <div className={s.itemIcon} style={{ fontSize: 20 }}>
+                              {u.profileImageUrl ? (
+                                <img src={u.profileImageUrl} alt={u.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                              ) : "👤"}
+                            </div>
+                            <div className={s.itemBody}>
+                              <p className={s.itemTitle}>{u.name}</p>
+                              {u.role !== "ROLE_USER" && (
+                                <p className={s.itemMeta}>{u.role === "ROLE_BOX_OWNER" ? "박스 오너" : "관리자"}</p>
+                              )}
+                            </div>
+                          </Link>
+                          {loggedIn && currentUser?.name !== u.name && (
+                            <button
+                              className={followingMap[u.id] ? s.unfollowBtn : s.followBtn}
+                              onClick={() => followMutation.mutate(u.id)}
+                              disabled={followMutation.isPending}
+                            >
+                              {followingMap[u.id] ? "팔로잉" : "팔로우"}
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </div>

@@ -487,7 +487,13 @@ export default function WodRecordsPage() {
                     </button>
                     <button
                       className={s.deleteBtn}
-                      onClick={() => { if (window.confirm("이 기록을 삭제하시겠습니까?")) deleteMutation.mutate(rec.id); }}
+                      onClick={() => {
+                        const dateStr = dayjs(rec.wodDate).format("YYYY년 MM월 DD일");
+                        const scoreStr = rec.score ? ` (${rec.score})` : "";
+                        if (window.confirm(`${dateStr}${scoreStr} WOD 기록을 삭제하시겠습니까?\n삭제 후 복구할 수 없습니다.`)) {
+                          deleteMutation.mutate(rec.id);
+                        }
+                      }}
                       disabled={deleteMutation.isPending}
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

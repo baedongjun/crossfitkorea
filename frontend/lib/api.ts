@@ -256,6 +256,9 @@ export const competitionApi = {
 
   getParticipants: (id: number) =>
     api.get(`/api/v1/competitions/${id}/participants`),
+
+  getPublicParticipants: (id: number) =>
+    api.get(`/api/v1/competitions/${id}/participants/public`),
 };
 
 // Notification API
@@ -382,6 +385,9 @@ export const wodRecordApi = {
 
   deleteRecord: (id: number) =>
     api.delete(`/api/v1/wod/records/${id}`),
+
+  getStreak: () =>
+    api.get("/api/v1/wod/records/streak"),
 };
 
 // User API
@@ -415,6 +421,9 @@ export const userApi = {
 
   searchUsers: (keyword: string, page = 0) =>
     api.get("/api/v1/users/search", { params: { keyword, page, size: 20 } }),
+
+  getUserWodRecords: (id: number, page = 0) =>
+    api.get(`/api/v1/users/${id}/wod-records`, { params: { page, size: 20 } }),
 };
 
 // Stats API
@@ -532,6 +541,7 @@ export const challengeApi = {
   verify: (id: number, data: { content?: string; imageUrl?: string }) =>
     api.post(`/api/v1/challenges/${id}/verify`, data),
   getLeaderboard: (id: number) => api.get(`/api/v1/challenges/${id}/leaderboard`),
+  getVerifications: (id: number) => api.get(`/api/v1/challenges/${id}/verifications`),
   // Admin
   create: (data: object) => api.post("/api/v1/admin/challenges", data),
   update: (id: number, data: object) => api.put(`/api/v1/admin/challenges/${id}`, data),

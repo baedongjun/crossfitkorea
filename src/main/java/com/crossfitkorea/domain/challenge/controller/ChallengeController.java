@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -75,6 +76,13 @@ public class ChallengeController {
     public ResponseEntity<ApiResponse<List<ChallengeDetailDto.LeaderboardEntryDto>>> getLeaderboard(
             @PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(challengeService.getLeaderboard(id)));
+    }
+
+    /** 챌린지 전체 인증 목록 [PUBLIC] */
+    @GetMapping("/challenges/{id}/verifications")
+    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getVerifications(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(challengeService.getPublicVerifications(id)));
     }
 
     // ===== Admin =====

@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -47,6 +48,7 @@ public class AdminDashboardController {
 
     @Operation(summary = "대시보드 통계")
     @GetMapping("/dashboard")
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboard(
             @RequestParam(defaultValue = "6") int months) {
         PageRequest recent5 = PageRequest.of(0, 5, Sort.by("createdAt").descending());
@@ -69,25 +71,31 @@ public class AdminDashboardController {
         stats.put("pendingBoxCount", boxRepository.countByActiveTrueAndVerifiedFalse());
         stats.put("totalWodRecords", wodRecordRepository.count());
         stats.put("totalBadgesAwarded", userBadgeRepository.count());
-        stats.put("recentUsers", recentUsers.stream().map(u -> Map.of(
-            "id", u.getId(),
-            "name", u.getName(),
-            "email", u.getEmail(),
-            "role", u.getRole().name(),
-            "createdAt", u.getCreatedAt().toString()
-        )).collect(Collectors.toList()));
-        stats.put("recentPosts", recentPosts.stream().map(p -> Map.of(
-            "id", p.getId(),
-            "title", p.getTitle(),
-            "userName", p.getUser() != null ? p.getUser().getName() : "알 수 없음",
-            "createdAt", p.getCreatedAt().toString()
-        )).collect(Collectors.toList()));
-        stats.put("pendingBoxes", pendingBoxes.stream().map(b -> Map.of(
-            "id", b.getId(),
-            "name", b.getName(),
-            "city", b.getCity() != null ? b.getCity() : "",
-            "createdAt", b.getCreatedAt().toString()
-        )).collect(Collectors.toList()));
+        stats.put("recentUsers", recentUsers.stream().map(u -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", u.getId());
+            item.put("name", u.getName());
+            item.put("email", u.getEmail());
+            item.put("role", u.getRole().name());
+            item.put("createdAt", u.getCreatedAt() != null ? u.getCreatedAt().toString() : "");
+            return item;
+        }).collect(Collectors.toList()));
+        stats.put("recentPosts", recentPosts.stream().map(p -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", p.getId());
+            item.put("title", p.getTitle());
+            item.put("userName", p.getUser() != null ? p.getUser().getName() : "알 수 없음");
+            item.put("createdAt", p.getCreatedAt() != null ? p.getCreatedAt().toString() : "");
+            return item;
+        }).collect(Collectors.toList()));
+        stats.put("pendingBoxes", pendingBoxes.stream().map(b -> {
+            Map<String, Object> item = new LinkedHashMap<>();
+            item.put("id", b.getId());
+            item.put("name", b.getName());
+            item.put("city", b.getCity() != null ? b.getCity() : "");
+            item.put("createdAt", b.getCreatedAt() != null ? b.getCreatedAt().toString() : "");
+            return item;
+        }).collect(Collectors.toList()));
 
         // Monthly user signups for last N months
         List<Map<String, Object>> monthlySignups = new ArrayList<>();

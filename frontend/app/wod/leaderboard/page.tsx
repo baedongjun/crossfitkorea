@@ -104,8 +104,16 @@ export default function LeaderboardPage() {
 
                   <div className={s.info}>
                     <span className={s.name}>
-                      {entry.userName}
-                      {isMe && <span className={s.meTag}>나</span>}
+                      {isMe ? (
+                        <>
+                          {entry.userName}
+                          <span className={s.meTag}>나</span>
+                        </>
+                      ) : (
+                        <Link href={`/users/${entry.userId}`} className={s.nameLink}>
+                          {entry.userName}
+                        </Link>
+                      )}
                     </span>
                     {entry.notes && <p className={s.notes}>{entry.notes}</p>}
                   </div>

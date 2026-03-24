@@ -141,6 +141,24 @@ public class ChallengeService {
         return buildLeaderboard(challenge);
     }
 
+    /** 챌린지 전체 인증 목록 [PUBLIC] */
+    public List<java.util.Map<String, Object>> getPublicVerifications(Long id) {
+        Challenge challenge = challengeRepository.findByIdAndActiveTrue(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
+        return verificationRepository.findByChallengeOrderByVerifiedDateDesc(challenge)
+                .stream().map(v -> {
+                    java.util.Map<String, Object> item = new java.util.LinkedHashMap<>();
+                    item.put("id", v.getId());
+                    item.put("userId", v.getUser().getId());
+                    item.put("userName", v.getUser().getName());
+                    item.put("profileImageUrl", v.getUser().getProfileImageUrl());
+                    item.put("content", v.getContent());
+                    item.put("imageUrl", v.getImageUrl());
+                    item.put("verifiedDate", v.getVerifiedDate().toString());
+                    return item;
+                }).collect(Collectors.toList());
+    }
+
     /** 내 참여 챌린지 목록 */
     public List<ChallengeDto> getMyChallenges(String email) {
         User user = getUser(email);

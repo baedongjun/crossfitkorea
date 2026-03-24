@@ -103,6 +103,15 @@ public class WodRecordService {
         return dto;
     }
 
+    public Map<String, Object> getStreakInfo(String email) {
+        int streak = calculateStreak(email, LocalDate.now());
+        long total = wodRecordRepository.countByUserEmail(email);
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("currentStreak", streak);
+        result.put("totalWodCount", total);
+        return result;
+    }
+
     public List<WodRecordDto> getLeaderboard(LocalDate date) {
         return wodRecordRepository.findByWodDateOrderByScoreAsc(date)
             .stream().map(r -> toDto(r)).toList();

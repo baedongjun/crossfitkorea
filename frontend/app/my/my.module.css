@@ -36,6 +36,11 @@
 }
 .heroEmail { font-size: 14px; color: var(--muted); }
 .heroBadge { margin-top: 8px; }
+.streakRow { display: flex; align-items: center; gap: 16px; margin-top: 12px; }
+.streakItem { display: flex; flex-direction: column; gap: 2px; }
+.streakVal { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text); line-height: 1; }
+.streakLabel { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+.streakDivider { width: 1px; height: 28px; background: var(--border); }
 
 /* Content */
 .content {

@@ -14,5 +14,7 @@ public interface ChallengeVerificationRepository extends JpaRepository<Challenge
 
     List<ChallengeVerification> findByChallengeAndUserOrderByVerifiedDateAsc(Challenge challenge, User user);
 
+    List<ChallengeVerification> findByChallengeOrderByVerifiedDateDesc(Challenge challenge);
+
     long countByChallengeAndUser(Challenge challenge, User user);
 }

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { userApi, communityApi, uploadApi, boxApi, membershipApi, badgeApi, followApi } from "@/lib/api";
+import { userApi, communityApi, uploadApi, boxApi, membershipApi, badgeApi, followApi, wodRecordApi } from "@/lib/api";
 import { clearAuth } from "@/lib/auth";
 import { Review, Box, BoxMembership, Badge } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
@@ -90,6 +90,12 @@ export default function MyPage() {
     queryFn: async () =>
       (await followApi.getCounts(me.id as number)).data.data as { followerCount: number; followingCount: number },
     enabled: isLoggedIn() && !!me?.id,
+  });
+
+  const { data: streakInfo } = useQuery({
+    queryKey: ["wod", "streak"],
+    queryFn: async () => (await wodRecordApi.getStreak()).data.data as { currentStreak: number; totalWodCount: number },
+    enabled: isLoggedIn(),
   });
 
   useEffect(() => {
@@ -179,6 +185,28 @@ export default function MyPage() {
                 {ROLE_LABEL[user?.role || "ROLE_USER"] || user?.role}
               </span>
             </div>
+            {streakInfo && (
+              <div className={s.streakRow}>
+                <div className={s.streakItem}>
+                  <span className={s.streakVal}>{streakInfo.currentStreak > 0 ? `🔥 ${streakInfo.currentStreak}` : "0"}</span>
+                  <span className={s.streakLabel}>연속 기록</span>
+                </div>
+                <div className={s.streakDivider} />
+                <div className={s.streakItem}>
+                  <span className={s.streakVal}>{streakInfo.totalWodCount}</span>
+                  <span className={s.streakLabel}>총 WOD</span>
+                </div>
+                {followCounts && (
+                  <>
+                    <div className={s.streakDivider} />
+                    <div className={s.streakItem}>
+                      <span className={s.streakVal}>{followCounts.followerCount}</span>
+                      <span className={s.streakLabel}>팔로워</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

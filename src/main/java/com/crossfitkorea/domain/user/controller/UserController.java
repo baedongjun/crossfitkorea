@@ -10,6 +10,7 @@ import com.crossfitkorea.domain.box.service.BoxMembershipService;
 import com.crossfitkorea.domain.badge.repository.UserBadgeRepository;
 import com.crossfitkorea.domain.community.dto.PostDto;
 import com.crossfitkorea.domain.community.entity.Comment;
+import com.crossfitkorea.domain.wod.dto.WodRecordDto;
 import com.crossfitkorea.domain.community.repository.CommentRepository;
 import com.crossfitkorea.domain.community.repository.PostRepository;
 import com.crossfitkorea.domain.follow.repository.FollowRepository;
@@ -191,5 +192,18 @@ public class UserController {
         Page<PostDto> posts = postRepository.findByUserEmailAndActiveTrueOrderByCreatedAtDesc(user.getEmail(), pageable)
                 .map(PostDto::from);
         return ResponseEntity.ok(ApiResponse.success(posts));
+    }
+
+    @Operation(summary = "사용자 WOD 기록 목록 (공개)")
+    @GetMapping("/{id}/wod-records")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<Page<WodRecordDto>>> getUserWodRecords(
+            @PathVariable Long id,
+            @PageableDefault(size = 20) Pageable pageable) {
+        User user = userService.getUserById(id);
+        Page<WodRecordDto> records = wodRecordRepository
+            .findByUserEmailOrderByWodDateDesc(user.getEmail(), pageable)
+            .map(WodRecordDto::from);
+        return ResponseEntity.ok(ApiResponse.success(records));
     }
 }

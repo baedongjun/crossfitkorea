@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { userApi, badgeApi, followApi } from "@/lib/api";
-import { Post } from "@/types";
+import { Post, WodRecord } from "@/types";
 import { Badge, FollowUser } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import dayjs from "dayjs";
@@ -25,7 +25,7 @@ const TIER_COLOR: Record<string, string> = {
   PLATINUM: "#0ea5e9",
 };
 
-type TabType = "badges" | "posts" | "followers" | "following";
+type TabType = "badges" | "posts" | "wod" | "followers" | "following";
 
 export default function UserProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -76,6 +76,13 @@ export default function UserProfilePage() {
     enabled: activeTab === "posts",
   });
   const userPosts: Post[] = userPostsData?.content ?? [];
+
+  const { data: userWodData } = useQuery({
+    queryKey: ["user", userId, "wod-records"],
+    queryFn: async () => (await userApi.getUserWodRecords(userId)).data.data,
+    enabled: activeTab === "wod",
+  });
+  const userWodRecords: WodRecord[] = userWodData?.content ?? [];
 
   const toggleFollowMutation = useMutation({
     mutationFn: () => followApi.toggle(userId),
@@ -213,6 +220,12 @@ export default function UserProfilePage() {
             배지 {badges?.length ?? 0}
           </button>
           <button
+            className={activeTab === "wod" ? s.tabActive : s.tab}
+            onClick={() => setActiveTab("wod")}
+          >
+            WOD
+          </button>
+          <button
             className={activeTab === "posts" ? s.tabActive : s.tab}
             onClick={() => setActiveTab("posts")}
           >
@@ -267,6 +280,43 @@ export default function UserProfilePage() {
               </div>
             )}
           </>
+        )}
+
+        {/* WOD 기록 탭 */}
+        {activeTab === "wod" && (
+          <div className={s.section}>
+            <p className={s.sectionTitle}>WOD 기록</p>
+            {userWodRecords.length === 0 ? (
+              <div className={s.empty}>
+                <div className={s.emptyIcon}>🏋️</div>
+                <p>WOD 기록이 없습니다</p>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {userWodRecords.map((rec: WodRecord) => (
+                  <div
+                    key={rec.id}
+                    style={{ display: "flex", alignItems: "center", gap: 16, background: "var(--bg-card)", border: "1px solid var(--border)", padding: "14px 16px" }}
+                  >
+                    <div style={{ minWidth: 60, flexShrink: 0 }}>
+                      <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 18, color: "var(--red)", margin: 0, lineHeight: 1 }}>{dayjs(rec.wodDate).format("MM.DD")}</p>
+                      <p style={{ fontSize: 10, color: "var(--muted)", margin: "2px 0 0" }}>{dayjs(rec.wodDate).format("YYYY")}</p>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      {rec.wodTitle && <p style={{ fontSize: 13, color: "var(--muted)", margin: "0 0 2px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{rec.wodTitle}</p>}
+                      {rec.score && <p style={{ fontSize: 15, color: "var(--text)", fontWeight: 700, margin: 0 }}>{rec.score}</p>}
+                      {rec.notes && <p style={{ fontSize: 12, color: "var(--muted)", margin: "2px 0 0" }}>{rec.notes}</p>}
+                    </div>
+                    {rec.rx && (
+                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", background: "rgba(232,34,10,0.12)", border: "1px solid rgba(232,34,10,0.3)", color: "var(--red)", flexShrink: 0 }}>
+                        RX
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
 
         {/* 게시글 탭 */}

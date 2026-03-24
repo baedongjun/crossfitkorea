@@ -15,7 +15,7 @@ dayjs.locale("ko");
 export default function AdminDashboard() {
   const [months, setMonths] = useState<3 | 6 | 12>(6);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ["admin", "dashboard", months],
     queryFn: async () => {
       const res = await adminApi.getDashboard(months);
@@ -101,6 +101,18 @@ export default function AdminDashboard() {
       ),
     },
   ];
+
+  if (isError) {
+    return (
+      <div>
+        <h1 className={s.pageTitle}>대시보드</h1>
+        <div style={{ padding: "40px", textAlign: "center", color: "var(--red)", background: "var(--bg-card)", border: "1px solid rgba(232,34,10,0.3)" }}>
+          <p style={{ fontSize: 16, fontWeight: 700 }}>대시보드 데이터를 불러올 수 없습니다.</p>
+          <p style={{ fontSize: 13, color: "var(--muted)", marginTop: 8 }}>서버 로그를 확인해주세요.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

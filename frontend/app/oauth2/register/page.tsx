@@ -69,6 +69,7 @@ function OAuth2RegisterInner() {
       const res = await authApi.registerOAuth2User(token, name.trim(), boxOwner);
       const auth = res.data.data;
       saveAuth({
+        id: auth.id,
         accessToken: auth.accessToken,
         refreshToken: auth.refreshToken,
         email: auth.email,

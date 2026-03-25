@@ -8,6 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import { communityApi, uploadApi } from "@/lib/api";
 import { PostCategory } from "@/types";
 import { toast } from "react-toastify";
+import YouTubeEmbed, { getYouTubeId } from "@/components/common/YouTubeEmbed";
 import s from "./write.module.css";
 
 const CATEGORIES: { value: PostCategory; label: string }[] = [
@@ -25,6 +26,7 @@ export default function CommunityWritePage() {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<PostCategory>("FREE");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [videoUrl, setVideoUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -77,7 +79,7 @@ export default function CommunityWritePage() {
   };
 
   const mutation = useMutation({
-    mutationFn: () => communityApi.createPost({ title, content, category, imageUrls }),
+    mutationFn: () => communityApi.createPost({ title, content, category, imageUrls, videoUrl: videoUrl || undefined }),
     onSuccess: (res) => {
       try { localStorage.removeItem(DRAFT_KEY); } catch {}
       toast.success("게시글이 등록되었습니다.");
@@ -155,6 +157,25 @@ export default function CommunityWritePage() {
                 onChange={(e) => setContent(e.target.value)}
                 maxLength={5000}
               />
+            </div>
+
+            <div className={s.field}>
+              <label className={s.label}>유튜브 영상 URL (선택)</label>
+              <input
+                type="url"
+                className="input-field"
+                placeholder="https://www.youtube.com/watch?v=... 또는 https://youtu.be/..."
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+              />
+              {videoUrl && getYouTubeId(videoUrl) && (
+                <div style={{ marginTop: 12 }}>
+                  <YouTubeEmbed url={videoUrl} />
+                </div>
+              )}
+              {videoUrl && !getYouTubeId(videoUrl) && (
+                <p style={{ fontSize: 12, color: "var(--red)", marginTop: 6 }}>유효한 유튜브 URL을 입력해주세요.</p>
+              )}
             </div>
 
             <div className={s.field}>

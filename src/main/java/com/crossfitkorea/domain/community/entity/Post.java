@@ -50,6 +50,9 @@ public class Post extends BaseEntity {
     @Builder.Default
     private List<String> imageUrls = new ArrayList<>();
 
+    @Column
+    private String videoUrl;    // 유튜브 영상 URL
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "user_id")

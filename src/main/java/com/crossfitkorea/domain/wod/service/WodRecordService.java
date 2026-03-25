@@ -70,6 +70,7 @@ public class WodRecordService {
         record.setScore(request.getScore());
         record.setNotes(request.getNotes());
         record.setRx(request.isRx());
+        record.setVideoUrl(request.getVideoUrl());
 
         WodRecord saved = wodRecordRepository.save(record);
 
@@ -166,6 +167,7 @@ public class WodRecordService {
         record.setScore(request.getScore());
         record.setNotes(request.getNotes());
         record.setRx(request.isRx());
+        record.setVideoUrl(request.getVideoUrl());
         return toDto(wodRecordRepository.save(record));
     }
 

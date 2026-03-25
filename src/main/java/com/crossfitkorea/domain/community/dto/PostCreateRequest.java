@@ -22,4 +22,5 @@ public class PostCreateRequest {
     private PostCategory category;
 
     private List<String> imageUrls;
+    private String videoUrl;
 }

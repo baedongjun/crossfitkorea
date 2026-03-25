@@ -35,6 +35,7 @@ public class ChallengeDetailDto {
         private Long id;
         private String content;
         private String imageUrl;
+        private String videoUrl;
         private LocalDate verifiedDate;
 
         public static VerificationDto from(ChallengeVerification v) {
@@ -42,6 +43,7 @@ public class ChallengeDetailDto {
                     .id(v.getId())
                     .content(v.getContent())
                     .imageUrl(v.getImageUrl())
+                    .videoUrl(v.getVideoUrl())
                     .verifiedDate(v.getVerifiedDate())
                     .build();
         }

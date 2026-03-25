@@ -35,4 +35,6 @@ public class WodRecord extends BaseEntity {
 
     @Builder.Default
     private boolean rx = false; // Rx 수행 여부
+
+    private String videoUrl;    // 유튜브 영상 URL
 }

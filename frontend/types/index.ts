@@ -119,6 +119,7 @@ export interface Post {
   likeCount: number;
   commentCount: number;
   imageUrls: string[];
+  videoUrl?: string;
   userId?: number;
   userName: string;
   userProfileImageUrl: string | null;
@@ -165,6 +166,7 @@ export interface WodRecord {
   score: string | null;
   notes: string | null;
   rx: boolean;
+  videoUrl?: string;
   userName: string;
   boxName: string | null;
   wodTitle?: string;

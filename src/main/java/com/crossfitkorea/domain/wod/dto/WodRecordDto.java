@@ -18,6 +18,7 @@ public class WodRecordDto {
     private String score;
     private String notes;
     private boolean rx;
+    private String videoUrl;
     private String userName;
     private String boxName;   // 유저의 소속 박스명 (없으면 null)
     private String wodTitle;  // 해당 날짜 WOD 제목 (없으면 null, WodRecordService에서 별도 설정)
@@ -32,6 +33,7 @@ public class WodRecordDto {
             .score(record.getScore())
             .notes(record.getNotes())
             .rx(record.isRx())
+            .videoUrl(record.getVideoUrl())
             .userName(record.getUser().getName())
             .boxName(null)   // WodRecordService에서 별도 설정
             .wodTitle(null)  // WodRecordService에서 별도 설정

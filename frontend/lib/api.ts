@@ -301,7 +301,7 @@ export const communityApi = {
   getPost: (id: number) =>
     api.get(`/api/v1/community/posts/${id}`),
 
-  createPost: (data: { title: string; content: string; category: string; imageUrls?: string[] }) =>
+  createPost: (data: { title: string; content: string; category: string; imageUrls?: string[]; videoUrl?: string }) =>
     api.post("/api/v1/community/posts", data),
 
   updatePost: (id: number, data: object) =>
@@ -388,7 +388,7 @@ export const wodRecordApi = {
   getTodayRecord: () =>
     api.get("/api/v1/wod/records/today"),
 
-  saveRecord: (data: { wodDate?: string; score?: string; notes?: string; rx?: boolean }) =>
+  saveRecord: (data: { wodDate?: string; score?: string; notes?: string; rx?: boolean; videoUrl?: string }) =>
     api.post("/api/v1/wod/records", data),
 
   updateRecord: (id: number, data: { score?: string; notes?: string; rx?: boolean }) =>
@@ -567,7 +567,7 @@ export const challengeApi = {
   getMy: () => api.get("/api/v1/challenges/my"),
   join: (id: number) => api.post(`/api/v1/challenges/${id}/join`),
   leave: (id: number) => api.delete(`/api/v1/challenges/${id}/join`),
-  verify: (id: number, data: { content?: string; imageUrl?: string }) =>
+  verify: (id: number, data: { content?: string; imageUrl?: string; videoUrl?: string }) =>
     api.post(`/api/v1/challenges/${id}/verify`, data),
   getLeaderboard: (id: number) => api.get(`/api/v1/challenges/${id}/leaderboard`),
   getVerifications: (id: number) => api.get(`/api/v1/challenges/${id}/verifications`),

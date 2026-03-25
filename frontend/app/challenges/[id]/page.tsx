@@ -9,11 +9,13 @@ import { isLoggedIn, getUser } from "@/lib/auth";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import s from "./challenge-detail.module.css";
+import YouTubeEmbed, { getYouTubeId } from "@/components/common/YouTubeEmbed";
 
 interface VerificationDto {
   id: number;
   content?: string;
   imageUrl?: string;
+  videoUrl?: string;
   verifiedDate: string;
 }
 
@@ -62,6 +64,7 @@ export default function ChallengeDetailPage() {
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imageName, setImageName] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery({
@@ -71,7 +74,7 @@ export default function ChallengeDetailPage() {
 
   interface PublicVerificationItem {
     id: number; userId: number; userName: string; profileImageUrl?: string;
-    content?: string; imageUrl?: string; verifiedDate: string;
+    content?: string; imageUrl?: string; videoUrl?: string; verifiedDate: string;
   }
 
   const { data: allVerifs } = useQuery({
@@ -101,12 +104,13 @@ export default function ChallengeDetailPage() {
   });
 
   const verifyMutation = useMutation({
-    mutationFn: () => challengeApi.verify(id, { content: content || undefined, imageUrl: imageUrl || undefined }),
+    mutationFn: () => challengeApi.verify(id, { content: content || undefined, imageUrl: imageUrl || undefined, videoUrl: videoUrl || undefined }),
     onSuccess: () => {
       toast.success("오늘 인증이 완료됐습니다!");
       setContent("");
       setImageUrl("");
       setImageName("");
+      setVideoUrl("");
       qc.invalidateQueries({ queryKey: ["challenge", id] });
       qc.invalidateQueries({ queryKey: ["challenges"] });
     },
@@ -273,6 +277,20 @@ export default function ChallengeDetailPage() {
                   <span className={s.verifyImageName}>{imageName}</span>
                 )}
               </div>
+              <input
+                type="url"
+                className="input-field"
+                placeholder="유튜브 URL (선택) — https://youtu.be/..."
+                value={videoUrl}
+                onChange={(e) => setVideoUrl(e.target.value)}
+                style={{ marginTop: 8 }}
+              />
+              {videoUrl && getYouTubeId(videoUrl) && (
+                <div style={{ marginTop: 8 }}><YouTubeEmbed url={videoUrl} /></div>
+              )}
+              {videoUrl && !getYouTubeId(videoUrl) && (
+                <p style={{ fontSize: 12, color: "var(--red)", marginTop: 4 }}>유효한 유튜브 URL을 입력해주세요.</p>
+              )}
               <div className={s.verifySubmitRow}>
                 <button
                   className="btn-primary"
@@ -366,6 +384,9 @@ export default function ChallengeDetailPage() {
                     <p style={{ fontSize: 13, color: "var(--text)", marginBottom: 4 }}>{v.userName}</p>
                   )}
                   <p className={s.verifiContent}>{v.content || "(내용 없음)"}</p>
+                  {v.videoUrl && getYouTubeId(v.videoUrl) && (
+                    <div style={{ marginTop: 8 }}><YouTubeEmbed url={v.videoUrl} /></div>
+                  )}
                 </div>
                 {v.imageUrl && (
                   <img src={v.imageUrl} alt="인증 사진" className={s.verifiImage} />
@@ -384,7 +405,12 @@ export default function ChallengeDetailPage() {
             data.myVerifications.map((v) => (
               <div key={v.id} className={s.verifItem}>
                 <span className={s.verifiDate}>{dayjs(v.verifiedDate).format("MM.DD")}</span>
-                <p className={s.verifiContent}>{v.content || "(내용 없음)"}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className={s.verifiContent}>{v.content || "(내용 없음)"}</p>
+                  {v.videoUrl && getYouTubeId(v.videoUrl) && (
+                    <div style={{ marginTop: 8 }}><YouTubeEmbed url={v.videoUrl} /></div>
+                  )}
+                </div>
                 {v.imageUrl && (
                   <img src={v.imageUrl} alt="인증 사진" className={s.verifiImage} />
                 )}

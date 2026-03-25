@@ -829,6 +829,613 @@ Scaled: 14/10 lb, 타겟 높이 동일
 WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-03-31' AND box_id IS NULL);
 
 -- ===========================
+-- 4월 WOD (2026-04-01 ~ 2026-04-30)
+-- ===========================
+
+-- 4/1 (수) EMOM
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-01', 'EMOM 18 — Clean & Pull', 'EMOM',
+'18분 EMOM (홀수/짝수/3의 배수 분 순환):
+분 1: Hang Power Clean 4회 (1RM의 65%)
+분 2: Strict Pull-up 6회
+분 3: Cal Row 12cal
+
+총 6라운드 순환
+
+Scaled: Power Clean 경량 / Ring Row / 10cal
+
+포인트:
+- 클린: 엘보우를 빠르게 앞으로 돌리며 랙 포지션 확보
+- 풀업: 완전 익스텐션 → 턱이 바 위로
+- 로잉: 레그 드라이브 비율 60% 유지',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-01' AND box_id IS NULL);
+
+-- 4/2 (목) AMRAP
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-02', 'AMRAP 15 — Spring Grinder', 'AMRAP',
+'15분 AMRAP:
+- KB Deadlift 12회 (70/53 lb)
+- Hand Release Push-up 10회
+- Box Jump 8회 (24/20 in)
+
+RX: 70 lb KB, 24 in 박스
+Scaled: 53 lb KB, 무릎 푸시업, 20 in 박스
+
+목표: 6라운드 이상
+
+포인트:
+- KB 데드리프트: 힙 힌지로 시작, 허리 중립 필수
+- HR 푸시업: 가슴과 복부를 바닥에 완전히 내려놓기
+- 박스점프: 소프트 랜딩으로 무릎 보호',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-02' AND box_id IS NULL);
+
+-- 4/3 (금) For Time
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-03', '4 RFT — Run & Power', 'FOR_TIME',
+'4 Rounds for time:
+- 400m Run
+- Thruster 12회 (95/65 lb)
+- Toes-to-Bar 10회
+
+Time cap: 22분
+
+RX: 95 lb(남) / 65 lb(여)
+Scaled: 65/45 lb, Knee Raise
+
+포인트:
+- 런 후 호흡 조절 하고 쓰러스터 시작
+- 쓰러스터: 스쿼트 바텀에서 폭발적 드라이브
+- T2B: 짧게 분할해도 OK, 리듬 유지가 핵심',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-03' AND box_id IS NULL);
+
+-- 4/4 (토) 파트너 WOD
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-04', 'Partner WOD — Relay', 'AMRAP',
+'30분 AMRAP (2인 파트너, 교대):
+- Row 250m
+- Burpee Over Bar 10회
+- Power Snatch 5회 (95/65 lb)
+
+한 명이 전체 1라운드 완료 후 교대
+파트너는 플랭크 자세로 대기
+
+RX: 95/65 lb
+Scaled: 65/45 lb
+
+목표: 팀 합산 14라운드 이상
+
+혼자 할 경우:
+20분 AMRAP — Row 200m, Burpee 6회, Hang Power Snatch 5회',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-04' AND box_id IS NULL);
+
+-- 4/5 (일) 휴식
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-05', '휴식의 날', 'REST_DAY',
+'오늘은 완전한 휴식을 취하세요.
+
+추천 활동:
+- 20~30분 가벼운 걷기 또는 자전거
+- 폼롤러 근막 이완
+- 충분한 수면 (8시간 이상)
+
+봄이 왔습니다. 야외에서 가볍게 산책하며 리프레시하세요.',
+NULL, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-05' AND box_id IS NULL);
+
+-- 4/6 (월) 근력 — 백 스쿼트
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-06', '백 스쿼트 3x3 (Heavy)', 'STRENGTH',
+'웜업: 빈 바 x10 → 50% x5 → 65% x3 → 75% x2
+
+본 세트:
+Back Squat 3 x 3 (1RM의 85~90%)
+→ 세트 간 휴식 3분
+
+보조 운동:
+- Paused Squat 3 x 5 (70%, 2초 홀드)
+
+포인트:
+- 바 위치: 로우 바 or 하이 바 본인 스타일 유지
+- 코어 브레이싱: 숨을 참고 복압 유지
+- 무릎이 안쪽으로 무너지지 않도록
+- 벨트 착용 권장',
+'WEIGHT', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-06' AND box_id IS NULL);
+
+-- 4/7 (화) Grace (벤치마크)
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-07', 'Grace', 'FOR_TIME',
+'For time:
+30 Clean & Jerk (135/95 lb)
+
+★ CrossFit 벤치마크 WOD
+목표 시간: 서브 5분
+엘리트: 서브 2분
+
+RX: 135 lb(남) / 95 lb(여)
+Scaled: 95 lb(남) / 65 lb(여)
+
+분할 전략 (예시):
+- 5 x 6세트
+- 3-3-3-3 반복
+- 싱글로 처리도 OK
+
+포인트:
+- 클린: 터치 앤 고 가능하면 사용
+- 저크: 딥-드라이브 타이밍, 완전 록아웃
+- 바를 내려놓지 않고 터치 앤 고 유지가 목표',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-07' AND box_id IS NULL);
+
+-- 4/8 (수) EMOM
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-08', 'EMOM 16 — Squat & Swing', 'EMOM',
+'16분 EMOM (짝수/홀수 분 교대):
+홀수 분: Front Squat 4회 (1RM의 72%)
+짝수 분: American KB Swing 12회 (53/35 lb)
+
+총 8세트 Front Squat + 8세트 KB Swing
+
+Scaled: 경량 프론트 스쿼트, 35/26 lb KB
+
+포인트:
+- 프론트 스쿼트: 엘보우 높게 유지, 토르소 직립
+- KB 아메리칸 스윙: 오버헤드에서 완전 록아웃
+- 각 분당 15초 이상 휴식 확보',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-08' AND box_id IS NULL);
+
+-- 4/9 (목) AMRAP
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-09', 'AMRAP 18 — Chipper Light', 'AMRAP',
+'18분 AMRAP:
+- Deadlift 9회 (185/125 lb)
+- Hang Power Clean 6회 (185/125 lb)
+- Push Jerk 3회 (185/125 lb)
+
+★ 바를 내려놓지 않고 이어가는 콤플렉스 도전
+Scaled: 135/95 lb
+
+목표: 5라운드 이상
+
+포인트:
+- 같은 무게로 3가지 동작 연속 수행
+- 데드리프트에서 호흡 조절 후 파워클린으로 전환
+- 저크: 스플릿 or 파워 저크 허용',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-09' AND box_id IS NULL);
+
+-- 4/10 (금) For Time
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-10', '21-18-15-12-9 — Push & Pull', 'FOR_TIME',
+'For time (21-18-15-12-9):
+- Push-up
+- Ring Row
+
+Time cap: 15분
+
+RX: 표준 푸시업 + 수평 링로우
+Scaled: 무릎 푸시업 + 링로우 (각도 조절)
+
+포인트:
+- 완전 익스텐션과 완전 굴곡 확인
+- 피로해질수록 코어 유지가 핵심
+- 링로우: 몸이 수평에 가까울수록 강도 높아짐
+- 작은 세트로 자주 쉬는 것보다 큰 세트로 진행 권장',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-10' AND box_id IS NULL);
+
+-- 4/11 (토) 오픈 스타일 WOD
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-11', 'Open Style — AMRAP 20', 'AMRAP',
+'20분 AMRAP:
+- Chest-to-Bar Pull-up 5회
+- Wall Ball 10회 (20/14 lb)
+- Double Under 30회
+
+RX: C2B 풀업, 20 lb 월볼
+Scaled: 일반 풀업, 14 lb 월볼, Single Under 60회
+
+목표: 10라운드 이상
+
+크로스핏 오픈 스타일 WOD입니다.
+자신의 한계에 도전해보세요!
+
+포인트:
+- C2B: 가슴이 바에 확실히 닿아야 유효
+- 월볼: 타겟 고도 일정하게 유지
+- 더블언더: 리듬 잃으면 잠깐 멈추고 재시작',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-11' AND box_id IS NULL);
+
+-- 4/12 (일) 액티브 리커버리
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-12', '액티브 리커버리', 'REST_DAY',
+'완전 휴식 또는 가벼운 활동:
+- 20~30분 가벼운 조깅 또는 자전거
+- 요가 / 모빌리티 루틴
+- 폼롤러 (등, 햄스트링, 종아리)
+
+이번 주 훈련을 돌아보세요:
+- 어떤 동작이 가장 개선됐나요?
+- 다음 주 집중할 부분은?
+
+회복이 잘 돼야 다음 주도 강하게 달릴 수 있습니다.',
+NULL, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-12' AND box_id IS NULL);
+
+-- 4/13 (월) 근력 — 숄더 프레스
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-13', '스트릭 숄더 프레스 5-3-1', 'STRENGTH',
+'웜업: 빈 바 x10 → 50% x5 → 65% x3
+
+본 세트 (5-3-1 방식):
+Set 1: 5회 (1RM의 75%)
+Set 2: 3회 (1RM의 85%)
+Set 3: 1회+ (1RM의 95%, 최대 반복)
+
+보조:
+- DB Lateral Raise 3 x 15
+- Face Pull 3 x 15
+
+포인트:
+- 글루트와 복부를 조여 허리 과신전 방지
+- 시선은 정면 고정, 바가 얼굴을 스치듯 올라가야
+- 마지막 세트는 가능한 많이 반복 (AMRAP)',
+'WEIGHT', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-13' AND box_id IS NULL);
+
+-- 4/14 (화) AMRAP
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-14', 'AMRAP 12 — Row & Bar', 'AMRAP',
+'12분 AMRAP:
+- Row 200m
+- Hang Squat Clean 5회 (115/75 lb)
+- Bar Muscle-up 3회
+
+RX: 115/75 lb, Bar Muscle-up
+Scaled: 75/55 lb, Box Jump + Pull-up
+
+목표: 4라운드 이상
+
+포인트:
+- 로잉: 스트로크 수 줄이고 파워 높이기
+- 행 스쿼트 클린: 풀 스쿼트 바텀 캐치
+- 바 머슬업: 힙 드라이브 + 빠른 전환',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-14' AND box_id IS NULL);
+
+-- 4/15 (수) EMOM
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-15', 'EMOM 20 — 스프린트 인터벌', 'EMOM',
+'20분 EMOM:
+홀수 분: Sprint 100m (또는 Cal Bike 6cal)
+짝수 분: Burpee Box Jump Over 6회 (24/20 in)
+
+총 10세트 스프린트 + 10세트 BBJ
+
+Scaled: 80m Sprint, Step Over
+
+포인트:
+- 스프린트: 최대 강도로 달리고 남은 시간 완전 휴식
+- 박스점프 오버: 박스 위에서 멈추지 말고 바로 넘기
+- 후반 라운드에서도 초반 강도 유지가 목표',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-15' AND box_id IS NULL);
+
+-- 4/16 (목) Annie (벤치마크)
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-16', 'Annie', 'FOR_TIME',
+'For time (50-40-30-20-10):
+- Double Under
+- Sit-up
+
+★ CrossFit 벤치마크 WOD
+목표 시간: 서브 10분
+엘리트: 서브 6분
+
+Scaled: Single Under (2배 횟수) + Sit-up
+
+더블언더 분할 전략:
+- 50개: 25-25 또는 연속 도전
+- 40개: 20-20
+- 이후: 작게 나눠서 리듬 유지
+
+포인트:
+- 더블언더: 손목 스냅으로 줄 속도 조절
+- 싯업: 발을 고정하고 완전한 레인지 확보
+- 빠른 전환이 타임 단축의 핵심',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-16' AND box_id IS NULL);
+
+-- 4/17 (금) 스킬
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-17', '핸드스탠드 스킬 & HSPU', 'SKILL',
+'핸드스탠드 스킬 (30분):
+1. 벽 워크업 x 5회
+2. 핸드스탠드 홀드 3 x max (벽 보조)
+3. HSPU 5 x max (가능한 경우)
+
+모빌리티 루틴:
+- 어깨 외회전 스트레칭 각 2분
+- 흉추 익스텐션 (폼롤러) 3분
+- 손목 서클 & 익스텐션
+
+초급자:
+- 파이크 푸시업 4 x 8
+- 인버티드 로우 4 x 8
+
+기록보다 움직임의 질에 집중하는 날입니다.',
+NULL, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-17' AND box_id IS NULL);
+
+-- 4/18 (토) For Time (긴 WOD)
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-18', 'The Seven (Scaled)', 'FOR_TIME',
+'7 Rounds for time:
+- Handstand Push-up 7회
+- Thruster 7회 (135/95 lb)
+- Knees-to-Elbow 7회
+- Deadlift 7회 (245/165 lb)
+- Sumo Deadlift High Pull 7회 (75/55 lb)
+- Push Jerk 7회 (135/95 lb)
+- KB Swing 7회 (53/35 lb)
+
+Time cap: 45분
+
+Scaled: Pike Push-up, 경량 무게, K2C
+
+포인트:
+- 7가지 동작이 모두 다른 패턴이라 근육 회복 됨
+- 무거운 세트는 1~2회씩 끊어도 OK
+- 전체 시간이 길기 때문에 페이스 관리가 핵심',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-18' AND box_id IS NULL);
+
+-- 4/19 (일) 휴식
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-19', '휴식의 날', 'REST_DAY',
+'완전한 휴식을 취하세요.
+
+추천 활동:
+- 충분한 수면 (8시간 이상)
+- 고단백 식단으로 근육 회복
+- 가벼운 산책 또는 스트레칭
+
+이번 주도 수고하셨습니다.
+다음 주도 더 강해진 모습으로 돌아오세요!',
+NULL, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-19' AND box_id IS NULL);
+
+-- 4/20 (월) 근력 — 클린 1RM
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-20', 'Power Clean 1RM 도전', 'STRENGTH',
+'웜업: 빈 바 x10 → 50% x5 → 65% x3 → 75% x2 → 85% x1
+
+본 세트: Power Clean 1RM 도전 (최대 3회 시도)
+
+1RM 달성 후:
+- 75% x 3 x 4세트 (스피드 중점)
+
+포인트:
+- 첫 풀: 바를 허벅지에 붙여서 천천히
+- 세컨드 풀: 폭발적 힙 익스텐션
+- 캐치: 발이 빠르게 옆으로 벌어지며 스쿼트 자세 없이 캐치
+- 어깨는 항상 바 위 또는 앞에 위치',
+'WEIGHT', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-20' AND box_id IS NULL);
+
+-- 4/21 (화) For Time
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-21', '5 RFT — Jump & Lift', 'FOR_TIME',
+'5 Rounds for time:
+- Box Jump 15회 (24/20 in)
+- KB Clean & Press 10회 (53/35 lb)
+- V-up 15회
+
+Time cap: 20분
+
+RX: 24 in 박스, 53 lb KB 각 손
+Scaled: 20 in 박스, 35 lb KB, Sit-up
+
+포인트:
+- 박스점프: 두 발 동시 이륙, 소프트 랜딩
+- KB 클린&프레스: 클린으로 랙 포지션 → 프레스
+- V-up: 팔과 다리를 동시에 올려 상단에서 터치',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-21' AND box_id IS NULL);
+
+-- 4/22 (수) AMRAP
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-22', 'AMRAP 16 — Engine Builder', 'AMRAP',
+'16분 AMRAP:
+- Cal Ski Erg 14cal (또는 Row 200m)
+- Wall Ball 12회 (20/14 lb)
+- Chest-to-Bar Pull-up 6회
+
+RX: Ski Erg 또는 Row, 20 lb 월볼, C2B
+Scaled: Row, 14 lb 월볼, 일반 풀업
+
+목표: 6라운드 이상
+
+포인트:
+- 스키/로잉: 꾸준한 리듬 유지, 스프린트 금지
+- 월볼: 스쿼트 연속으로 리듬 유지
+- C2B: 가슴이 바에 닿는 시점 의식하기',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-22' AND box_id IS NULL);
+
+-- 4/23 (목) EMOM
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-23', 'EMOM 15 — Snatch Technique', 'EMOM',
+'15분 EMOM:
+분 1~5: Hang Power Snatch 3회 (1RM의 65%, 기술 집중)
+분 6~10: Power Snatch 2회 (1RM의 75%)
+분 11~15: Full Squat Snatch 1회 (1RM의 80%)
+
+무게를 점진적으로 올려가며 기술 완성
+
+Scaled: 전 세션 Hang Power Snatch, 가벼운 무게
+
+포인트:
+- 첫 5분: 풀 익스텐션과 빠른 언더 포지션 연습
+- 중반: 무게 올리며 타이밍 유지
+- 후반: 스쿼트 캐치 자세 안정화',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-23' AND box_id IS NULL);
+
+-- 4/24 (금) DT (벤치마크)
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-24', 'DT', 'FOR_TIME',
+'5 Rounds for time:
+- Deadlift 12회 (155/105 lb)
+- Hang Power Clean 9회 (155/105 lb)
+- Push Jerk 6회 (155/105 lb)
+
+★ CrossFit 영웅 WOD
+목표 시간: 서브 10분
+엘리트: 서브 6분
+
+RX: 155 lb(남) / 105 lb(여)
+Scaled: 115/75 lb
+
+포인트:
+- 바를 내려놓지 않고 이어가는 것이 목표
+- 데드리프트: 터치 앤 고 or 데드 스탑 선택
+- 클린: 헝 포지션에서 폭발적 힙
+- 저크: 완전한 딥-드라이브, 풀 록아웃',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-24' AND box_id IS NULL);
+
+-- 4/25 (토) Long WOD
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-25', 'Tough 30 — For Time', 'FOR_TIME',
+'For time:
+- 1마일 Run (약 1.6km)
+- 100 Pull-up
+- 200 Push-up
+- 300 Air Squat
+- 1마일 Run
+
+Time cap: 60분
+
+RX+: 9kg 조끼
+RX: 조끼 없이
+Scaled: 800m Run, Pull-up → Ring Row, 무릎 푸시업
+
+파티션 허용 (Pull-up/Push-up/Squat 자유롭게 분할)
+
+포인트:
+- 처음 런에서 페이스 아끼기
+- 풀업은 3~5개씩 자주 쉬는 전략 권장
+- 마지막 런은 남은 에너지 모두 쏟아내세요',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-25' AND box_id IS NULL);
+
+-- 4/26 (일) 휴식
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-26', '액티브 리커버리', 'REST_DAY',
+'완전 휴식 또는 가벼운 활동:
+- 20~30분 걷기 또는 가벼운 조깅
+- 요가 스트레칭
+- 폼롤러 근막 이완 (등, 허벅지, 종아리)
+
+이번 주를 되돌아보세요:
+가장 잘 한 동작은 무엇인가요?
+다음 주에 더 집중할 부분은?',
+NULL, true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-26' AND box_id IS NULL);
+
+-- 4/27 (월) 근력 — 데드리프트
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-27', '데드리프트 3x5 (Progressive)', 'STRENGTH',
+'웜업: 빈 바 x10 → 50% x5 → 65% x3
+
+본 세트:
+Deadlift 3 x 5
+→ 세트 1: 75% / 세트 2: 80% / 세트 3: 85%
+→ 세트 간 휴식 2~3분
+
+보조:
+- Romanian Deadlift 3 x 8 (60%)
+- Plank 3 x 45초
+
+포인트:
+- 발은 힙 너비, 발가락 약간 외회전
+- 바는 정강이에 닿게 시작 자세
+- 억지로 가슴 올리려 하지 말고 자연스럽게
+- 내려올 때도 허리 중립 유지',
+'WEIGHT', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-27' AND box_id IS NULL);
+
+-- 4/28 (화) AMRAP
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-28', 'AMRAP 14 — April Finisher', 'AMRAP',
+'14분 AMRAP:
+- Sumo Deadlift High Pull 10회 (75/55 lb)
+- Box Jump 8회 (24/20 in)
+- Push-up 12회
+- Sit-up 15회
+
+RX: 75 lb, 24 in 박스
+Scaled: 55 lb, 20 in 박스, 무릎 푸시업
+
+목표: 6라운드 이상
+
+포인트:
+- SDHP: 팔꿈치를 높게, 바를 몸에 붙여서
+- 박스점프: 완전한 힙 익스텐션 후 착지
+- 푸시업 + 싯업: 피로 쌓여도 일정 페이스 유지',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-28' AND box_id IS NULL);
+
+-- 4/29 (수) EMOM
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-29', 'EMOM 18 — Conditioning Mix', 'EMOM',
+'18분 EMOM (3가지 순환):
+분 1: Thruster 6회 (95/65 lb)
+분 2: Toes-to-Bar 8회
+분 3: Double Under 30회
+
+총 6라운드 순환
+
+Scaled: 65/45 lb, Knee Raise, Single Under 60회
+
+포인트:
+- 쓰러스터: 스쿼트와 프레스를 끊지 않고 연결
+- T2B: 코어를 먼저 수축하고 다리를 올리기
+- 더블언더: 실패해도 빠르게 재시작하는 멘탈이 중요',
+'ROUNDS', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-29' AND box_id IS NULL);
+
+-- 4/30 (목) Jackie (벤치마크)
+INSERT INTO wods (box_id, wod_date, title, type, content, score_type, active, created_at, updated_at)
+SELECT NULL, '2026-04-30', 'Jackie', 'FOR_TIME',
+'For time:
+- Row 1,000m
+- Thruster 50회 (45/35 lb)
+- Pull-up 30회
+
+★ CrossFit 벤치마크 WOD
+목표 시간: 서브 10분
+엘리트: 서브 7분
+
+RX: 45 lb(남) / 35 lb(여)
+Scaled: 경량 바, Ring Row
+
+포인트:
+- 로잉: 일정한 스플릿 타임 유지 (서브2분 페이스)
+- 쓰러스터: 가벼운 무게이므로 큰 세트 도전 (15-10-10-15)
+- 풀업: 마지막에 오니 분할 전략 필수
+- 4월 마지막 WOD! 이번 달의 성장을 확인하세요.',
+'TIME', true, NOW(), NOW()
+WHERE NOT EXISTS (SELECT 1 FROM wods WHERE wod_date = '2026-04-30' AND box_id IS NULL);
+
+-- ===========================
 -- 대회 데이터 (2026년 3~5월, 12개)
 -- ===========================
 

@@ -72,6 +72,7 @@ public class PostService {
             .content(request.getContent())
             .category(request.getCategory())
             .imageUrls(request.getImageUrls() != null ? request.getImageUrls() : List.of())
+            .videoUrl(request.getVideoUrl())
             .build();
 
         PostDto result = PostDto.from(postRepository.save(post));
@@ -94,6 +95,7 @@ public class PostService {
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         post.setCategory(request.getCategory());
+        post.setVideoUrl(request.getVideoUrl());
 
         return PostDto.from(post);
     }

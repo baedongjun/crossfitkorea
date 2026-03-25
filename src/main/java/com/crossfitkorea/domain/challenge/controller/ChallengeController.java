@@ -67,7 +67,7 @@ public class ChallengeController {
             @PathVariable Long id,
             @RequestBody ChallengeVerifyRequest req,
             @AuthenticationPrincipal UserDetails userDetails) {
-        challengeService.verify(id, userDetails.getUsername(), req.getContent(), req.getImageUrl());
+        challengeService.verify(id, userDetails.getUsername(), req.getContent(), req.getImageUrl(), req.getVideoUrl());
         return ResponseEntity.ok(ApiResponse.success("인증이 완료됐습니다.", null));
     }
 

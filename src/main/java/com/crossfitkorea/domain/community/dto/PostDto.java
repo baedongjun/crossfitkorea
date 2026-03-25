@@ -21,6 +21,7 @@ public class PostDto {
     private int likeCount;
     private int commentCount;
     private List<String> imageUrls;
+    private String videoUrl;
     private String userName;
     private String userProfileImageUrl;
     private LocalDateTime createdAt;
@@ -38,6 +39,7 @@ public class PostDto {
             .likeCount(post.getLikeCount())
             .commentCount(post.getCommentCount())
             .imageUrls(post.getImageUrls())
+            .videoUrl(post.getVideoUrl())
             .userName(post.getUser().getName())
             .userProfileImageUrl(post.getUser().getProfileImageUrl())
             .createdAt(post.getCreatedAt())

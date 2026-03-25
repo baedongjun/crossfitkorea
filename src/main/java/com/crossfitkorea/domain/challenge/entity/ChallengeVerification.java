@@ -33,6 +33,9 @@ public class ChallengeVerification extends BaseEntity {
     @Column
     private String imageUrl;
 
+    @Column
+    private String videoUrl;
+
     @Column(nullable = false)
     private LocalDate verifiedDate;
 }

@@ -110,7 +110,7 @@ public class ChallengeService {
 
     /** 오늘 인증 (하루 1회) */
     @Transactional
-    public void verify(Long id, String email, String content, String imageUrl) {
+    public void verify(Long id, String email, String content, String imageUrl, String videoUrl) {
         Challenge challenge = challengeRepository.findByIdAndActiveTrue(id)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CHALLENGE_NOT_FOUND));
         User user = getUser(email);
@@ -128,6 +128,7 @@ public class ChallengeService {
                 .user(user)
                 .content(content)
                 .imageUrl(imageUrl)
+                .videoUrl(videoUrl)
                 .verifiedDate(today)
                 .build());
 

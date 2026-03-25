@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
 import s from "./post.module.css";
+import YouTubeEmbed from "@/components/common/YouTubeEmbed";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -312,6 +313,12 @@ export default function PostDetailPage() {
                   <Image src={url} alt="" fill style={{ objectFit: "cover" }} />
                 </div>
               ))}
+            </div>
+          )}
+
+          {post.videoUrl && (
+            <div style={{ marginTop: 16 }}>
+              <YouTubeEmbed url={post.videoUrl} />
             </div>
           )}
 

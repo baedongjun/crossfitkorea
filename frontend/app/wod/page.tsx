@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import "dayjs/locale/ko";
 import s from "./wod.module.css";
+import YouTubeEmbed, { getYouTubeId } from "@/components/common/YouTubeEmbed";
 
 dayjs.locale("ko");
 
@@ -58,6 +59,7 @@ export default function WodPage() {
   const [recordScore, setRecordScore] = useState("");
   const [recordNotes, setRecordNotes] = useState("");
   const [recordRx, setRecordRx] = useState(false);
+  const [recordVideoUrl, setRecordVideoUrl] = useState("");
   const [showRecordForm, setShowRecordForm] = useState(false);
   const queryClient = useQueryClient();
 
@@ -101,6 +103,7 @@ export default function WodPage() {
       score: recordScore || undefined,
       notes: recordNotes || undefined,
       rx: recordRx,
+      videoUrl: recordVideoUrl || undefined,
     }),
     onSuccess: (res) => {
       const data = res.data.data;
@@ -112,6 +115,7 @@ export default function WodPage() {
         toast.success("기록이 저장되었습니다.");
       }
       setShowRecordForm(false);
+      setRecordVideoUrl("");
       queryClient.invalidateQueries({ queryKey: ["wod", "record"] });
     },
     onError: () => toast.error("기록 저장에 실패했습니다."),
@@ -263,6 +267,7 @@ export default function WodPage() {
                       setRecordScore(todayRecord.score || "");
                       setRecordNotes(todayRecord.notes || "");
                       setRecordRx(todayRecord.rx);
+                      setRecordVideoUrl(todayRecord.videoUrl || "");
                       setShowRecordForm(true);
                     }}
                   >
@@ -309,6 +314,22 @@ export default function WodPage() {
                     value={recordNotes}
                     onChange={(e) => setRecordNotes(e.target.value)}
                   />
+                </div>
+                <div className={s.recordFormField}>
+                  <label className={s.recordFormLabel}>유튜브 URL (선택)</label>
+                  <input
+                    className="input-field"
+                    type="url"
+                    placeholder="https://youtu.be/..."
+                    value={recordVideoUrl}
+                    onChange={(e) => setRecordVideoUrl(e.target.value)}
+                  />
+                  {recordVideoUrl && getYouTubeId(recordVideoUrl) && (
+                    <div style={{ marginTop: 8 }}><YouTubeEmbed url={recordVideoUrl} /></div>
+                  )}
+                  {recordVideoUrl && !getYouTubeId(recordVideoUrl) && (
+                    <p style={{ fontSize: 12, color: "var(--red)", marginTop: 4 }}>유효한 유튜브 URL을 입력해주세요.</p>
+                  )}
                 </div>
                 <div className={s.recordFormActions}>
                   <button

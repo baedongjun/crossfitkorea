@@ -20,27 +20,12 @@ export default function BoxMap({ boxes }: BoxMapProps) {
   const mapInstanceRef = useRef<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const clustererRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const openInfoRef = useRef<any>(null);
 
   // 항상 최신 boxes를 가리키는 ref — 렌더마다 동기 업데이트
   const boxesRef = useRef<Box[]>(boxes);
   boxesRef.current = boxes;
-
-  // SVG 마커 이미지 생성
-  const makeMarkerImage = (color: string, size = 36) => {
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 8}" viewBox="0 0 36 44">
-        <circle cx="18" cy="18" r="16" fill="${color}" opacity="0.95"/>
-        <circle cx="18" cy="18" r="10" fill="white" opacity="0.25"/>
-        <text x="18" y="23" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="13" fill="white" font-weight="bold">CF</text>
-        <polygon points="12,32 24,32 18,42" fill="${color}" opacity="0.95"/>
-      </svg>`.trim();
-    const encoded = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-    return new window.kakao.maps.MarkerImage(
-      encoded,
-      new window.kakao.maps.Size(size, size + 8),
-      { offset: new window.kakao.maps.Point(size / 2, size + 8) }
-    );
-  };
 
   // 마커 갱신
   const updateMarkers = (bxs: Box[]) => {
@@ -53,44 +38,53 @@ export default function BoxMap({ boxes }: BoxMapProps) {
     const markers = bxs
       .filter((box) => box.latitude && box.longitude)
       .map((box) => {
-        // premium: 오렌지, verified: 레드, 일반: 회색
-        const color = box.premium ? "#ff6b1a" : box.verified ? "#e8220a" : "#555555";
-        const markerImage = makeMarkerImage(color);
+        const color = box.premium ? "#ff6b1a" : box.verified ? "#e8220a" : "#888888";
 
         const marker = new window.kakao.maps.Marker({
           position: new window.kakao.maps.LatLng(box.latitude, box.longitude),
           title: box.name,
-          image: markerImage,
         });
 
         const badgeHtml = box.premium
-          ? `<span style="display:inline-block;background:#ff6b1a;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;margin-left:6px;vertical-align:middle">PREMIUM</span>`
+          ? `<span style="background:#ff6b1a;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;white-space:nowrap">PREMIUM</span>`
           : box.verified
-          ? `<span style="display:inline-block;background:#e8220a;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;margin-left:6px;vertical-align:middle">인증</span>`
+          ? `<span style="background:#e8220a;color:#fff;font-size:10px;font-weight:700;padding:1px 5px;white-space:nowrap">인증</span>`
           : "";
 
         const ratingHtml = box.rating
-          ? `<span style="font-size:12px;color:#eab308;margin-right:4px">★</span><span style="font-size:12px;color:#888">${Number(box.rating).toFixed(1)}</span>`
+          ? `<span style="color:#eab308;font-size:12px">★</span><span style="color:#aaa;font-size:12px"> ${Number(box.rating).toFixed(1)}</span>`
           : "";
 
         const infoWindow = new window.kakao.maps.InfoWindow({
           content: `
-            <div style="padding:12px 14px;min-width:180px;max-width:220px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-top:3px solid ${color}">
-              <p style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#f5f0e8;margin:0 0 2px;display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-                ${box.name}${badgeHtml}
-              </p>
-              <p style="font-size:12px;color:#888;margin:0 0 6px">${box.city} ${box.district}</p>
-              <div style="display:flex;align-items:center;justify-content:space-between">
-                <div>${ratingHtml}</div>
-                <a href="/boxes/${box.id}" style="font-size:12px;color:${color};font-weight:700;text-decoration:none">상세 보기 →</a>
+            <div style="
+              background:#1a1a1a;
+              border:1px solid rgba(255,255,255,0.12);
+              border-top:3px solid ${color};
+              padding:10px 12px;
+              min-width:160px;
+              max-width:200px;
+              font-family:sans-serif;
+            ">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px">
+                <span style="font-size:13px;font-weight:700;color:#f5f0e8;line-height:1.3">${box.name}</span>
+                ${badgeHtml}
               </div>
-            </div>
-          `,
+              <p style="font-size:11px;color:#888;margin:0 0 8px">${box.city} ${box.district}</p>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span>${ratingHtml}</span>
+                <a href="/boxes/${box.id}" style="font-size:11px;color:${color};font-weight:700;text-decoration:none">상세 보기 →</a>
+              </div>
+            </div>`,
           removable: true,
         });
 
         window.kakao.maps.event.addListener(marker, "click", () => {
+          if (openInfoRef.current && openInfoRef.current !== infoWindow) {
+            openInfoRef.current.close();
+          }
           infoWindow.open(map, marker);
+          openInfoRef.current = infoWindow;
         });
 
         return marker;
@@ -115,26 +109,25 @@ export default function BoxMap({ boxes }: BoxMapProps) {
       minLevel: 6,
       disableClickZoom: false,
       styles: [{
-        width: "53px",
-        height: "52px",
-        background: "rgba(232, 34, 10, 0.8)",
-        color: "#f5f0e8",
+        width: "46px",
+        height: "46px",
+        background: "rgba(232,34,10,0.85)",
+        color: "#fff",
         textAlign: "center",
         fontWeight: "bold",
-        lineHeight: "52px",
-        fontSize: "14px",
+        lineHeight: "46px",
+        fontSize: "13px",
+        borderRadius: "23px",
       }],
     });
     clustererRef.current = clusterer;
 
-    // 클로저의 stale boxes 대신 ref로 최신 boxes 사용
     updateMarkers(boxesRef.current);
   };
 
   // 카카오 SDK 로드 및 지도 초기화 (마운트 시 1회)
   useEffect(() => {
     const load = () => {
-      // maps.Map이 이미 존재하면 완전히 로드된 상태 → 직접 초기화
       if (window.kakao.maps.Map) {
         initMap();
       } else {
@@ -147,7 +140,6 @@ export default function BoxMap({ boxes }: BoxMapProps) {
       return;
     }
 
-    // 이미 다른 페이지에서 스크립트가 삽입돼 있으면 load 이벤트 대기
     const existing = document.querySelector(`script[src*="dapi.kakao.com/v2/maps"]`) as HTMLScriptElement | null;
     if (existing) {
       existing.addEventListener("load", load);
@@ -192,21 +184,20 @@ export default function BoxMap({ boxes }: BoxMapProps) {
           border: "1px solid rgba(255,255,255,0.1)",
           padding: "8px 12px",
           display: "flex", flexDirection: "column", gap: 4,
-          backdropFilter: "blur(4px)",
         }}>
           <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "1px", color: "#888", textTransform: "uppercase", margin: "0 0 4px" }}>
-            마커 범례 · 총 {hasCoords}개
+            총 {hasCoords}개 박스
           </p>
           {premiumCount > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff6b1a", flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: "#f5f0e8" }}>프리미엄 박스 ({premiumCount})</span>
+              <span style={{ fontSize: 11, color: "#f5f0e8" }}>프리미엄 ({premiumCount})</span>
             </div>
           )}
           {verifiedCount > 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
               <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#e8220a", flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: "#f5f0e8" }}>인증 박스 ({verifiedCount})</span>
+              <span style={{ fontSize: 11, color: "#f5f0e8" }}>인증 ({verifiedCount})</span>
             </div>
           )}
         </div>

@@ -355,3 +355,9 @@
   .scheduleItem { grid-template-columns: 48px 1fr; }
   .scheduleTime, .scheduleCap { display: none; }
 }
+
+@media (max-width: 440px) {
+  .inner { padding: 20px 16px; }
+  .title { font-size: 28px; }
+  .boxStats { grid-template-columns: 1fr 1fr; gap: 8px; }
+}

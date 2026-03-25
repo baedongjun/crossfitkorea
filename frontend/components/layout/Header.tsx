@@ -293,7 +293,7 @@ export default function Header() {
                 <Link href="/my/box" className="btn-secondary" onClick={() => setOpen(false)} style={{ textAlign: "center" }}>내 박스 관리</Link>
               )}
               <Link href="/my" className="btn-secondary" onClick={() => setOpen(false)}>마이페이지</Link>
-              <button onClick={logout} className="btn-secondary" style={{ flex: 1, padding: 12 }}>로그아웃</button>
+              <button onClick={() => { logout(); setOpen(false); }} className="btn-secondary">로그아웃</button>
             </>
           ) : (
             <>

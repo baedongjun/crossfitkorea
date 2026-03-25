@@ -141,7 +141,7 @@
 }
 .mobileMenuOpen {
   display: block;
-  max-height: 520px;
+  max-height: 700px;
 }
 
 .mobileAdminLink {
@@ -176,15 +176,17 @@
 
 .mobileAuth {
   display: flex;
-  gap: 12px;
-  padding: 16px 24px;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 24px 20px;
 }
 .mobileAuth .btn-primary,
 .mobileAuth .btn-secondary {
-  flex: 1;
-  padding: 12px;
+  width: 100%;
+  padding: 13px;
   font-size: 14px;
   text-align: center;
+  box-sizing: border-box;
 }
 
 /* Search */

@@ -381,3 +381,9 @@
   .statsRow { flex-wrap: wrap; gap: 12px; }
   .statBtn, .statBtnActive { padding: 0 12px; }
 }
+
+@media (max-width: 440px) {
+  .inner { padding: 20px 16px; }
+  .name { font-size: 24px; }
+  .profileHero { padding: 20px 16px; }
+}

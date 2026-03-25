@@ -245,3 +245,12 @@
   .inputRow { grid-template-columns: 1fr 1fr; }
   .inputRow > *:last-child { grid-column: 1 / -1; }
 }
+
+@media (max-width: 440px) {
+  .header { padding: 24px 16px; }
+  .content { padding: 20px 16px; }
+  .title { font-size: 28px; }
+  .prGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .inputRow { grid-template-columns: 1fr; }
+  .inputRow > *:last-child { grid-column: auto; }
+}

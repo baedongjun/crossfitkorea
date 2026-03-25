@@ -233,12 +233,17 @@
   display: flex;
   border-bottom: 1px solid var(--border);
   margin-bottom: 32px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
+.tabs::-webkit-scrollbar { height: 0; }
 .tab {
   padding: 12px 20px;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
   color: var(--muted);
   background: transparent;
   border: none;

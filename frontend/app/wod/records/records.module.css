@@ -688,6 +688,13 @@
 }
 .shareOption:hover { background: rgba(255, 255, 255, 0.06); }
 
+.headerActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 @media (max-width: 768px) {
   .inner { padding: 24px; }
   .header { flex-direction: column; align-items: flex-start; }
@@ -696,4 +703,14 @@
   .weekSummary { gap: 20px; }
   .weekDots { gap: 8px; }
   .weekSummaryTitle { font-size: 18px; }
+}
+
+@media (max-width: 440px) {
+  .inner { padding: 20px 16px; }
+  .title { font-size: 28px; }
+  /* 헤더 우측 버튼 그룹: 뷰토글+CSV는 1행, 오늘기록입력은 2행 */
+  .headerActions { gap: 6px; }
+  .viewToggle { flex-shrink: 0; }
+  .viewBtn { padding: 6px 10px; font-size: 11px; }
+  .weekSummaryTitle { font-size: 16px; }
 }

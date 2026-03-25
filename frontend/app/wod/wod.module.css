@@ -546,3 +546,35 @@
   .recordFormRow { flex-direction: column; }
   .myRecord { padding: 20px; }
 }
+
+/* ── 협소한 화면 (440px 이하) ── */
+@media (max-width: 440px) {
+  .hero    { padding: 28px 16px; }
+  .heroTitle { font-size: 38px; }
+  .content { padding: 20px 16px; }
+
+  /* viewToggle 행: 타이틀+링크는 1행, 목록/달력 버튼은 우측 정렬로 2행 */
+  .viewToggle   { flex-wrap: wrap; gap: 4px 0; }
+  .historyTitle { font-size: 20px; }
+  .viewBtns     { margin-left: auto; flex-shrink: 0; }
+  .viewBtn      { padding: 6px 10px; font-size: 11px; gap: 3px; }
+
+  /* WOD 카드 헤더: 점수·공유 버튼 아래로 */
+  .wodCardHeader { flex-direction: column; gap: 8px; }
+  .scoreBox      { text-align: left; }
+
+  /* 리더보드 */
+  .leaderboardItem  { gap: 10px; padding: 10px 12px; }
+  .leaderboardScore { min-width: 56px; font-size: 15px; }
+  .leaderboard      { padding: 20px; }
+  .boxRankStats     { gap: 10px; }
+  .boxRankStatValue { font-size: 15px; }
+
+  /* 내 기록 헤더 */
+  .myRecord       { padding: 14px 16px; }
+  .myRecordHeader { flex-wrap: wrap; gap: 6px; }
+
+  /* 달력 셀 */
+  .calCell { min-height: 34px; }
+  .calDay  { font-size: 10px; min-width: 16px; }
+}

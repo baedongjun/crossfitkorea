@@ -635,3 +635,11 @@
   .favoriteGrid { grid-template-columns: 1fr; }
   .tab { padding: 12px 14px; }
 }
+
+@media (max-width: 440px) {
+  .hero { padding: 20px 16px; }
+  .content { padding: 16px; }
+  .tab { padding: 10px 10px; font-size: 12px; }
+  .myBoxStats { gap: 12px; }
+  .myBoxTop { flex-direction: column; align-items: flex-start; }
+}

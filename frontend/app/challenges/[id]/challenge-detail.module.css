@@ -454,3 +454,14 @@
   .lbItem { padding: 14px 16px; }
   .verifiImage { display: none; }
 }
+
+@media (max-width: 440px) {
+  .pageWrap { padding: 80px 16px 48px; }
+  .heroLeft { padding: 20px 16px; }
+  .heroActions { flex-wrap: wrap; }
+  .heroActions > * { flex: 1; }
+  .progressSection { padding: 16px; }
+  .verifySection { padding: 16px; }
+  .lbItem { gap: 12px; padding: 12px; }
+  .tab { padding: 12px 16px; font-size: 12px; }
+}

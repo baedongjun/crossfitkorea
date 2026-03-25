@@ -293,7 +293,7 @@ export default function WodRecordsPage() {
             <h1 className={s.title}>내 WOD 기록</h1>
             <p className={s.sub}>총 {totalElements}개의 기록</p>
           </div>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div className={s.headerActions}>
             <div className={s.viewToggle}>
               <button className={`${s.viewBtn} ${viewMode === "list" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("list")}>목록</button>
               <button className={`${s.viewBtn} ${viewMode === "calendar" ? s.viewBtnActive : ""}`} onClick={() => setViewMode("calendar")}>캘린더</button>

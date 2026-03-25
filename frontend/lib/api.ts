@@ -121,18 +121,14 @@ export const uploadApi = {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("folder", folder);
-    return api.post<ApiResponse<string>>("/api/v1/upload/image", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return api.post<ApiResponse<string>>("/api/v1/upload/image", formData);
   },
 
   uploadImages: (files: File[], folder = "general") => {
     const formData = new FormData();
     files.forEach((f) => formData.append("files", f));
     formData.append("folder", folder);
-    return api.post<ApiResponse<string[]>>("/api/v1/upload/images", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return api.post<ApiResponse<string[]>>("/api/v1/upload/images", formData);
   },
 
   getPresignedUrl: (filename: string, folder = "general", contentType = "image/jpeg") =>

@@ -383,4 +383,10 @@
   .panel            { padding: 20px; }
   .feedPanel        { padding: 20px; }
   .hBarChartPanel   { padding: 20px; }
+
+  /* TOP 5 박스 2줄 레이아웃: 순위+이름 → 바+숫자 */
+  .hBarRow          { flex-wrap: wrap; gap: 4px 8px; }
+  .hBarRowLabel     { flex: 1; width: auto; color: var(--text); }
+  .hBarTrack        { flex-basis: calc(100% - 40px); }
+  .hBarRowValue     { width: 32px; }
 }

@@ -85,7 +85,27 @@
 .trademark  { font-size: 12px; color: #444; }
 
 @media (max-width: 768px) {
-  .inner { padding: 40px 24px; }
-  .grid  { grid-template-columns: 1fr; gap: 36px; }
-  .bottom { flex-direction: column; gap: 8px; text-align: center; }
+  .inner { padding: 32px 20px 24px; }
+  .grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px 16px;
+    margin-bottom: 28px;
+  }
+  /* 로고+설명: 상단 전체너비 */
+  .grid > *:first-child { grid-column: 1 / -1; }
+  .desc { margin-bottom: 0; font-size: 13px; }
+  .colTitle { margin-bottom: 12px; }
+  .links { gap: 8px; }
+  .link { font-size: 13px; }
+  .bottom { flex-direction: column; gap: 6px; text-align: center; padding-top: 16px; }
+  .copyright, .trademark { font-size: 11px; }
+}
+
+@media (max-width: 440px) {
+  .inner { padding: 24px 16px 20px; }
+  .grid { grid-template-columns: 1fr 1fr; gap: 20px 12px; }
+  /* 로고+설명: 전체너비 */
+  .grid > *:first-child { grid-column: 1 / -1; }
+  /* 정보 컬럼(4번째): 두 번째 행 첫 칸부터 */
+  .grid > *:last-child { grid-column: 1 / -1; }
 }

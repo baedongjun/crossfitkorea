@@ -61,7 +61,7 @@ public class AdminDashboardController {
             .limit(5)
             .collect(Collectors.toList());
 
-        List<Post> recentPosts = postRepository.findAll(recent5).getContent();
+        List<Post> recentPosts = postRepository.findByActiveTrueOrderByCreatedAtDesc(recent5).getContent();
 
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalUsers", userRepository.count());

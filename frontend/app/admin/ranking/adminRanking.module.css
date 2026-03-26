@@ -1,0 +1,366 @@
+.pageHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted);
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -1px;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: color 0.2s;
+}
+
+.tab:hover { color: var(--text); }
+
+.tabActive {
+  color: var(--text);
+  border-bottom-color: var(--red);
+}
+
+.tabBadge {
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 0;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* Form */
+.formCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px;
+  margin-bottom: 28px;
+}
+
+.formTitle {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--text);
+  margin: 0 0 20px;
+  letter-spacing: 1px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Table */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+}
+
+.table th {
+  background: var(--bg-card);
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 14px 16px;
+  font-size: 13px;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btnEdit {
+  padding: 5px 12px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.btnEdit:hover { border-color: var(--text); }
+
+.btnActivate {
+  padding: 5px 12px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid rgba(76,175,80,0.4);
+  color: #4caf50;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.btnDeactivate {
+  padding: 5px 12px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid rgba(255,107,26,0.4);
+  color: #ff6b1a;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.btnActivate:hover, .btnDeactivate:hover { opacity: 0.7; }
+
+.badgeActive {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(76,175,80,0.15);
+  color: #4caf50;
+  border: 1px solid rgba(76,175,80,0.3);
+}
+
+.badgeInactive {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  background: rgba(136,136,136,0.1);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* Verify tab */
+.verifyInfo {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.recordCard {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 16px 20px;
+}
+
+.recordMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.recordWodName {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  color: var(--red);
+  letter-spacing: 1px;
+}
+
+.scoreBadge {
+  font-size: 11px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 1px 6px;
+}
+
+.recordScore {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.scoreValue {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--text);
+}
+
+.scoreUnit {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.recordDate {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.recordNotes {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0 0 8px;
+  font-style: italic;
+}
+
+.ytBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #fff;
+  background: #e8220a;
+  padding: 5px 12px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.verifyActions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.btnVerify {
+  background: #22c55e;
+  color: #fff;
+  border: none;
+  padding: 10px 0;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.btnVerify:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.rejectInput {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.rejectInput:focus { border-color: var(--red); }
+
+.btnReject {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.btnReject:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  padding-top: 16px;
+}
+
+.pageInfo {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+}
+
+/* Empty */
+.empty {
+  padding: 60px 0;
+  text-align: center;
+  color: var(--muted);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 768px) {
+  .formRow { grid-template-columns: 1fr; }
+  .pageHeader { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .verifyActions { min-width: 160px; }
+}
+
+@media (max-width: 440px) {
+  .actions { flex-wrap: wrap; }
+}

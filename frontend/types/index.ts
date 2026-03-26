@@ -267,6 +267,7 @@ export interface NamedWod {
   scoreType: ScoreType;
   scoreUnit?: string;
   verifiedCount: number;
+  active?: boolean;
 }
 
 export interface RankingEntry {

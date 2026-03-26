@@ -86,7 +86,8 @@
       "Bash(./gradlew compileJava)",
       "Bash(npx tsc:*)",
       "Bash(npx next:*)",
-      "Bash(xargs head:*)"
+      "Bash(xargs head:*)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

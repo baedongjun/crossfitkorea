@@ -43,6 +43,7 @@ export default function BoxEditPage() {
       setForm({
         name: box.name || "",
         address: box.address || "",
+        addressDetail: "",
         city: box.city || "서울",
         district: box.district || "",
         phone: box.phone || "",

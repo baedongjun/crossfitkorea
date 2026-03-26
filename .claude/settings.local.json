@@ -87,7 +87,8 @@
       "Bash(npx tsc:*)",
       "Bash(npx next:*)",
       "Bash(xargs head:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

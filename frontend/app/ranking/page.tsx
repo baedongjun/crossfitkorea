@@ -37,6 +37,22 @@ export default function RankingPage() {
         <p className={s.heroDesc}>
           YouTube 영상으로 기록을 제출하고 박스 오너의 인증을 받아 랭킹에 이름을 올리세요.
         </p>
+        <div className={s.heroSteps}>
+          <div className={s.heroStep}>
+            <span className={s.heroStepNum}>01</span>
+            <span className={s.heroStepText}>아래 WOD 카드 클릭</span>
+          </div>
+          <span className={s.heroStepArrow}>→</span>
+          <div className={s.heroStep}>
+            <span className={s.heroStepNum}>02</span>
+            <span className={s.heroStepText}>점수 + YouTube URL 제출</span>
+          </div>
+          <span className={s.heroStepArrow}>→</span>
+          <div className={s.heroStep}>
+            <span className={s.heroStepNum}>03</span>
+            <span className={s.heroStepText}>박스 오너 인증 후 랭킹 등재</span>
+          </div>
+        </div>
       </div>
 
       <div className={s.content}>
@@ -67,6 +83,7 @@ export default function RankingPage() {
                       </span>
                       <span className={s.cardCount}>{wod.verifiedCount}개 기록</span>
                     </div>
+                    <div className={s.cardCta}>기록 제출 / 랭킹 보기 →</div>
                   </Link>
                 ))}
               </div>

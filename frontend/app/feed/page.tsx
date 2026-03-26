@@ -180,11 +180,13 @@ export default function FeedPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("전체");
   const currentUser = typeof window !== "undefined" ? getUser() : null;
 
+  const loggedIn = isLoggedIn();
+
   useEffect(() => {
-    if (!isLoggedIn()) {
+    if (!loggedIn) {
       router.replace("/login");
     }
-  }, [router]);
+  }, [router, loggedIn]);
 
   const {
     data,
@@ -201,6 +203,7 @@ export default function FeedPage() {
     getNextPageParam: (lastPage: PageData) =>
       lastPage.last ? undefined : lastPage.number + 1,
     initialPageParam: 0,
+    enabled: loggedIn,
   });
 
   const { data: myCounts } = useQuery({

@@ -84,7 +84,8 @@
       "Bash(wc:*)",
       "Bash(grep -rn \"daum\\\\|postcode\\\\|daumcdn\\\\|주소\" D:gitWorkspaceworkspacecrossfitkoreafrontend --include=*.tsx --include=*.ts -l)",
       "Bash(./gradlew compileJava)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npx next:*)"
     ]
   }
 }

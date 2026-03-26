@@ -3,7 +3,7 @@
 import { useState, use } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { rankingApi } from "@/lib/api";
-import { NamedWodDetail, NamedWodRecord, RankingEntry } from "@/types";
+import { NamedWodDetail, RankingEntry } from "@/types";
 import { isLoggedIn, getUser } from "@/lib/auth";
 import s from "./detail.module.css";
 

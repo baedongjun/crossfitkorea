@@ -78,7 +78,7 @@ export default function AdminRankingPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) return toast.error("이름을 입력하세요.");
-    editId ? updateMutation.mutate() : createMutation.mutate();
+    if (editId) { updateMutation.mutate(); } else { createMutation.mutate(); }
   };
 
   return (

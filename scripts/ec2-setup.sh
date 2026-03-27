@@ -2,7 +2,7 @@
 # EC2 Ubuntu 초기 설정 스크립트 (최초 1회만 실행)
 set -e
 
-echo "===== CrossFit Korea EC2 초기 설정 시작 ====="
+echo "===== HyroWOD EC2 초기 설정 시작 ====="
 
 # ── 1. 패키지 업데이트 ──────────────────────────
 echo "[1/6] 패키지 업데이트..."
@@ -44,7 +44,7 @@ sudo apt-get install -y certbot
 
 # ── 5. 디렉토리 구조 생성 ────────────────────────
 echo "[5/6] 디렉토리 생성..."
-mkdir -p /home/ubuntu/crossfitkorea/{nginx,scripts}
+mkdir -p /home/ubuntu/hyrowod/{nginx,scripts}
 sudo mkdir -p /var/www/certbot
 
 # ── 6. docker-compose alias ─────────────────────
@@ -57,17 +57,17 @@ echo ""
 echo "다음 단계를 수동으로 진행하세요:"
 echo ""
 echo "1) 환경변수 파일 작성:"
-echo "   vim /home/ubuntu/crossfitkorea/.env.prod"
-echo "   chmod 600 /home/ubuntu/crossfitkorea/.env.prod"
+echo "   vim /home/ubuntu/hyrowod/.env.prod"
+echo "   chmod 600 /home/ubuntu/hyrowod/.env.prod"
 echo ""
 echo "2) 설정 파일 업로드 (로컬에서 실행):"
-echo "   scp -i your-key.pem nginx/nginx.conf ubuntu@EC2_IP:/home/ubuntu/crossfitkorea/nginx/"
-echo "   scp -i your-key.pem docker-compose.prod.yml ubuntu@EC2_IP:/home/ubuntu/crossfitkorea/"
-echo "   scp -i your-key.pem scripts/deploy.sh ubuntu@EC2_IP:/home/ubuntu/crossfitkorea/scripts/"
-echo "   chmod +x /home/ubuntu/crossfitkorea/scripts/deploy.sh"
+echo "   scp -i your-key.pem nginx/nginx.conf ubuntu@EC2_IP:/home/ubuntu/hyrowod/nginx/"
+echo "   scp -i your-key.pem docker-compose.prod.yml ubuntu@EC2_IP:/home/ubuntu/hyrowod/"
+echo "   scp -i your-key.pem scripts/deploy.sh ubuntu@EC2_IP:/home/ubuntu/hyrowod/scripts/"
+echo "   chmod +x /home/ubuntu/hyrowod/scripts/deploy.sh"
 echo ""
 echo "3) SSL 인증서 발급 (nginx 없이 standalone 모드):"
-echo "   sudo certbot certonly --standalone -d crossfitkorea.com -d www.crossfitkorea.com"
+echo "   sudo certbot certonly --standalone -d hyrowod.com -d www.hyrowod.com"
 echo ""
 echo "4) docker 그룹 적용을 위해 재로그인 후 첫 배포:"
 echo "   main 브랜치에 push → GitHub Actions 자동 실행"

@@ -103,7 +103,9 @@
       "Bash(cp -r src/main/java/com/crossfitkorea src/main/java/com/hyrowod)",
       "Bash(cp -r src/test/java/com/crossfitkorea src/test/java/com/hyrowod)",
       "Bash(find src:*)",
-      "Bash(grep -rn \"crossfitkorea\\\\.com\\\\|CrossFit Korea\\\\|CrossFitKorea\\\\|cfkorea-app-icon\" frontend/app/ frontend/components/ frontend/public/ --include=*.ts --include=*.tsx --include=*.json)"
+      "Bash(grep -rn \"crossfitkorea\\\\.com\\\\|CrossFit Korea\\\\|CrossFitKorea\\\\|cfkorea-app-icon\" frontend/app/ frontend/components/ frontend/public/ --include=*.ts --include=*.tsx --include=*.json)",
+      "Bash(find /d/gitWorkspace/workspace/crossfitkorea -name *.conf -o -name nginx*)",
+      "Bash(grep -r crossfitkorea /d/gitWorkspace/workspace/crossfitkorea/ --include=*.java --include=*.properties --include=*.yml --include=*.yaml --include=*.ts --include=*.tsx --include=*.js --include=*.json --include=*.xml --include=*.conf --include=*.sh --include=*.gradle --include=*.md --include=*.html)"
     ]
   }
 }

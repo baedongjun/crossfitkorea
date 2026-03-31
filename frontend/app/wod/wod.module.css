@@ -1,31 +1,30 @@
 .page { padding-top: 64px; min-height: 100vh; }
 
-.timerLink {
-  display: inline-block;
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--red);
-  text-decoration: none;
-  letter-spacing: 1px;
-  font-weight: 600;
-}
-.timerLink:hover { opacity: 0.75; }
-
 /* Hero */
 .hero {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 64px 80px;
+  padding: 56px 80px;
 }
 .heroInner {
-  max-width: 860px;
-  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+.heroLeft {}
+.heroRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding-bottom: 4px;
 }
 .heroEyebrow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 .fireIcon { color: var(--red); }
 .heroTag {
@@ -37,59 +36,101 @@
 }
 .heroTitle {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 64px;
+  font-size: 72px;
   line-height: 1;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   color: var(--text);
 }
 .heroDate {
   font-size: 14px;
   color: var(--muted);
-  margin-top: 8px;
+  margin-top: 10px;
 }
+
+.timerLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--red);
+  color: var(--text);
+  text-decoration: none;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s;
+}
+.timerLink:hover { opacity: 0.85; }
+
+.heroNavLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  text-decoration: none;
+  padding: 10px 16px;
+  font-size: 13px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.heroNavLink:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
 
 /* Content */
 .content {
-  max-width: 860px;
-  margin: 0 auto;
-  padding: 48px 80px;
+  padding: 48px 80px 64px;
 }
+
+/* Two-column grid */
+.contentGrid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 32px;
+  margin-bottom: 56px;
+  align-items: start;
+}
+.mainCol { display: flex; flex-direction: column; gap: 20px; }
+.sideCol { display: flex; flex-direction: column; gap: 20px; }
 
 /* Today WOD */
 .wodCard {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  margin-bottom: 48px;
 }
 .wodCardHeader {
   padding: 28px 32px 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
+.wodCardMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wodCardActions { display: flex; align-items: center; gap: 8px; }
+
 .wodTitle {
   font-family: var(--font-body);
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 700;
   color: var(--text);
-  margin-top: 12px;
+  margin: 16px 32px 0;
   letter-spacing: -0.3px;
 }
-.scoreBox { text-align: right; }
-.scoreLabel {
+.scoreChip {
   font-size: 11px;
+  font-weight: 700;
   letter-spacing: 1px;
-  color: var(--muted);
   text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
 }
-.scoreValue {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  color: var(--text);
-  letter-spacing: 1px;
-}
-.wodBody { padding: 24px 32px 32px; }
+
+.wodBody { padding: 20px 32px 32px; }
 .wodContent {
   background: #111;
   border: 1px solid var(--border);
@@ -97,16 +138,9 @@
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 400;
-  line-height: 1.85;
+  line-height: 1.9;
   white-space: pre-line;
   color: rgba(245, 240, 232, 0.88);
-}
-.wodImage {
-  width: 100%;
-  max-height: 280px;
-  object-fit: cover;
-  display: block;
-  margin-top: 16px;
 }
 
 /* WOD Empty */
@@ -115,7 +149,6 @@
   border: 1px solid var(--border);
   padding: 80px 32px;
   text-align: center;
-  margin-bottom: 48px;
 }
 .wodEmptyIcon {
   font-size: 48px;
@@ -132,7 +165,6 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   height: 320px;
-  margin-bottom: 48px;
   animation: shimmer 1.4s infinite;
 }
 @keyframes shimmer {
@@ -140,57 +172,107 @@
   50%      { opacity: 0.3; }
 }
 
-/* History */
-.historyTitle {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 2px;
-  color: var(--text);
-  margin-bottom: 16px;
-}
-.historyList { display: flex; flex-direction: column; }
-.historyItem {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 16px 20px;
+/* Side Card (Leaderboard / Box Ranking) */
+.sideCard {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-top: none;
+  padding: 24px;
 }
-.historyItem:first-child { border-top: 1px solid var(--border); }
-.historyItem:hover { background: var(--bg-card-2); }
+.sideCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.sideCardTitle {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--red);
+  margin: 0;
+}
+.sideCardMore {
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.sideCardMore:hover { color: var(--red); }
 
-.historyDate { text-align: center; min-width: 48px; }
-.historyDateMd {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--text);
-  line-height: 1;
+/* Leaderboard */
+.leaderboardList { display: flex; flex-direction: column; gap: 1px; }
+.leaderboardItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  padding: 10px 14px;
+  border: 1px solid var(--border);
 }
-.historyDateDay {
+.leaderboardFirst { background: rgba(232,34,10,0.06); border-color: rgba(232,34,10,0.25); }
+.leaderboardRank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: var(--muted);
+  min-width: 24px;
+  text-align: center;
+}
+.leaderboardFirst .leaderboardRank { color: var(--red); }
+.leaderboardName { flex: 1; font-size: 13px; color: var(--text); font-weight: 500; }
+.leaderboardNameLink { flex: 1; font-size: 13px; color: var(--text); font-weight: 500; text-decoration: none; }
+.leaderboardNameLink:hover { color: var(--red); text-decoration: underline; }
+.leaderboardRx {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--red);
+  background: rgba(232,34,10,0.1);
+  border: 1px solid rgba(232,34,10,0.3);
+  padding: 2px 6px;
+}
+.leaderboardScore {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  letter-spacing: 1px;
+  min-width: 64px;
+  text-align: right;
+}
+
+.boxRankingDesc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  margin-top: -8px;
+}
+.boxCity {
   font-size: 11px;
   color: var(--muted);
+  margin-left: 6px;
+}
+.boxRankStats {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.boxRankStatItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.boxRankStatLabel {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.historyBody { flex: 1; min-width: 0; }
-.historyName {
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 4px;
-}
-.historySnippet {
-  font-size: 13px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-top: 2px;
+.boxRankStatValue {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  line-height: 1;
 }
 
 /* Records link */
@@ -219,171 +301,12 @@
 }
 .shareBtn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
 
-/* View toggle */
-.viewToggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.viewBtns {
-  display: flex;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-}
-.viewBtn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  padding: 8px 16px;
-  font-size: 13px;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition: color 0.2s, background 0.2s;
-}
-.viewBtnActive { background: var(--bg-card-2); color: var(--text); }
-
-/* Calendar */
-.calendar { margin-bottom: 40px; }
-
-.calNav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.calNavBtn {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.calNavBtn:hover { background: var(--bg-card-2); }
-.calMonthLabel {
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.calGrid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-}
-.calWeekday {
-  background: var(--bg-card);
-  text-align: center;
-  padding: 8px 0;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: var(--muted);
-}
-.calWeekday:first-child { color: #e8220a; }
-.calWeekday:last-child  { color: #4a90e2; }
-
-.calCell {
-  background: var(--bg-card);
-  min-height: 68px;
-  padding: 8px;
-  cursor: default;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  transition: background 0.15s;
-  position: relative;
-}
-.calCellEmpty { cursor: default; background: #111; }
-.calCellToday .calDay {
-  background: var(--red);
-  color: #fff;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-.calCellHasWod { cursor: pointer; }
-.calCellHasWod:hover { background: var(--bg-card-2); }
-.calCellSelected { background: rgba(232,34,10,0.08) !important; border-left: 2px solid var(--red); }
-
-.calDay {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 22px;
-  min-width: 22px;
-  text-align: center;
-}
-.calDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  display: block;
-  margin-top: 2px;
-}
-
-/* Selected WOD detail */
-.calWodDetail {
-  margin-top: 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--red);
-  padding: 24px 28px;
-  animation: fadeIn 0.2s ease;
-}
-@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-.calWodDetailHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-.calWodDate {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-.calWodTitle {
-  font-family: var(--font-body);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-  margin-top: 4px;
-}
-.calCloseBtn {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 16px;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s;
-}
-.calCloseBtn:hover { color: var(--text); }
-
-/* 내 기록 */
+/* My Record */
 .myRecord {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-left: 3px solid var(--red);
   padding: 24px 28px;
-  margin-top: 16px;
-  margin-bottom: 8px;
 }
 .myRecordHeader {
   display: flex;
@@ -432,162 +355,333 @@
 .recordTextarea::placeholder { color: var(--muted); }
 .recordFormActions { display: flex; gap: 8px; justify-content: flex-end; }
 
-/* Leaderboard */
-.leaderboard {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  padding: 28px;
-  margin: 24px 0;
-  max-width: 860px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.leaderboardTitle {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--red);
-  margin-bottom: 16px;
-}
-.leaderboardList { display: flex; flex-direction: column; gap: 1px; }
-.leaderboardItem {
+/* History section (full width below grid) */
+.historySection {}
+
+/* View toggle */
+.viewToggle {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: var(--bg);
-  padding: 12px 16px;
-  border: 1px solid var(--border);
+  gap: 0;
+  margin-bottom: 16px;
 }
-.leaderboardFirst { background: rgba(232,34,10,0.06); border-color: rgba(232,34,10,0.25); }
-.leaderboardRank {
+.historyTitle {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  color: var(--muted);
-  min-width: 28px;
-  text-align: center;
-}
-.leaderboardFirst .leaderboardRank { color: var(--red); }
-.leaderboardName { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; }
-.leaderboardNameLink { flex: 1; font-size: 14px; color: var(--text); font-weight: 500; text-decoration: none; }
-.leaderboardNameLink:hover { color: var(--red); text-decoration: underline; }
-.leaderboardRx {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--red);
-  background: rgba(232,34,10,0.1);
-  border: 1px solid rgba(232,34,10,0.3);
-  padding: 2px 7px;
-}
-.leaderboardScore {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
+  font-size: 28px;
+  letter-spacing: 2px;
   color: var(--text);
-  letter-spacing: 1px;
-  min-width: 80px;
-  text-align: right;
+  margin: 0;
 }
-.leaderboardMore {
-  display: block;
-  text-align: right;
+.historyMoreLink {
   font-size: 12px;
   color: var(--muted);
   text-decoration: none;
-  margin-top: 12px;
+  margin-left: 20px;
+  margin-right: auto;
   transition: color 0.2s;
 }
-.leaderboardMore:hover { color: var(--red); }
-
-.boxRankingDesc {
-  font-size: 12px;
-  color: var(--muted);
-  margin-bottom: 12px;
-  margin-top: -4px;
+.historyMoreLink:hover { color: var(--red); }
+.viewBtns {
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
 }
-.boxCity {
+.viewBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+.viewBtnActive { background: var(--bg-card-2); color: var(--text); }
+
+/* History list */
+.historyList { display: flex; flex-direction: column; }
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.historyItem:first-child { border-top: 1px solid var(--border); }
+.historyItem:hover { background: var(--bg-card-2); }
+.historyItemSelected {
+  background: rgba(232,34,10,0.05) !important;
+  border-left: 2px solid var(--red) !important;
+}
+
+.historyDate { text-align: center; min-width: 44px; }
+.historyDateMd {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  color: var(--text);
+  line-height: 1;
+}
+.historyDateDay {
   font-size: 11px;
   color: var(--muted);
-  margin-left: 8px;
-}
-.boxRankStats {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-.boxRankStatItem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-.boxRankStatLabel {
-  font-size: 10px;
-  color: var(--muted);
-  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.boxRankStatValue {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 18px;
-  letter-spacing: 1px;
-  line-height: 1;
+.historyBody { flex: 1; min-width: 0; }
+.historyBodyTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.historyName {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.historySnippet {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.historyChevron {
+  color: var(--muted);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.historyChevronOpen { transform: rotate(180deg); }
+
+/* History detail panel */
+.historyDetail {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-left: 3px solid var(--red);
+  padding: 28px 32px;
+  animation: fadeIn 0.2s ease;
+}
+.historyDetailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.historyDetailMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.historyDetailDate {
+  font-size: 12px;
+  color: var(--muted);
+}
+.historyDetailTitle {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+/* Calendar */
+.calendar { margin-bottom: 40px; }
+.calNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.calNavBtn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.calNavBtn:hover { background: var(--bg-card-2); }
+.calMonthLabel {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.calWeekday {
+  background: var(--bg-card);
+  text-align: center;
+  padding: 10px 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+.calWeekday:first-child { color: #e8220a; }
+.calWeekday:last-child  { color: #4a90e2; }
+
+.calCell {
+  background: var(--bg-card);
+  min-height: 72px;
+  padding: 8px;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  transition: background 0.15s;
+  position: relative;
+}
+.calCellEmpty { cursor: default; background: #111; }
+.calCellToday .calDay {
+  background: var(--red);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+.calCellHasWod { cursor: pointer; }
+.calCellHasWod:hover { background: var(--bg-card-2); }
+.calCellSelected { background: rgba(232,34,10,0.08) !important; border-left: 2px solid var(--red); }
+
+.calDay {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 22px;
+  min-width: 22px;
+  text-align: center;
+}
+.calDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Calendar selected WOD detail */
+.calWodDetail {
+  margin-top: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  padding: 28px 32px;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+.calWodDetailHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.calWodTitle {
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  margin-top: 4px;
+}
+.calCloseBtn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+.calCloseBtn:hover { color: var(--text); }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .contentGrid {
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+  .heroInner { flex-direction: column; align-items: flex-start; gap: 20px; }
 }
 
 @media (max-width: 768px) {
   .hero    { padding: 40px 24px; }
-  .content { padding: 32px 24px; }
+  .content { padding: 28px 24px 48px; }
+  .heroTitle { font-size: 52px; }
+  .heroRight { gap: 8px; flex-wrap: wrap; }
+  .timerLink, .heroNavLink { padding: 8px 14px; font-size: 12px; }
   .wodCardHeader { padding: 20px 20px 0; }
-  .wodBody { padding: 20px; }
+  .wodTitle { margin: 14px 20px 0; font-size: 22px; }
+  .wodBody { padding: 16px 20px 24px; }
   .wodContent { padding: 16px; }
-  .heroTitle { font-size: 48px; }
-  .calCell { min-height: 48px; padding: 4px; }
+  .calCell { min-height: 52px; padding: 4px; }
   .calDay  { font-size: 12px; }
   .recordFormRow { flex-direction: column; }
   .myRecord { padding: 20px; }
-  .leaderboard { padding: 20px; }
-  .recordRow { flex-wrap: wrap; gap: 12px; }
+  .sideCard { padding: 20px; }
+  .historyDetail, .calWodDetail { padding: 20px 20px; }
+  .contentGrid { margin-bottom: 36px; }
 }
 
 @media (max-width: 440px) {
   .hero    { padding: 28px 16px; }
-  .content { padding: 20px 16px; }
-  .heroTitle { font-size: 36px; }
-  .wodCard { padding: 16px; }
-  .wodCardHeader { padding: 14px 14px 0; }
-  .wodBody { padding: 14px; }
-  .myRecord { padding: 14px 16px; }
-  .leaderboard { padding: 14px 16px; }
-}
+  .heroTitle { font-size: 40px; }
+  .content { padding: 20px 16px 40px; }
+  .heroRight { gap: 6px; }
+  .timerLink, .heroNavLink { padding: 7px 12px; font-size: 11px; }
 
-/* ── 협소한 화면 (440px 이하) ── */
-@media (max-width: 440px) {
-  .hero    { padding: 28px 16px; }
-  .heroTitle { font-size: 38px; }
-  .content { padding: 20px 16px; }
-
-  /* viewToggle 행: 타이틀+링크는 1행, 목록/달력 버튼은 우측 정렬로 2행 */
   .viewToggle   { flex-wrap: wrap; gap: 4px 0; }
-  .historyTitle { font-size: 20px; }
+  .historyTitle { font-size: 22px; }
+  .historyMoreLink { margin-left: 12px; }
   .viewBtns     { margin-left: auto; flex-shrink: 0; }
   .viewBtn      { padding: 6px 10px; font-size: 11px; gap: 3px; }
 
-  /* WOD 카드 헤더: 점수·공유 버튼 아래로 */
   .wodCardHeader { flex-direction: column; gap: 8px; }
-  .scoreBox      { text-align: left; }
 
-  /* 리더보드 */
-  .leaderboardItem  { gap: 10px; padding: 10px 12px; }
-  .leaderboardScore { min-width: 56px; font-size: 15px; }
-  .leaderboard      { padding: 20px; }
-  .boxRankStats     { gap: 10px; }
-  .boxRankStatValue { font-size: 15px; }
+  .leaderboardItem  { gap: 8px; padding: 9px 12px; }
+  .leaderboardScore { min-width: 48px; font-size: 14px; }
+  .boxRankStats     { gap: 8px; }
+  .boxRankStatValue { font-size: 14px; }
 
-  /* 내 기록 헤더 */
   .myRecord       { padding: 14px 16px; }
   .myRecordHeader { flex-wrap: wrap; gap: 6px; }
 
-  /* 달력 셀 */
-  .calCell { min-height: 34px; }
+  .calCell { min-height: 38px; }
   .calDay  { font-size: 10px; min-width: 16px; }
+
+  .recordRow { flex-wrap: wrap; gap: 12px; }
 }

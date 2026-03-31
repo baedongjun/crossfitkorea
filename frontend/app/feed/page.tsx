@@ -62,36 +62,24 @@ function SkeletonCard() {
 }
 
 function AvatarBox({ name, imageUrl }: { name: string; imageUrl?: string }) {
-  const initial = name ? name.charAt(0).toUpperCase() : "?";
   return (
     <div className={s.avatar}>
-      {imageUrl ? (
-        <img src={imageUrl} alt={name} />
-      ) : (
-        initial
-      )}
+      {imageUrl ? <img src={imageUrl} alt={name} /> : name?.charAt(0).toUpperCase() ?? "?"}
     </div>
   );
 }
 
 function FeedCard({ item, onClick }: { item: FeedItem; onClick: () => void }) {
-  const icon = TYPE_ICON[item.type] ?? "📌";
-  const label = TYPE_LABEL[item.type] ?? item.type;
-
   return (
     <div className={s.card} onClick={onClick} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && onClick()}>
       <AvatarBox name={item.actorName} imageUrl={item.actorProfileImageUrl} />
       <div className={s.cardBody}>
         <div className={s.cardTop}>
-          <span className={s.typeIcon}>{icon}</span>
-          <Link
-            href={`/users/${item.actorId}`}
-            className={s.actorName}
-            onClick={(e) => e.stopPropagation()}
-          >
+          <span className={s.typeIcon}>{TYPE_ICON[item.type] ?? "📌"}</span>
+          <Link href={`/users/${item.actorId}`} className={s.actorName} onClick={(e) => e.stopPropagation()}>
             {item.actorName}
           </Link>
-          <span className={s.typeBadge}>{label}</span>
+          <span className={s.typeBadge}>{TYPE_LABEL[item.type] ?? item.type}</span>
         </div>
         <p className={s.cardTitle}>{item.title}</p>
         {item.description && <p className={s.cardDesc}>{item.description}</p>}
@@ -99,16 +87,14 @@ function FeedCard({ item, onClick }: { item: FeedItem; onClick: () => void }) {
           <span className={s.cardTime}>{dayjs(item.createdAt).fromNow()}</span>
         </div>
       </div>
-      {item.imageUrl && (
-        <img src={item.imageUrl} alt="" className={s.cardImage} />
-      )}
+      {item.imageUrl && <img src={item.imageUrl} alt="" className={s.cardImage} />}
     </div>
   );
 }
 
 interface SuggestedUser { id: number; name: string; profileImageUrl?: string; role: string; }
 
-function SuggestedUsers() {
+function SuggestedUsersSidebar() {
   const qc = useQueryClient();
   const currentUser = typeof window !== "undefined" ? getUser() : null;
   const [followingMap, setFollowingMap] = useState<Record<number, boolean>>({});
@@ -125,16 +111,11 @@ function SuggestedUsers() {
       return followApi.toggle(userId);
     },
     onSuccess: (res, userId) => {
-      const isFollowing = res.data.data?.following ?? false;
-      setFollowingMap(prev => ({ ...prev, [userId]: isFollowing }));
+      setFollowingMap(prev => ({ ...prev, [userId]: res.data.data?.following ?? false }));
       qc.invalidateQueries({ queryKey: ["feed"] });
     },
-    onError: () => {
-      toast.error("팔로우 처리에 실패했습니다.");
-    },
-    onSettled: (_data, _err, userId) => {
-      setPendingMap(prev => ({ ...prev, [userId]: false }));
-    },
+    onError: () => toast.error("팔로우 처리에 실패했습니다."),
+    onSettled: (_d, _e, userId) => setPendingMap(prev => ({ ...prev, [userId]: false })),
   });
 
   const users: SuggestedUser[] = (data?.content ?? [])
@@ -144,16 +125,16 @@ function SuggestedUsers() {
   if (users.length === 0) return null;
 
   return (
-    <div className={s.suggestedWrap}>
-      <p className={s.suggestedTitle}>추천 선수</p>
+    <div className={s.sidebarCard}>
+      <p className={s.sidebarCardTitle}>추천 선수</p>
       <div className={s.suggestedList}>
         {users.map((u) => (
           <div key={u.id} className={s.suggestedItem}>
             <Link href={`/users/${u.id}`} className={s.suggestedLink}>
               <div className={s.suggestedAvatar}>
-                {u.profileImageUrl ? (
-                  <img src={u.profileImageUrl} alt={u.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : u.name.charAt(0).toUpperCase()}
+                {u.profileImageUrl
+                  ? <img src={u.profileImageUrl} alt={u.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : u.name.charAt(0).toUpperCase()}
               </div>
               <span className={s.suggestedName}>{u.name}</span>
             </Link>
@@ -179,29 +160,19 @@ export default function FeedPage() {
   const observerRef = useRef<HTMLDivElement>(null);
   const [activeFilter, setActiveFilter] = useState<FilterType>("전체");
   const currentUser = typeof window !== "undefined" ? getUser() : null;
-
   const loggedIn = isLoggedIn();
 
   useEffect(() => {
-    if (!loggedIn) {
-      router.replace("/login");
-    }
+    if (!loggedIn) router.replace("/login");
   }, [router, loggedIn]);
 
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = useInfiniteQuery({
+  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ["feed"],
     queryFn: async ({ pageParam = 0 }) => {
       const res = await feedApi.getFeed(pageParam as number);
       return res.data.data as PageData;
     },
-    getNextPageParam: (lastPage: PageData) =>
-      lastPage.last ? undefined : lastPage.number + 1,
+    getNextPageParam: (lastPage: PageData) => lastPage.last ? undefined : lastPage.number + 1,
     initialPageParam: 0,
     enabled: loggedIn,
   });
@@ -216,13 +187,9 @@ export default function FeedPage() {
     enabled: !!currentUser?.id,
   });
 
-  // IntersectionObserver for infinite scroll
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
-      const target = entries[0];
-      if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-        fetchNextPage();
-      }
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
     },
     [hasNextPage, isFetchingNextPage, fetchNextPage]
   );
@@ -240,88 +207,118 @@ export default function FeedPage() {
   );
   const isEmpty = !isLoading && allItems.length === 0;
 
-  const handleCardClick = (link?: string) => {
-    if (link) router.push(link);
-  };
-
   return (
-    <main className={s.container}>
-      <div className={s.header}>
-        <h1 className={s.title}>활동 피드</h1>
-        <p className={s.subtitle}>팔로우한 선수들의 최근 활동</p>
-      </div>
-
-      <div className={s.filterBar}>
-        {FILTER_TYPES.map((f) => (
-          <button
-            key={f}
-            className={`${s.filterBtn} ${activeFilter === f ? s.filterBtnActive : ""}`}
-            onClick={() => setActiveFilter(f)}
-          >
-            {f === "전체" ? "전체" : `${TYPE_ICON[f]} ${TYPE_LABEL[f]}`}
-          </button>
-        ))}
-      </div>
-
-      {isLoading && (
-        <div className={s.skeleton}>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      )}
-
-      {isEmpty && (
-        <div className={s.empty}>
-          <div className={s.emptyIcon}>🏋️</div>
-          {myCounts && myCounts.followingCount > 0 ? (
-            <>
-              <h2 className={s.emptyTitle}>아직 활동이 없습니다</h2>
-              <p className={s.emptyDesc}>
-                팔로우한 선수들의 WOD 기록, 배지, 대회 신청,<br />
-                게시글 활동이 생기면 여기에 표시됩니다.
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className={s.emptyTitle}>아직 팔로우한 사람이 없습니다</h2>
-              <p className={s.emptyDesc}>
-                다른 선수들을 팔로우하면<br />
-                그들의 WOD 기록, 배지, 대회 신청 활동을 여기서 볼 수 있습니다.
-              </p>
-            </>
+    <div className={s.page}>
+      {/* Hero */}
+      <div className={s.hero}>
+        <div className={s.heroInner}>
+          <div className={s.heroLeft}>
+            <div className={s.heroEyebrow}>
+              <svg className={s.heroIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span className={s.heroTag}>Activity Feed</span>
+            </div>
+            <h1 className={s.heroTitle}>활동 피드</h1>
+            <p className={s.heroSub}>팔로우한 선수들의 WOD 기록, 배지, 대회, 게시글 활동</p>
+          </div>
+          {myCounts && (
+            <div className={s.heroStats}>
+              <div className={s.heroStat}>
+                <span className={s.heroStatNum}>{myCounts.followingCount}</span>
+                <span className={s.heroStatLabel}>팔로잉</span>
+              </div>
+              <div className={s.heroStat}>
+                <span className={s.heroStatNum}>{myCounts.followerCount}</span>
+                <span className={s.heroStatLabel}>팔로워</span>
+              </div>
+            </div>
           )}
-          <SuggestedUsers />
-          <Link href="/search" className={s.emptyLink}>
-            선수 검색하기
-          </Link>
         </div>
-      )}
-
-      {!isLoading && allItems.length > 0 && (
-        <div className={s.feedList}>
-          {allItems.map((item, idx) => (
-            <FeedCard
-              key={`${item.type}-${item.actorId}-${item.createdAt}-${idx}`}
-              item={item}
-              onClick={() => handleCardClick(item.link)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Infinite scroll trigger */}
-      <div ref={observerRef} className={s.loadMore}>
-        {isFetchingNextPage && (
-          <>
-            <div className={s.loadingSpinner} />
-            <span>불러오는 중...</span>
-          </>
-        )}
-        {!hasNextPage && allItems.length > 0 && (
-          <span>모든 활동을 불러왔습니다</span>
-        )}
       </div>
-    </main>
+
+      {/* Content */}
+      <div className={s.content}>
+        <div className={s.layout}>
+          {/* ── Feed Column ── */}
+          <div className={s.feedCol}>
+            <div className={s.filterBar}>
+              {FILTER_TYPES.map((f) => (
+                <button
+                  key={f}
+                  className={`${s.filterBtn} ${activeFilter === f ? s.filterBtnActive : ""}`}
+                  onClick={() => setActiveFilter(f)}
+                >
+                  {f === "전체" ? "전체" : `${TYPE_ICON[f]} ${TYPE_LABEL[f]}`}
+                </button>
+              ))}
+            </div>
+
+            {isLoading && (
+              <div className={s.skeleton}>
+                {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+              </div>
+            )}
+
+            {isEmpty && (
+              <div className={s.empty}>
+                <div className={s.emptyIcon}>🏋️</div>
+                {myCounts && myCounts.followingCount > 0 ? (
+                  <>
+                    <h2 className={s.emptyTitle}>아직 활동이 없습니다</h2>
+                    <p className={s.emptyDesc}>
+                      팔로우한 선수들의 WOD 기록, 배지, 대회 신청,<br />
+                      게시글 활동이 생기면 여기에 표시됩니다.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <h2 className={s.emptyTitle}>아직 팔로우한 사람이 없습니다</h2>
+                    <p className={s.emptyDesc}>
+                      다른 선수들을 팔로우하면<br />
+                      그들의 활동을 여기서 볼 수 있습니다.
+                    </p>
+                  </>
+                )}
+                <Link href="/search" className={s.emptyLink}>선수 검색하기</Link>
+              </div>
+            )}
+
+            {!isLoading && allItems.length > 0 && (
+              <div className={s.feedList}>
+                {allItems.map((item, idx) => (
+                  <FeedCard
+                    key={`${item.type}-${item.actorId}-${item.createdAt}-${idx}`}
+                    item={item}
+                    onClick={() => { if (item.link) router.push(item.link); }}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div ref={observerRef} className={s.loadMore}>
+              {isFetchingNextPage && (
+                <>
+                  <div className={s.loadingSpinner} />
+                  <span>불러오는 중...</span>
+                </>
+              )}
+              {!hasNextPage && allItems.length > 0 && <span>모든 활동을 불러왔습니다</span>}
+            </div>
+          </div>
+
+          {/* ── Sidebar ── */}
+          <aside className={s.sidebar}>
+            <SuggestedUsersSidebar />
+            <div className={s.sidebarCard}>
+              <Link href="/search" className={s.sidebarLink}>선수 검색하기 →</Link>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
   );
 }
